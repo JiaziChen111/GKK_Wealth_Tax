@@ -1,0 +1,1165 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\begin_modules
+theorems-ams-bytype
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Retirement
+\end_layout
+
+\begin_layout Standard
+At a given age 
+\begin_inset Formula $h$
+\end_inset
+
+, we will solve for a given 
+\begin_inset Formula $Y$
+\end_inset
+
+, 
+\begin_inset Formula $z$
+\end_inset
+
+, and 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ (permanent component of labor income), the following Euler equation 
+\begin_inset Formula 
+\[
+u'\left(c_{h}\right)=\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})u'\left(c_{h+1}\right).
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h}=Y+y_{R}\left(\lambda\right)-a'
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h+1}=Y'+y_{R}\left(\lambda\right)-a''
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+Y'=\left(a'+\left(r\left(za'\right)^{\mu}-\delta a'\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+Solution Algorithm:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $z$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ are permanent.
+ so, I will not put them as state variables.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Construct a grid tomorrow's wealth, letting 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+.
+ Define 
+\begin_inset Formula 
+\[
+Y(i)=\left(a_{i}+\left(r\left(za_{i}\right)^{\mu}-\delta a_{i}\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+MPK(i)=\left(1+\left(r\mu z^{\mu}\left(a_{i}\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+In the last period, 
+\begin_inset Formula $H$
+\end_inset
+
+, we know that 
+\begin_inset Formula 
+\[
+c_{H}\left(i\right)=Y(i)+y_{R},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $y_{R}$
+\end_inset
+
+ is the retirement income (it depends on 
+\begin_inset Formula $\lambda$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $i$
+\end_inset
+
+ we can use the Euler equation 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{R}-a_{i}\right)=\beta s_{h}MPK(i)u'\left(c_{H}\left(i\right)\right),
+\]
+
+\end_inset
+
+to solve for 
+\begin_inset Formula $c_{H-1}^{*}(i)$
+\end_inset
+
+ and 
+\begin_inset Formula $Y_{H-1}^{*}(i)=c_{H-1}^{*}(i)-y_{R}+a_{i}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Now for age 
+\begin_inset Formula $H-1$
+\end_inset
+
+ and for each 
+\begin_inset Formula $j$
+\end_inset
+
+ and 
+\begin_inset Formula $k$
+\end_inset
+
+, we have a vector 
+\begin_inset Formula $c_{H-1}^{*}(:)$
+\end_inset
+
+ defined on endogenous grid 
+\begin_inset Formula $Y_{H-1}^{*}(:)$
+\end_inset
+
+.
+ We use linear interpolation to compute consumption on exogenous grid vector
+ 
+\begin_inset Formula $Y(:)$
+\end_inset
+
+, which gives us the consumption decision on exogenous grid be 
+\begin_inset Formula $c_{H-1}(:)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Go to step 3 and apply it to previous periods.
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Issue:
+\end_layout
+
+\begin_layout Standard
+One issue in the step above is that the range of 
+\begin_inset Formula $Y_{H-1}^{*}(:)$
+\end_inset
+
+ is smaller than the range of 
+\begin_inset Formula $Y(:)$
+\end_inset
+
+.
+ For example, sometimes, we get min 
+\begin_inset Formula $Y^{*}$
+\end_inset
+
+ to be 0.5 while the minimum 
+\begin_inset Formula $Y$
+\end_inset
+
+ is 0.001.
+ In that case, we are extrapolating 
+\begin_inset Formula $c^{*}$
+\end_inset
+
+in the lower end.
+ This sometimes results in negative 
+\begin_inset Formula $a'$
+\end_inset
+
+ values, which should not happen when 
+\begin_inset Formula $\mu=1$
+\end_inset
+
+.
+ Instead of extrapolating, I solve for 
+\begin_inset Formula $a'$
+\end_inset
+
+ that solves the following Euler equation for any 
+\begin_inset Formula $i$
+\end_inset
+
+: 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{R}-a'\right)-\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})u'\left(c_{h+1}(Y'(a'))\right)=0.
+\]
+
+\end_inset
+
+I use Brent to minimize the square of the expression and linearly interpolate
+ 
+\begin_inset Formula $c_{h+1}(:)$
+\end_inset
+
+ on 
+\begin_inset Formula $Y(:)$
+\end_inset
+
+ to evaluate 
+\begin_inset Formula $c_{h+1}(Y'(a'),j,k)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Working periods
+\end_layout
+
+\begin_layout Standard
+Letting 
+\begin_inset Formula $y_{h}(e)$
+\end_inset
+
+ be efficiency unit of labor.
+ For any 
+\begin_inset Formula $Y$
+\end_inset
+
+ and 
+\begin_inset Formula $e$
+\end_inset
+
+, we have the following Euler equatoin and intratemporal labor FOC:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u'\left(c_{h}\left(Y,e\right)\right)=\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})E\left[u'\left(c_{h+1}\left(Y',e'\right)\right)\mid e\right].
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h}=Y+y_{h}\left(e\right)n-a'
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h+1}=Y'+y_{h}\left(e'\right)n'-a''
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+Y'=\left(a'+\left(r\left(za'\right)^{\mu}-\delta a'\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+\frac{y_{h}\left(e\right)}{c_{h}}=\frac{\phi}{1-n}.
+\]
+
+\end_inset
+
+Using the labor FOC and imposiing non-negative labor supply, we obtain 
+\begin_inset Formula 
+\[
+n=\max\{0,1-\phi c_{h}/y_{h}\left(e\right)\}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+Solution Algorithm:
+\end_layout
+
+\begin_layout Enumerate
+Construct a grid on 
+\begin_inset Formula $z$
+\end_inset
+
+ and tomorrow's wealth, letting 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+ and 
+\begin_inset Formula $e_{l}\in\{e_{1},...,e_{ne}\}$
+\end_inset
+
+.
+ Define 
+\begin_inset Formula 
+\[
+Y(i)=\left(a_{i}+\left(r\left(za_{i}\right)^{\mu}-\delta a_{i}\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+MPK(i)=\left(1+\left(r\mu z^{\mu}\left(a_{i}\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Given next period's consumption on exogenous grid 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+, we will solve for today's consumption.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $c_{h+1}\left(i,l'\right)$
+\end_inset
+
+ be the next period's consumption given on the exogenous grid 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $l$
+\end_inset
+
+, we can use the Euler equation 
+\begin_inset Formula 
+\[
+u'\left(c_{h}^{*}(i,l)\right)=\beta s_{h}MPK(i)\sum_{l'}\pi(e_{l'}\mid e_{l})u'\left(c_{h+1}\left(i,l'\right)\right),
+\]
+
+\end_inset
+
+to solve for 
+\begin_inset Formula $c_{h}^{*}(i,l)$
+\end_inset
+
+.
+ Given 
+\begin_inset Formula $c_{h}^{*}(i,l)$
+\end_inset
+
+ we can solve for the labor decision
+\begin_inset Formula 
+\[
+n_{h}^{*}(i,l)=\max\{0,1-\phi c_{h}^{*}(i,l)/y_{h}\left(l\right)\}
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+Y_{h}^{*}(i,l)=c_{h}^{*}(i,l)-y_{h}\left(l\right)n_{h}^{*}(i,l)+a_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Now for age 
+\begin_inset Formula $h$
+\end_inset
+
+ and for each 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, and 
+\begin_inset Formula $i$
+\end_inset
+
+ we have a vector 
+\begin_inset Formula $c_{h}^{*}(:,l)$
+\end_inset
+
+ defined on endogenous grid vector 
+\begin_inset Formula $Y_{h}^{*}(:,l)$
+\end_inset
+
+.
+ We use linear interpolation to compute consumption on exogenous grid vector
+ 
+\begin_inset Formula $Y(:)$
+\end_inset
+
+, which gives us the consumption decision on exogenous grid be 
+\begin_inset Formula $c_{h}(:,l)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Given the consumption decision on the exogenous grid 
+\begin_inset Formula $c_{h}(i,l)$
+\end_inset
+
+, the labor supply on exogenous grid is given as 
+\begin_inset Formula 
+\[
+n_{h}(i,l)=\max\{0,1-\phi c_{h}(i,l)/y_{h}\left(l\right)\}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Go to step 3 and apply it to previous periods.
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Issue:
+\end_layout
+
+\begin_layout Standard
+We have the same issue as in the retirement period.
+ Instead of extrapolating, I solve for 
+\begin_inset Formula $a'$
+\end_inset
+
+ that solves the following Euler equation for any 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, and 
+\begin_inset Formula $l$
+\end_inset
+
+ 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{h}\left(l\right)n-a'\right)-\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})\sum_{l'}\pi(e_{l'}\mid e_{l})u'\left(c_{h+1}(Y'(a'),l')\right)=0,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\[
+n=\max\left\{ 0,\frac{1}{1+\phi}-\frac{\phi}{\left(1+\phi\right)}\frac{(Y-a')}{y_{h}\left(l\right)}\right\} .
+\]
+
+\end_inset
+
+I use Brent to minimize the square of the expression and linearly interpolate
+ 
+\begin_inset Formula $c_{h+1}(:,l')$
+\end_inset
+
+ on 
+\begin_inset Formula $Y(:)$
+\end_inset
+
+ to evaluate 
+\begin_inset Formula $c_{h+1}(Y'(a'),l')$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Older version with 
+\begin_inset Formula $z$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ as state variable
+\end_layout
+
+\begin_layout Enumerate
+Construct a grid on 
+\begin_inset Formula $z$
+\end_inset
+
+ and tomorrow's wealth, letting 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+ and 
+\begin_inset Formula $z_{j}\in Z=\{z_{1},...,z_{nz}\}$
+\end_inset
+
+, and 
+\begin_inset Formula $\lambda_{k}=\{\lambda_{1},...,\lambda_{n\lambda}\}$
+\end_inset
+
+.
+ Define 
+\begin_inset Formula 
+\[
+Y(i,j)=\left(a_{i}+\left(r\left(z_{j}a_{i}\right)^{\mu}-\delta a_{i}\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+MPK(i,j)=\left(1+\left(r\mu z_{j}^{\mu}\left(a_{i}\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+In the last period, 
+\begin_inset Formula $H$
+\end_inset
+
+, we know that 
+\begin_inset Formula 
+\[
+c_{H}\left(i,j,k\right)=Y(i,j)+y_{R}\left(k\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $j$
+\end_inset
+
+, and 
+\begin_inset Formula $k$
+\end_inset
+
+ we can use the Euler equation 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{R}\left(k\right)-a_{i}\right)=\beta s_{h}MPK(i,j)u'\left(c_{H}\left(i,j,k\right)\right),
+\]
+
+\end_inset
+
+to solve for 
+\begin_inset Formula $c_{H-1}^{*}(i,j,k)$
+\end_inset
+
+ and 
+\begin_inset Formula $Y_{H-1}^{*}(i,j,k)=c_{H-1}^{*}(i,j,k)-y_{R}\left(k\right)+a_{i}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Now for age 
+\begin_inset Formula $H-1$
+\end_inset
+
+ and for each 
+\begin_inset Formula $j$
+\end_inset
+
+ and 
+\begin_inset Formula $k$
+\end_inset
+
+, we have a vector 
+\begin_inset Formula $c_{H-1}^{*}(:,j,k)$
+\end_inset
+
+ defined on endogenous grid 
+\begin_inset Formula $Y_{H-1}^{*}(:,j,k)$
+\end_inset
+
+.
+ We use linear interpolation to compute consumption on exogenous grid vector
+ 
+\begin_inset Formula $Y(:,j)$
+\end_inset
+
+, which gives us the consumption decision on exogenous grid be 
+\begin_inset Formula $c_{H-1}(:,j,k)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Go to step 3 and apply it to previous periods.
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Issue:
+\end_layout
+
+\begin_layout Standard
+One issue in the step above is that the range of 
+\begin_inset Formula $Y_{H-1}^{*}(:,j,k)$
+\end_inset
+
+ is smaller than the range of 
+\begin_inset Formula $Y(:,j)$
+\end_inset
+
+.
+ For example, sometimes, we get min 
+\begin_inset Formula $Y^{*}$
+\end_inset
+
+ to be 0.5 while the minimum 
+\begin_inset Formula $Y$
+\end_inset
+
+ is 0.001.
+ In that case, we are extrapolating 
+\begin_inset Formula $c^{*}$
+\end_inset
+
+in the lower end.
+ This sometimes results in negative 
+\begin_inset Formula $a'$
+\end_inset
+
+ values, which should not happen when 
+\begin_inset Formula $\mu=1$
+\end_inset
+
+.
+ Instead of extrapolating, I solve for 
+\begin_inset Formula $a'$
+\end_inset
+
+ that solves the following Euler equation for any 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $j$
+\end_inset
+
+, and 
+\begin_inset Formula $k$
+\end_inset
+
+, 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{R}\left(\lambda\right)-a'\right)-\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})u'\left(c_{h+1}(Y'(a'),j,k)\right)=0.
+\]
+
+\end_inset
+
+I use Brent to minimize the square of the expression and linearly interpolate
+ 
+\begin_inset Formula $c_{h+1}^{*}(:,j,k)$
+\end_inset
+
+ on 
+\begin_inset Formula $Y_{h+1}^{*}(:,j,k)$
+\end_inset
+
+ to evaluate 
+\begin_inset Formula $c_{h+1}(Y'(a'),j,k)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Working periods
+\end_layout
+
+\begin_layout Standard
+Letting 
+\begin_inset Formula $y_{h}\left(\lambda,e\right)$
+\end_inset
+
+ be efficiency unit of labor.For any 
+\begin_inset Formula $Y$
+\end_inset
+
+, 
+\begin_inset Formula $z$
+\end_inset
+
+, 
+\begin_inset Formula $\lambda$
+\end_inset
+
+, and 
+\begin_inset Formula $e$
+\end_inset
+
+, we have the following Euler equatoin and intratemporal labor FOC:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+u'\left(c_{h}\left(Y,z,\lambda,e\right)\right)=\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})E\left[u'\left(c_{h+1}\left(Y',z,\lambda,e'\right)\right)\mid e\right].
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h}=Y+y_{h}\left(\lambda,e\right)n-a'
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+c_{h+1}=Y'+y_{h}\left(\lambda,e'\right)n'-a''
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+Y'=\left(a'+\left(r\left(za'\right)^{\mu}-\delta a'\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+\frac{y_{h}\left(\lambda,e\right)}{c_{h}}=\frac{\phi}{1-n}.
+\]
+
+\end_inset
+
+Using the labor FOC and imposiing non-negative labor supply, we obtain 
+\begin_inset Formula 
+\[
+n=\max\{0,1-\phi c_{h}/y_{h}\left(\lambda,e\right)\}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+Solution Algorithm:
+\end_layout
+
+\begin_layout Enumerate
+Construct a grid on 
+\begin_inset Formula $z$
+\end_inset
+
+ and tomorrow's wealth, letting 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+ and 
+\begin_inset Formula $z_{j}\in Z=\{z_{1},...,z_{nz}\}$
+\end_inset
+
+,
+\begin_inset Formula $\lambda_{k}=\{\lambda_{1},...,\lambda_{n\lambda}\}$
+\end_inset
+
+, 
+\begin_inset Formula $e_{l}\in\{e_{1},...,e_{ne}\}$
+\end_inset
+
+.
+ Define 
+\begin_inset Formula 
+\[
+Y(i,j)=\left(a_{i}+\left(r\left(z_{j}a_{i}\right)^{\mu}-\delta a_{i}\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+MPK(i,j)=\left(1+\left(r\mu z_{j}^{\mu}\left(a_{i}\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Given next period's consumption on exogenous grid 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+, we will solve for today's consumption.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $c_{h+1}\left(i,j,k,l'\right)$
+\end_inset
+
+ be the next period's consumption given on the exogenous grid 
+\begin_inset Formula $a'=a_{i}\in A=\{a_{1},...,a_{na}\}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+For all 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, and 
+\begin_inset Formula $l$
+\end_inset
+
+, we can use the Euler equation 
+\begin_inset Formula 
+\[
+u'\left(c_{h}^{*}(i,j,k,l)\right)=\beta s_{h}MPK(i,j)\sum_{l'}\pi(e_{l'}\mid e_{l})u'\left(c_{h+1}\left(i,j,k,l'\right)\right),
+\]
+
+\end_inset
+
+to solve for 
+\begin_inset Formula $c_{h}^{*}(i,j,k,l)$
+\end_inset
+
+.
+ Given 
+\begin_inset Formula $c_{h}^{*}(i,j,k,l)$
+\end_inset
+
+ we can solve for the labor decision
+\begin_inset Formula 
+\[
+n_{h}^{*}(i,j,k,l)=\max\{0,1-\phi c_{h}^{*}(i,j,k)/y_{h}\left(k,l\right)\}
+\]
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+Y_{h}^{*}(i,j,k,l)=c_{h}^{*}(i,j,k,l)-y_{h}\left(k,l\right)n_{h}^{*}(i,j,k,l)+a_{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Now for age 
+\begin_inset Formula $h$
+\end_inset
+
+ and for each 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, and 
+\begin_inset Formula $i$
+\end_inset
+
+ we have a vector 
+\begin_inset Formula $c_{h}^{*}(:,j,k,l)$
+\end_inset
+
+ defined on endogenous grid vector 
+\begin_inset Formula $Y_{h}^{*}(:,j,k,l)$
+\end_inset
+
+.
+ We use linear interpolation to compute consumption on exogenous grid vector
+ 
+\begin_inset Formula $Y(:,j)$
+\end_inset
+
+, which gives us the consumption decision on exogenous grid be 
+\begin_inset Formula $c_{h}(:,j,k,l)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Given the consumption decision on the exogenous grid 
+\begin_inset Formula $c_{h}(:,j,k,l)$
+\end_inset
+
+, the labor supply on exogenous grid is given as 
+\begin_inset Formula 
+\[
+n_{h}(:,j,k,l)=\max\{0,1-\phi c_{h}(:,j,k,l)/y_{h}\left(k,l\right)\}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Go to step 3 and apply it to previous periods.
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Issue:
+\end_layout
+
+\begin_layout Standard
+We have the same issue as in the retirement period.
+ Instead of extrapolating, I solve for 
+\begin_inset Formula $a'$
+\end_inset
+
+ that solves the following Euler equation for any 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $j$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, and 
+\begin_inset Formula $l$
+\end_inset
+
+ 
+\begin_inset Formula 
+\[
+u'\left(Y+y_{h}\left(k,l\right)n-a'\right)-\beta s_{h}\left(1+\left(r\mu z^{\mu}\left(a'\right)^{\mu-1}-\delta\right)(1-\tau_{K})\right)(1-\tau_{w})\sum_{l'}\pi(e_{l'}\mid e_{l})u'\left(c_{h+1}(Y'(a'),j,k,l')\right)=0,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\[
+n=\max\left\{ 0,\frac{1}{1+\phi}-\frac{\phi}{\left(1+\phi\right)}\frac{(Y-a')}{y_{h}\left(k,l\right)}\right\} .
+\]
+
+\end_inset
+
+I use Brent to minimize the square of the expression and linearly interpolate
+ 
+\begin_inset Formula $c_{h+1}^{*}(:,j,k,l')$
+\end_inset
+
+ on 
+\begin_inset Formula $Y_{h+1}^{*}(:,j,k,l')$
+\end_inset
+
+ to evaluate 
+\begin_inset Formula $c_{h+1}(Y'(a'),j,k,l')$
+\end_inset
+
+.
+\end_layout
+
+\end_body
+\end_document
