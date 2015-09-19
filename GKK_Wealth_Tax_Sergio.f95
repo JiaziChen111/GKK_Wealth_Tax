@@ -217,6 +217,91 @@ Module programfunctions
 
 !========================================================================================
 !========================================================================================
+! Y_labor: Evaluate after tax labor income, takes into account state and age
+!
+! Usage: Y_labor = Y_a(a_in,z_in)
+!
+! Input: a_in, real(dp), value of assets
+!		 z_in, real(dp), value of entrepreneurial abillity (not necessariliy a grid point)
+!
+! Output: Y_a , real(dp), After tax wealth
+!
+! NOTE CURRENTLY IN USE
+!
+	FUNCTION Y_labor(h_in,age_in,lambda_in,e_in,Agg_Var)
+		IMPLICIT NONE   
+		real(DP), intent(in) :: h_in
+		integer , intent(in) :: age_in, lambda_in, e_in
+		real(DP), intent(in) :: Agg_Var
+		real(DP)             :: Y_labor, Ebart, Waget 
+
+		! Assgin value to Ebar and Wage by Agg_Var
+			Ebart = Agg_Var
+			Waget = Agg_Var
+		
+		! Adjust Ebar 
+		IF ((KeepSSatBench.eq.1) .AND. (solving_bench.eq.0)) THEN
+			Ebart = Ebar_bench
+		ENDIF
+
+		
+		if (age_in.ge.RetAge) then
+			! Labor income if in retirement
+			Y_labor = phi_lambda_e(lambda_in,e_in) * Ebart
+		else
+			! Labor income if working
+			Y_labor = psi*(Waget*eff_un(age_in,lambda_in,e_in))**(1.0_dp-TauPL)
+		end if 
+
+	END  FUNCTION Y_labor
+
+
+!========================================================================================
+!========================================================================================
+! Y_a: Evaluate asset income (after tax wealth) at given asset level and entrepreneurial ability
+!
+! Usage: Y_a = Y_a(a_in,z_in)
+!
+! Input: a_in, real(dp), value of assets
+!		 z_in, real(dp), value of entrepreneurial abillity (not necessariliy a grid point)
+!
+! Output: Y_a , real(dp), After tax wealth
+!
+	FUNCTION Y_a(a_in,z_in)
+		IMPLICIT NONE   
+		real(DP), intent(in) :: a_in, z_in
+		real(DP)             :: Y_a
+
+		! Compute asset income 
+		Y_a = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+
+	END  FUNCTION Y_a
+
+
+!========================================================================================
+!========================================================================================
+! MB_a: Evaluate asset marginal benefit at given asset level and entrepreneurial ability
+!
+! Usage: MB_a = MB_a(a_in,z_in)
+!
+! Input: a_in, real(dp), value of assets
+!		 z_in, real(dp), value of entrepreneurial abillity (not necessariliy a grid point)
+!
+! Output: MB_a , real(dp), marginal benefit from assets
+!
+	FUNCTION MB_a(a_in,z_in)
+		IMPLICIT NONE   
+		real(DP), intent(in) :: a_in, z_in
+		real(DP)             :: MB_a
+
+		! Compute asset income 
+		MB_a = ( 1.0_DP + ( rr *mu* (z_in**mu) * (a_in**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+
+	END  FUNCTION MB_a
+
+
+!========================================================================================
+!========================================================================================
 ! FOC_R: Evaluate square residual of Euler equation at current state and candidate savings a'
 !		 The FOC is for the retirement period (hence the R subscript)
 !
@@ -238,10 +323,10 @@ Module programfunctions
 		real(DP)             :: MBaprime, FOC_R, yprime, cprime
 
 		! Compute marginal benefit of next period at a' (given zi)
-		MBaprime = ( 1.0_DP + ( rr *mu* (zgrid(zi)**mu) * (aprimet**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		MBaprime = MB_a(aprimet,zgrid(zi))
 		 
 		! Compute asset income of next period at a' (given zi)
-		yprime =  ( aprimet+ ( rr * (zgrid(zi)* aprimet )**mu - DepRate* aprimet ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		yprime   = Y_a(aprimet,zgrid(zi))
 		 
 		! Compute consumption of next period given a' (given zi, lambdai and ei)
 			! The value of c' comes from interpolating next period's consumption policy function
@@ -287,10 +372,10 @@ Module programfunctions
 		ntemp = max(0.0_DP, ntemp)
 
 		! Compute marginal benefit of next period at a' (given zi)
-		MBaprime = ( 1.0_DP + ( rr *mu* (zgrid(zi)**mu) * (aprimet**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
-
+		MBaprime = MB_a(aprimet,zgrid(zi))
+		 
 		! Compute asset income of next period at a' (given zi)
-		yprime =  ( aprimet+ ( rr * (zgrid(zi)* aprimet )**mu - DepRate* aprimet ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		yprime   = Y_a(aprimet,zgrid(zi))
 
 		! I have to evaluate the FOC in expectation over eindx prime given eindx
 		! Compute c' for each value of e'
@@ -344,10 +429,10 @@ Module programfunctions
 		brentvaluet = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, ntemp)           
 		
 		! Compute marginal benefit of next period at a' (given zi)
-		MBaprime = ( 1.0_DP + ( rr *mu* (zgrid(zi)**mu) * (aprimet**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
-		
+		MBaprime = MB_a(aprimet,zgrid(zi))
+		 
 		! Compute asset income of next period at a' (given zi)
-		yprime =  ( aprimet+ ( rr * (zgrid(zi)* aprimet )**mu - DepRate* aprimet ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		yprime   = Y_a(aprimet,zgrid(zi))
 
 		! I have to evaluate the FOC in expectation over eindx prime given eindx
 		! Compute c' for each value of e'
@@ -810,7 +895,7 @@ PROGRAM main
 		tauW = 0.00_DP
 
 	! Solve for the model and compute stats
-		CALL  INITIALIZE
+		CALL INITIALIZE
 		CALL FIND_DBN_EQ
 		CALL COMPUTE_STATS
 		CALL GOVNT_BUDGET
@@ -1301,9 +1386,9 @@ SUBROUTINE GOVNT_BUDGET
 	DO zi=1,nz
 	DO lambdai=1,nlambda
 	DO ei=1,ne
-	    GBAR = GBAR + DBN1(age,ai,zi,lambdai,ei) * ( tauK*( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) )  &
-	          & + tauW * ( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) + agrid(ai) )  &
-	          & - tauK * tauW * ( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) ) &
+	    GBAR = GBAR + DBN1(age,ai,zi,lambdai,ei) * ( tauK*( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) )  	&
+	          & + agrid(ai) + ( rr * (zgrid(zi) * agrid(ai) )**mu - DepRate*agrid(ai) ) *(1.0_DP-tauK)  		&
+	          & - Y_a(agrid(ai),zgrid(ai)) 																		&	
 	          & + yh(age,lambdai,ei)*Hours(age,ai,zi,lambdai,ei)  &
 	          & -  psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  &
 	          & + tauC * cons(age, ai, zi, lambdai,ei)  )         
@@ -2091,6 +2176,7 @@ END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
 SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID)
 	USE GLOBAL
+	USE programfunctions
 	IMPLICIT NONE
 	REAL(DP), DIMENSION(na,nz), INTENT(OUT)  :: TYGRID, TMBGRID
 	!REAL(DP), INTENT(IN) :: rr
@@ -2099,9 +2185,9 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID)
 	DO ai=1,na
 	DO zi=1,nz
 		! Asset income grid (by current asset -ai- and entrepreneurial ability -zi-)
-		TYGRID(ai,zi)  = ( agrid(ai)+ ( rr * (zgrid(zi)*agrid(ai))**mu - DepRate*agrid(ai) ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		TYGRID(ai,zi)  = Y_a(agrid(ai),zgrid(zi))
 		! Asset marginal benefit grid (by current asset -ai- and entrepreneurial ability -zi-)
-	    TMBGRID(ai,zi) = ( 1.0_DP + ( rr *mu* (zgrid(zi)**mu) * (agrid(ai)**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+	    TMBGRID(ai,zi) = MB_a(agrid(ai),zgrid(zi))
 	ENDDO
 		!print*, TMBGRID(ai,:)*beta*survP(1)
 		!print*, 'TMBGRID(ai,nz)*beta*surP(age)=',TMBGRID(ai,nz)*beta*survP(1),TMBGRID(ai,nz)*beta*survP(11),TMBGRID(ai,nz)*beta*survP(21), &
