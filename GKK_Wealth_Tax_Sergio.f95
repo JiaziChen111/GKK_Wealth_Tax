@@ -139,6 +139,8 @@ MODULE global
     REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: ValueFunction
 		! Analytical solution for mu=1 for all the lifecycle not just retirement period
     	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda) :: AnRetCons,   AnRetValue, AnRetHours 
+	! Policy function and value function (defined on the adjusted grid for breakpoints)
+	REAL(DP), DIMENSION(:,:,:,:,:), allocatable :: Cons_t, Hours_t, Aprime_t
  
  	! Aggregate variables
 	 	! Benchmark values of Q, N, E, Wage, R, G, Y
@@ -255,6 +257,15 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
  		allocate( agrid_t(1:na_t) )
  		agrid_t = agrid
 	end if
+
+	! Allocate variables that depend on na_t
+		! Grids for Y and MB
+		allocate( YGRID_t(na_t,nz)  )
+		allocate( MBGRID_t(na_t,nz) )
+		! Allocate size of policy function on adjusted grid:
+		allocate( Cons_t(MaxAge,na_t,nz,nlambda,ne) )
+		allocate( Hours_t(MaxAge,na_t,nz,nlambda,ne) )
+		allocate( Aprime_t(MaxAge,na_t,nz,nlambda,ne) )
 
 	contains 
 
@@ -405,7 +416,7 @@ end Subroutine Asset_Grid_Threshold
 		cprime =   Linear_Int(Ygrid(:,zi), Cons(age+1,:,zi,lambdai,ei),na, yprime)    
 
 		! Evaluate square residual of Euler equation at current state (given by (ai,zi,lambdai,ei)) and savings given by a'
-		FOC_R   = (1.0_DP / (YGRID(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
+		FOC_R   = (1.0_DP / (YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
 		           & - beta *  survP(age) *  MBaprime /cprime ) **2.0_DP
 
 	END  FUNCTION FOC_R
@@ -438,7 +449,7 @@ end Subroutine Asset_Grid_Threshold
 		real(DP), dimension(ne):: cprime
 
 		! Compute labor choice (analytically) 
-		ntemp = 1.0_DP/(1.0_DP+phi) -phi*( YGRID(ai,zi) - aprimet)/( (1.0_DP+phi)*yh(age, lambdai,ei) )
+		ntemp = 1.0_DP/(1.0_DP+phi) -phi*( YGRID_t(ai,zi) - aprimet)/( (1.0_DP+phi)*yh(age, lambdai,ei) )
 		ntemp = max(0.0_DP, ntemp)
 
 		! Compute marginal benefit of next period at a' (given zi)
@@ -450,13 +461,13 @@ end Subroutine Asset_Grid_Threshold
 		! I have to evaluate the FOC in expectation over eindx prime given eindx
 		! Compute c' for each value of e'
 			DO epindx=1,ne
-			    cprime(epindx) = Linear_Int(Ygrid(:,zi), Cons(age+1,:,zi,lambdai,epindx),na,yprime)
+			    cprime(epindx) = Linear_Int(YGRID_t(:,zi), Cons_t(age+1,:,zi,lambdai,epindx),na_t,yprime)
 			ENDDO
 		! Compute the expected value of 1/c' conditional on current ei
 			exp1overcprime = SUM( pr_e(ei,:) / cprime )
 
 		! Evaluate the squared residual of the Euler equation for working period
-		FOC_W   = (1.0_DP / (YGRID(ai,zi)  + yh(age, lambdai,ei) * ntemp - aprimet )  &
+		FOC_W   = (1.0_DP / (YGRID_t(ai,zi)  + yh(age, lambdai,ei) * ntemp - aprimet )  &
 		           & - beta *  survP(age) *MBaprime* exp1overcprime) **2.0_DP 
 
 	END  FUNCTION FOC_W
@@ -506,14 +517,13 @@ end Subroutine Asset_Grid_Threshold
 		! I have to evaluate the FOC in expectation over eindx prime given eindx
 		! Compute c' for each value of e'
 		DO epindx=1,ne
-		      cprime(epindx)  =   Linear_Int(Ygrid(:,zi),&
-		                                    & Cons(age+1,:,zi,lambdai,epindx), na,    yprime  )
+		    cprime(epindx) = Linear_Int(Ygrid_t(:,zi),Cons_t(age+1,:,zi,lambdai,epindx), na_t, yprime  )
 		ENDDO
 		! Compute the expected value of 1/c' conditional on current ei
 		exp1overcprime = SUM( pr_e(ei,:) / cprime )
 
 		! Evaluate the squared residual of the Euler equation for working period
-		FOC_WH   = (1.0_DP / (YGRID(ai,zi)  + psi* (yh(age, lambdai,ei) * ntemp)**(1.0_DP-tauPL ) - aprimet )  &
+		FOC_WH   = (1.0_DP / (YGRID_t(ai,zi)  + psi* (yh(age, lambdai,ei) * ntemp)**(1.0_DP-tauPL ) - aprimet )  &
 		           & - beta *  survP(age) *MBaprime* exp1overcprime) **2.0_DP 
 
 	END  FUNCTION FOC_WH
@@ -575,7 +585,7 @@ end Subroutine Asset_Grid_Threshold
 		real(DP)   			 :: FOC_HA 
 
 		FOC_HA  = ( (psi*(1.0_DP-tauPL)*yh(age, lambdai,ei)**(1.0_DP-tauPL) )* (1.0_DP-hoursin)*(hoursin**(-tauPL)) &
-		        &  - phi*  ( YGRID(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain  )   )**2.0_DP
+		        &  - phi*  ( YGRID_t(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain  )   )**2.0_DP
 
 	END  FUNCTION FOC_HA
 
@@ -2218,7 +2228,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	REAL(DP) :: tempvar1, tempvar2, tempvar3
 	INTEGER  :: na1, na2, tempai
 	REAL(DP), DIMENSION(na_t) :: EndoCons, EndoYgrid, EndoHours
-	REAL(DP), DIMENSION(MaxAge,na_t,nz,nlambda,ne) :: Cons_t, Aprime_t, Hours_t
+
 	! These lines are note being used!!!!!!!!
 		! Set auxiliary value ofr psi 
 			psi = psi_PL * Ebar ** tauPL
@@ -2422,6 +2432,13 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
     ENDDO !lambdai
 	ENDDO !age
 
+	! Deallocate policy functions on adjusted grid (so that they can be allocated later)
+	deallocate( YGRID_t  )
+	deallocate( MBGRID_t ) 
+	deallocate( Cons_t   )
+	deallocate( Hours_t  )
+	deallocate( Aprime_t )
+
 	! Adjust consumption by taxes
 	cons = cons/(1.0_DP+tauC)
 
@@ -2483,6 +2500,8 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID,TYGRID_t,TMBGRID_t)
 	!REAL(DP), INTENT(IN) :: rr
 	!integer :: ai, zi
 
+	
+
 	DO zi=1,nz
 		DO ai=1,na
 		! Asset income grid (by current asset -ai- and entrepreneurial ability -zi-)
@@ -2496,9 +2515,6 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID,TYGRID_t,TMBGRID_t)
 		! Asset marginal benefit grid (by current asset -ai- and entrepreneurial ability -zi-)
 	    TMBGRID_t(ai,zi) = MB_a(agrid_t(ai),zgrid(zi))
 		ENDDO
-		!print*, TMBGRID(ai,:)*beta*survP(1)
-		!print*, 'TMBGRID(ai,nz)*beta*surP(age)=',TMBGRID(ai,nz)*beta*survP(1),TMBGRID(ai,nz)*beta*survP(11),TMBGRID(ai,nz)*beta*survP(21), &
-		!    & TMBGRID(ai,nz)*beta*survP(31), TMBGRID(ai,nz)*beta*survP(41),TMBGRID(ai,nz)*beta*survP(51),TMBGRID(ai,nz)*beta*survP(61)
 	ENDDO
 
 	!print *, "Grid for asset income"
