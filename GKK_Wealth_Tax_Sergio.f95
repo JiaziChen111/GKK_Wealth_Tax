@@ -17,10 +17,6 @@ MODULE parameters
     	! If KeepSSatBench=1 then E_bar is kept at E_bar_bench for experiments
     INTEGER(I4B),  PARAMETER :: KeepSSatBench=1
 
-	
-	! grid size
-	
-	
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
 		! lambda: inidividual fixed effect (fixed within generation)
@@ -78,7 +74,9 @@ MODULE parameters
 
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
-		REAL(DP), PARAMETER  :: tauWmin=0.02_DP, tauWinc=0.005_DP
+		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.005_DP ! Minimum tax below threshold and increments
+		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
+		INTEGER , PARAMETER  :: Y_a_threshold_pct = 0.0_dp ! Percentile of the distribution of wealth
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -156,13 +154,17 @@ MODULE global
 		REAL(DP), DIMENSION(na)      :: agrid
 	    REAL(DP), DIMENSION(fine_na) :: fine_agrid
 	    REAL(DP), DIMENSION(na,nz)   :: YGRID, MBGRID
+	    REAL(DP), DIMENSION(:), ALLOCATABLE :: agrid_t
+	    INTEGER ,                    :: na_t
 	
 	! Values for taxes in benchmark and experiment
-    REAL(DP) :: tauk_bench, tauw_bench, tauL_bench
-    REAL(DP) :: tauk_exp,   tauw_exp,   tauL_exp
+    REAL(DP) :: tauk_bench, tauL_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
+    REAL(DP) :: tauk_exp,   tauL_exp,   tauw_bt_exp,   tauw_at_exp,   Y_a_threshold_exp
 
     ! Values for taxes (when solving an economy)
-    REAL(DP) :: tauK, tauW, tauL 
+    REAL(DP) :: tauK, tauL
+    REAL(DP) :: tauW_bt, tauW_at ! Wealth taxes below threshold and above threshold
+    REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
     ! Auxiliary variables to find wealth tax that balances the budget in experiment economy
     REAL(DP) :: tauWindx, tauW_low, tauW_up
@@ -171,7 +173,7 @@ MODULE global
     INTEGER :: age, lambdai, zi, ai, ei    
 
     ! Distribution of population by age, a, z, lambda, e
-    REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) ::DBN1, DBN_bench
+    REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) ::DBN1, DBN_bench, DBN_exp
 
     ! Stats and distribution in equilibrium
 	    ! Distribution of assets
@@ -214,6 +216,60 @@ Module programfunctions
 	use global
 	    
 	contains
+
+!========================================================================================
+!========================================================================================
+
+Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
+	real(dp), intent(in)    :: Y_a_threshold_in
+	integer , intent(out)   :: na_t
+	real(dp), dimension(:), allocatable, intent(out) :: agrid_t
+	real(dp), dimension(nz) :: a_aux
+	integer                 :: a_ind
+	integer , dimension(:), allocatable :: agrid_t_ind
+	real(dp), dimension(:), allocatable :: p
+	real(dp)                :: max_wealth
+
+	allocate( p(2) )
+	! If the threshold for wealth taxes is positive then agrid is adjusted
+	if (Y_a_threshold_in.gt.0.0_dp) then 
+		p(1) = Y_a_threshold_in
+ 		do zi=1,nz 
+			! New points are added to agrid if there is an "a" st Y(a,z))=Y_threshold
+			max_wealth = (1.0_dp-DepRate)*agrid(na)+rr*(agrid(na)*zgrid(zi))**mu
+			if (Y_a_threshold_in.lt.max_wealth) then
+				a_ind		 = a_ind + 1 
+				p(2)         = zgrid(zi)
+				a_aux(a_ind) = zbrent_p(Y_a_res,0.0_dp,agrid(na),brent_tol,p) 
+			end if 
+ 		end do 
+
+ 		na_t = na + a_ind
+ 		allocate( agrid_t(1:na_t) )
+ 		allocate( agrid_t_ind(1:na_t) )
+ 		agrid_t = [agrid,a_aux(1:a_ind)]
+ 		call Sort(na_t,agrid_t,agrid_t,agrid_t_ind)
+ 	else 
+ 		na_t    = na
+ 		allocate( agrid_t(1:na_t) )
+ 		agrid_t = agrid
+	end if
+
+	contains 
+
+		function Y_a_res(a_in,p)
+			real(dp), intent(in) :: a_in
+			real(dp), dimension(:), allocatable, intent(in) :: p
+			real(dp) :: Y_a_res, Y_a_th, z_in
+
+			Y_a_th = p(1)
+			z_in   = p(2)
+
+			Y_a_res = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) ) - Y_a_th
+
+		end function Y_a_res
+
+end Subroutine Asset_Grid_Threshold
 
 !========================================================================================
 !========================================================================================
@@ -270,11 +326,17 @@ Module programfunctions
 	FUNCTION Y_a(a_in,z_in)
 		IMPLICIT NONE   
 		real(DP), intent(in) :: a_in, z_in
-		real(DP)             :: Y_a
+		real(DP)             :: Y_a, wealth 
 
-		! Compute asset income 
-		Y_a = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		! Before tax wealth
+		Y_a = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) *(1.0_DP-tauK) )
 
+		! Compute after tax wealth according to threshold
+		if (Y_a.le.Y_a_threshold) then 
+			Y_a = Y_a * (1-tauW_bt)
+		else
+			Y_a = Y_a * (1-tauW_at)
+		end if
 	END  FUNCTION Y_a
 
 
@@ -292,11 +354,19 @@ Module programfunctions
 	FUNCTION MB_a(a_in,z_in)
 		IMPLICIT NONE   
 		real(DP), intent(in) :: a_in, z_in
-		real(DP)             :: MB_a
+		real(DP)             :: MB_a, Y_a
 
-		! Compute asset income 
-		MB_a = ( 1.0_DP + ( rr *mu* (z_in**mu) * (a_in**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW)
+		! Before tax wealth
+		Y_a = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) *(1.0_DP-tauK) )
 
+		! After tax marginal benefit of assets
+		if (Y_a.le.Y_a_threshold) then 
+			! Compute asset marginal benefit - tax free
+			MB_a = ( 1.0_DP + ( rr *mu* (z_in**mu) * (a_in**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW_bt)
+		else
+			! Compute asset marginal benefit - subject to taxes
+			MB_a = ( 1.0_DP + ( rr *mu* (z_in**mu) * (a_in**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW_at)
+		end if
 	END  FUNCTION MB_a
 
 
@@ -331,8 +401,7 @@ Module programfunctions
 		! Compute consumption of next period given a' (given zi, lambdai and ei)
 			! The value of c' comes from interpolating next period's consumption policy function
 			! The policy function is defined over a grid of asset income Y, and is interpolated for y'
-		cprime =   Linear_Int(Ygrid(:,zi), &
-		                                    & Cons(age+1,:,zi,lambdai,ei),na, yprime)    
+		cprime =   Linear_Int(Ygrid(:,zi), Cons(age+1,:,zi,lambdai,ei),na, yprime)    
 
 		! Evaluate square residual of Euler equation at current state (given by (ai,zi,lambdai,ei)) and savings given by a'
 		FOC_R   = (1.0_DP / (YGRID(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
@@ -380,8 +449,7 @@ Module programfunctions
 		! I have to evaluate the FOC in expectation over eindx prime given eindx
 		! Compute c' for each value of e'
 			DO epindx=1,ne
-			      cprime(epindx)  =   Linear_Int(Ygrid(:,zi),&
-			                                    & Cons(age+1,:,zi,lambdai,epindx), na,    yprime  )
+			    cprime(epindx) = Linear_Int(Ygrid(:,zi), Cons(age+1,:,zi,lambdai,epindx),na,yprime)
 			ENDDO
 		! Compute the expected value of 1/c' conditional on current ei
 			exp1overcprime = SUM( pr_e(ei,:) / cprime )
@@ -719,6 +787,129 @@ Module programfunctions
 	      return  
 	END  FUNCTION ran1
 
+!******************************************************************************************
+!
+! Sort: Sorts in ascending the elements of a one dimensional array of type real(8) 
+!       It also gives the original indeces of the sorted elements
+!
+! Usage: Call Sort(n,A,A_sort,Sort_ind)
+!
+! Input: n   , integer(4), the number of elements in A
+!        A   , real(8), the array whose elements are to be sorted
+!
+! Output: A_sort, real(8), array with sorted elements (in ascending order)
+!		  Sort_ind, integer(4), array with original indeces of the elements in A_sort
+!
+
+	Subroutine Sort(n,A,A_sort,Sort_ind)
+		integer , intent(in) :: n    !Number of elements in A
+		real(dp), intent(in) , dimension(n) :: A
+		real(dp), intent(out), dimension(n) :: A_sort
+		integer , intent(out), dimension(n) :: Sort_ind
+		integer :: i,j
+
+		A_sort = A
+		do i=1,n
+			Sort_ind(i)=i
+		end do
+
+		do i=1,(n-1)
+			do j=i+1,n
+				if (A_sort(i) .ge. A_sort(j)) then
+					A_sort((/i,j/))   = A_sort((/j,i/))
+					Sort_ind((/i,j/)) = Sort_ind((/j,i/))
+				end if
+			end do
+		end do
+
+		return
+	End Subroutine Sort	
+
+!========================================================================================
+!========================================================================================
+
+	FUNCTION zbrent_p(func,x1,x2,tol,par)
+		USE nrtype; USE nrutil, ONLY : nrerror
+		IMPLICIT NONE
+		REAL(DP), INTENT(IN) :: x1,x2,tol
+		REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
+		REAL(DP) :: zbrent_p
+		INTERFACE
+			FUNCTION func(x,par)
+			USE nrtype
+			IMPLICIT NONE
+			REAL(DP), INTENT(IN) :: x
+			REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
+			REAL(DP) :: func
+			END FUNCTION func
+		END INTERFACE
+		INTEGER(I4B), PARAMETER :: ITMAX=100
+		REAL(DP), PARAMETER :: EPS=epsilon(x1)
+		INTEGER(I4B) :: iter
+		REAL(DP) :: a,b,c,d,e,fa,fb,fc,p,q,r,s,tol1,xm
+		a=x1
+		b=x2
+		fa=func(a,par)
+		fb=func(b,par)
+		if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) &
+			call nrerror('root must be bracketed for zbrent_p')
+		c=b
+		fc=fb
+		do iter=1,ITMAX
+			if ((fb > 0.0 .and. fc > 0.0) .or. (fb < 0.0 .and. fc < 0.0)) then
+				c=a
+				fc=fa
+				d=b-a
+				e=d
+			end if
+			if (abs(fc) < abs(fb)) then
+				a=b
+				b=c
+				c=a
+				fa=fb
+				fb=fc
+				fc=fa
+			end if
+			tol1=2.0_DP*EPS*abs(b)+0.5_DP*tol
+			xm=0.5_DP*(c-b)
+			if (abs(xm) <= tol1 .or. fb == 0.0) then
+				zbrent_p=b
+				RETURN
+			end if
+			if (abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
+				s=fb/fa
+				if (a == c) then
+					p=2.0_DP*xm*s
+					q=1.0_DP-s
+				else
+					q=fa/fc
+					r=fb/fc
+					p=s*(2.0_DP*xm*q*(q-r)-(b-a)*(r-1.0_DP))
+					q=(q-1.0_DP)*(r-1.0_DP)*(s-1.0_DP)
+				end if
+				if (p > 0.0) q=-q
+				p=abs(p)
+				if (2.0_DP*p  <  min(3.0_DP*xm*q-abs(tol1*q),abs(e*q))) then
+					e=d
+					d=p/q
+				else
+					d=xm
+					e=d
+				end if
+			else
+				d=xm
+				e=d
+			end if
+			a=b
+			fa=fb
+			b=b+merge(d,sign(tol1,xm), abs(d) > tol1 )
+			fb=func(b,par)
+		end do
+		call nrerror('zbrent_p: exceeded maximum iterations')
+		zbrent_p=b
+		
+	END FUNCTION zbrent_p
+
 end module programfunctions
 
 
@@ -784,9 +975,9 @@ PROGRAM main
 	! Set initia lvalues of R, Wage, Ebar to find equilibrium
 		! ------- DO NOT REMOVE THE LINES BELOW
 
-		rr=  4.906133597851297E-002 
-		wage=  1.97429920063330 
-		Ebar=  1.82928004963637
+		rr    =  4.906133597851297E-002 
+		wage  =  1.97429920063330 
+		Ebar  =  1.82928004963637
 		Ebar_bench = Ebar
 
 		! ------- DO NOT REMOVE THE LINES ABOVE
@@ -892,32 +1083,41 @@ PROGRAM main
 	! Set taxes for benchmark economy
 		tauK = 0.25_DP
 		tauL = 0.30_DP
-		tauW = 0.00_DP
+		tauW_bt = 0.00_DP
+		tauW_at = 0.00_DP
+		Y_a_threshold = 0.00_DP
 
 	! Solve for the model and compute stats
+		print*,"	Initializing program"
 		CALL INITIALIZE
+		print*,"	Computing equilibrium distribution"
 		CALL FIND_DBN_EQ
+		print*,"	Computing satitics"
 		CALL COMPUTE_STATS
+		print*,"	Computing government spending"
 		CALL GOVNT_BUDGET
+		print*,"	Writing variables"
 		CALL WRITE_VARIABLES(1)
 
 	! Aggregate variables in benchmark economy
-		GBAR_bench =GBAR
-		QBAR_bench = QBAR 
-		NBAR_bench = NBAR 
-		Ebar_bench = EBAR
-		rr_bench   = rr
-		wage_bench = wage
-		Y_bench    = YBAR
-		tauK_bench = tauK
-		tauw_bench = tauW
-		tauL_bench = tauL
-		DBN_bench  = DBN1
+		GBAR_bench  = GBAR
+		QBAR_bench  = QBAR 
+		NBAR_bench  = NBAR 
+		Ebar_bench  = EBAR
+		rr_bench    = rr
+		wage_bench  = wage
+		Y_bench     = YBAR
+		tauK_bench  = tauK
+		tauL_bench  = tauL
+		DBN_bench   = DBN1
+		tauw_bt_bench = tauW_bt
+		tauw_at_bench = tauW_at
+		Y_a_threshold_bench = Y_a_threshold
 
 
 	Print*,'--------------- SOLVING EXPERIMENT WITH BEST PARAMETERS -----------------'
 	PRINT*,''
-	print*,'WealthTAX ECONOMY'
+	print*,'Wealth Tax Economy'
 	
 	! Experiment economy
 		solving_bench=0
@@ -925,15 +1125,19 @@ PROGRAM main
 		tauK = 0.0_DP
 
 	! Find wealth taxes that balances budget
+	print*, "	Computing Wealth Tax to balance the budget"
 		! Set initial value for G in experimental economy and for wealth taxes
-		GBAR_exp=0.0_DP
-		tauW=tauWmin
-		tauWindx=0.0_DP
+		GBAR_exp = 0.0_DP
+		tauW_bt  = tauWmin_bt
+		tauW_at  = tauWmin_at
+		tauWindx = 0.0_DP
 		! Solve for the model increasing wealth taxes until revenue is enough to finance G_benchamark
 		DO WHILE (GBAR_exp .lt. GBAR_bench)
 			! Set old G and new value of tauW
 			GBAR_exp_old = GBAR_exp
-			tauW = tauWmin + tauWindx * tauWinc       
+			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
+			tauW_at = tauWmin_at + tauWindx * tauWinc_at
+			write(*,*) "This is tauW_bt currently", tauW_bt, "And tauW_at", tauW_at
 			! Solve the model
 			CALL FIND_DBN_EQ
 			CALL COMPUTE_STATS
@@ -943,15 +1147,19 @@ PROGRAM main
 			! Iteratioins  
 			tauWindx = tauWindx + 1.0_DP   
 
-			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW=', tauW, 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
+			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 		ENDDO
 
 		! Set tauW as weighted average of point in  the grid to balance budget more precisely
-			tauW_up  = tauW 
-			tauW_low = tauW  -  tauWinc  
-			tauW = tauW_low + tauWinc * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			tauW_up  = tauW_bt
+			tauW_low = tauW_bt  -  tauWinc_bt
+			tauW_bt  = tauW_low + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			tauW_up  = tauW_at
+			tauW_low = tauW_at  -  tauWinc_at  
+			tauW_at  = tauW_low + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
 			print*,''
-			print*,'tauW_low =',tauW_low , 'tauW_up=', tauW_up, 'tauW=', tauW
+			print*,'tauW_low =',tauW_low , 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at
 			print*,''
 
 		! Solve (again) experimental economy
@@ -961,32 +1169,43 @@ PROGRAM main
 
 		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
 			GBAR_exp = GBAR
-			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW=', tauW, 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
+			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
 			    if (GBAR_exp .gt. GBAR_bench ) then
-			        tauW_up  = tauW 
+			        tauW_up  = tauW_bt 
 			    else
-			        tauW_low = tauW 
+			        tauW_low = tauW_bt
 			    endif
-			    tauW = (tauW_low + tauW_up)/2.0_DP
+			    tauW_bt = (tauW_low + tauW_up)/2.0_DP
+			    if (GBAR_exp .gt. GBAR_bench ) then
+			        tauW_up  = tauW_at 
+			    else
+			        tauW_low = tauW_at
+			    endif
+			    tauW_at = (tauW_low + tauW_up)/2.0_DP
 			    CALL FIND_DBN_EQ
 			    CALL COMPUTE_STATS
 			    CALL GOVNT_BUDGET
 			    GBAR_exp = GBAR
-			    print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW=', tauW, 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			    print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
+			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			ENDDO
 
 	! AGgregate variable in experimental economy
-		GBAR_exp = GBAR
-		QBAR_exp = QBAR 
-		NBAR_exp = NBAR  
-		Y_exp 	 = YBAR
-		Ebar_exp = EBAR
-		rr_exp   = rr
-		wage_exp = wage
-		tauW_exp = tauW
-		tauK_exp = tauK
-		tauL_exp = tauL
+		GBAR_exp  = GBAR
+		QBAR_exp  = QBAR 
+		NBAR_exp  = NBAR  
+		Y_exp 	  = YBAR
+		Ebar_exp  = EBAR
+		rr_exp    = rr
+		wage_exp  = wage
+		tauK_exp  = tauK
+		tauL_exp  = tauL
+		DBN_exp   = DBN1
+		tauw_bt_exp = tauW_bt
+		tauw_at_exp = tauW_at
+		Y_a_threshold_exp = Y_a_threshold
 
 	CALL WRITE_VARIABLES(0)
 
@@ -1027,13 +1246,16 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 
 	! Solve for the benchmark economy 
 		solving_bench = 1
-		tauK = tauK_bench
-		tauL = tauL_bench
-		tauW = tauW_bench
-		rr   = rr_bench
-		wage = wage_bench
-		Ebar = Ebar_bench
+		tauK  = tauK_bench
+		tauL  = tauL_bench
+		rr    = rr_bench
+		wage  = wage_bench
+		Ebar  = Ebar_bench
+		tauW_bt  = tauW_bt_bench
+		tauW_at  = tauW_at_bench
+		Y_a_threshold = Y_a_threshold_bench
 		print*,'BENCH: rr=',rr,'wage=',wage,'Ebar=',Ebar
+		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
 		CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
@@ -1071,13 +1293,16 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 
 	! Solve the experimental economy  
 		solving_bench = 0  
-		tauK = tauK_exp
-		tauL = tauL_exp
-		tauW = tauW_exp
-		rr   = rr_exp
-		wage = wage_exp
-		Ebar = Ebar_exp
+		tauK  = tauK_exp
+		tauL  = tauL_exp
+		rr    = rr_exp
+		wage  = wage_exp
+		Ebar  = Ebar_exp
+		tauW_bt  = tauW_bt_exp
+		tauW_at  = tauW_at_exp
+		Y_a_threshold = Y_a_threshold_exp
 		print*,' EXP: rr=',rr,'wage=',wage,'Ebar=',Ebar
+		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
 		CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
@@ -1366,7 +1591,7 @@ END SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR
 SUBROUTINE GOVNT_BUDGET
 	USE PARAMETERS
 	USE GLOBAL
-	use  programfunctions
+	use programfunctions
 	IMPLICIT NONE
 	real(DP) ::  GBAR_K,  GBAR_W,  GBAR_L, SSC_Payments
 
@@ -1388,10 +1613,10 @@ SUBROUTINE GOVNT_BUDGET
 	DO ei=1,ne
 	    GBAR = GBAR + DBN1(age,ai,zi,lambdai,ei) * ( tauK*( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) )  	&
 	          & + agrid(ai) + ( rr * (zgrid(zi) * agrid(ai) )**mu - DepRate*agrid(ai) ) *(1.0_DP-tauK)  		&
-	          & - Y_a(agrid(ai),zgrid(ai)) 																		&	
-	          & + yh(age,lambdai,ei)*Hours(age,ai,zi,lambdai,ei)  &
-	          & -  psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  &
-	          & + tauC * cons(age, ai, zi, lambdai,ei)  )         
+	          & - Y_a(agrid(ai),zgrid(zi)) 																		&	
+	          & + yh(age,lambdai,ei)*Hours(age,ai,zi,lambdai,ei)  												&
+	          & - psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  					&
+	          & + tauC * cons(age, ai, zi, lambdai,ei)  )   
 
 	    GBAR_L = GBAR_L  + DBN1(age,ai,zi,lambdai,ei) * (  yh(age,lambdai,ei)*Hours(age,ai,zi,lambdai,ei) &
 	               &- psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL) )
@@ -1442,10 +1667,16 @@ SUBROUTINE FIND_DBN_EQ
 	DBN_criteria = 1.0E-07_DP
 
 	! Solve the model at current aggregate values
-	! Form YGRID for the capital income economy given interest rate "rr"
-	CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
-	CALL ComputeLaborUnits(Ebar, wage) 
-	CALL EGM_RETIREMENT_WORKING_PERIOD 
+		! Find the threshold for wealth taxes (a_bar)
+		!	call Find_TauW_Threshold(DBN1,tauW_threshold,a_bar)
+		! Adjust grid to include breaking points
+			CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
+		! Compute labor units 
+			CALL ComputeLaborUnits(Ebar, wage) 
+		! Form YGRID for the capital income economy given interest rate "rr"
+			CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+		! Solve for policy and value functions 
+			CALL EGM_RETIREMENT_WORKING_PERIOD 
 
 	! Discretize policy function for assets (a')
 		! For each age and state vector bracket optimal a' between two grid points
@@ -1625,11 +1856,19 @@ SUBROUTINE FIND_DBN_EQ
 	        wage = (1.0_DP-alpha)*QBAR **alpha * NBAR  **(-alpha)
 	        Ebar = wage  * NBAR  * sum(pop)/sum(pop(1:RetAge-1))
 	    	! print*,'DBN_dist=',DBN_dist, 'QBAR=', QBAR ,  'NBAR=', NBAR 
-	     
-	     	! Solve the model with current aggregates
-	        CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
-	        CALL ComputeLaborUnits(Ebar, wage) 
-	        CALL EGM_RETIREMENT_WORKING_PERIOD
+
+
+	    	! Solve the model at current aggregate values
+				! Find the threshold for wealth taxes (a_bar)
+				!	call Find_TauW_Threshold(DBN1,tauW_threshold,a_bar)
+				! Adjust grid to include breaking points
+					CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
+				! Compute labor units 
+					CALL ComputeLaborUnits(Ebar, wage) 
+				! Form YGRID for the capital income economy given interest rate "rr"
+					CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+				! Solve for policy and value functions 
+					CALL EGM_RETIREMENT_WORKING_PERIOD 
 	        
 	     	! Discretize policy function for assets (a')
 				! For each age and state vector bracket optimal a' between two grid points
@@ -1950,7 +2189,9 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 		WRITE  (UNIT=2, FMT=*)  'Y_exp=',Y_exp
 		WRITE  (UNIT=2, FMT=*)  ''
 		WRITE  (UNIT=2, FMT=*)  'Y_exp_Y_bench=',Y_exp/Y_bench
-		WRITE  (UNIT=2, FMT=*)  'tauW =',tauW
+		WRITE  (UNIT=2, FMT=*)  'tauW_bt =',tauW_bt_exp
+		WRITE  (UNIT=2, FMT=*)  'tauW_at =',tauW_at_exp
+		WRITE  (UNIT=2, FMT=*)  'Y_a_threshold =',Y_a_threshold_exp
 		WRITE  (UNIT=2, FMT=*)  ''
 		WRITE  (UNIT=2, FMT=*)  'MOMENTS'
 		WRITE  (UNIT=2, FMT=*)  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60
@@ -2167,6 +2408,46 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
 END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
+!========================================================================================
+!========================================================================================
+!========================================================================================
+
+! Under construction!!!!!!
+! Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_pct_in,Y_a_threshold_out)
+! 	use NRTYPE
+! 	real(dp), intent(in)  :: DBN_in(MaxAge, na, nz, nlambda, ne)
+! 	integer , intent(in)  :: Y_a_threshold_pct_in
+! 	real(dp), intent(out) :: Y_a_threshold_out
+! 	integer               :: prctile, a_ind, z_ind
+
+! 	! Compute threshold for wealth tax
+! 	! Find distribution of assets
+! 		DO a_ind=1,na
+! 		    pr_az_dbn(a_ind)  = sum( DBN_in(:,a_ind,:,:,:) ) 
+! 		    cdf_az_dbn(a_ind) = sum( pr_a_dbn(1:a_ind)  )      
+! 		ENDDO
+! 		cdf_a_dbn = cdf_a_dbn + 1.0_DP - cdf_a_dbn(na)
+
+! 	! Find ai (grid node) that corresponds to percentile of wealth distribution
+! 		DO prctile=1,100
+! 		    a_ind=1
+! 		    DO while (cdf_a_dbn(a_ind) .lt. (REAL(prctile,8)/100.0_DP-0.000000000000001))
+! 		        a_ind=a_ind+1
+! 		    ENDDO
+! 		    prctile_ai(prctile) = a_ind
+! 		ENDDO
+
+! 	! Set threshold for wealth tax as:
+! 		if (tauW_threshold_in.eq.0) then 
+! 			! Threshold is minimum
+! 			Y_a_threshold_out = 0.0_dp
+! 		else 
+! 			! Threshold at some percentile
+! 			Y_a_threshold_out = agrid( prctile_ai(tauW_threshold_in) )
+! 		end if 
+
+! end Subroutine Find_TauW_Threshold
+
 
 !========================================================================================
 !========================================================================================
@@ -2175,7 +2456,7 @@ END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 ! NEEDS TO BE COMPUTED FOR EACH TIME THE INTEREST RATE "rr" IS UPDATED. 
 
 SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID)
-	USE GLOBAL
+	USE global
 	USE programfunctions
 	IMPLICIT NONE
 	REAL(DP), DIMENSION(na,nz), INTENT(OUT)  :: TYGRID, TMBGRID
@@ -2194,6 +2475,10 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID)
 		!    & TMBGRID(ai,nz)*beta*survP(31), TMBGRID(ai,nz)*beta*survP(41),TMBGRID(ai,nz)*beta*survP(51),TMBGRID(ai,nz)*beta*survP(61)
 	ENDDO
 
+	!print *, "Grid for asset income"
+	!do ai=1,na
+	!	write(*,*) TYGRID(ai,:)
+ 	!end do
 	!pause
 
 END SUBROUTINE FORM_Y_MB_GRID
@@ -2261,23 +2546,6 @@ SUBROUTINE  INITIALIZE
 	!ENDDO   
 	!ENDDO   
 	!ENDDO   
-
-	! Initialize asset grid
-		! Normal grid
-		m=(amax-amin)**(1.0_DP/a_theta)/REAL(na-1,DP)
-		DO ai=1,na
-			agrid(ai)=REAL(ai-1,DP)*m
-		END DO
-		agrid=amin+agrid**a_theta
-		!	print*,'agrid=',agrid
-		!!pause
-
-		! Fine grid
-		m=(amax-amin)**(1.0_DP/a_theta)/REAL(fine_na-1,DP)
-		DO ai=1,fine_na
-			fine_agrid(ai)=REAL(ai-1,DP)*m
-		END DO
-		fine_agrid=amin+fine_agrid**a_theta
 	
 	! Initiliaze grids for z, lamda and e	
 		CALL tauchen(mtauchen,rho_z,sigma_z_eps,nz,zgrid,pr_z,Gz)
@@ -2352,6 +2620,23 @@ SUBROUTINE  INITIALIZE
 		!print*,'kappagrid='
 		!print*,kappagrid-exp(  (60.0_DP *(agevec-1.0_DP)-(agevec-1.0_DP)**2.0_DP)/1800.0_DP )
 		!PAUSE
+
+	! Initialize asset grid
+		! Normal grid
+		m=(amax-amin)**(1.0_DP/a_theta)/REAL(na-1,DP)
+		DO ai=1,na
+			agrid(ai)=REAL(ai-1,DP)*m
+		END DO
+		agrid=amin+agrid**a_theta
+		!	print*,'agrid=',agrid
+		!!pause
+
+		! Fine grid
+		m=(amax-amin)**(1.0_DP/a_theta)/REAL(fine_na-1,DP)
+		DO ai=1,fine_na
+			fine_agrid(ai)=REAL(ai-1,DP)*m
+		END DO
+		fine_agrid=amin+fine_agrid**a_theta
 
 	!----------------------------------------------
 	! life-cycle component - Survival probablity
@@ -2588,7 +2873,7 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE
 	ENDDO
 	!PAUSE
 
-END SUBROUTINE
+END SUBROUTINE LIFETIME_Y_ESTIMATE
 
 
 !========================================================================================
@@ -2668,7 +2953,7 @@ SUBROUTINE tauchen(mt,rhot,sigmat,nt,gridt,prt,Gt)
 	endif
   
 	
-END SUBROUTINE
+END SUBROUTINE tauchen 
 
 !====================================================================
 
