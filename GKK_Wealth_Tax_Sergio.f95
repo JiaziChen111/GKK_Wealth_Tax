@@ -74,7 +74,7 @@ MODULE parameters
 
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
-		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.005_DP ! Minimum tax below threshold and increments
+		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
 		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
 		INTEGER , PARAMETER  :: Y_a_threshold_pct = 0.0_dp ! Percentile of the distribution of wealth
 		! Consumption tax
@@ -154,8 +154,9 @@ MODULE global
 		REAL(DP), DIMENSION(na)      :: agrid
 	    REAL(DP), DIMENSION(fine_na) :: fine_agrid
 	    REAL(DP), DIMENSION(na,nz)   :: YGRID, MBGRID
-	    REAL(DP), DIMENSION(:), ALLOCATABLE :: agrid_t
-	    INTEGER ,                    :: na_t
+	    REAL(DP), DIMENSION(:,:), ALLOCATABLE :: YGRID_t, MBGRID_t
+	    REAL(DP), DIMENSION(:),   ALLOCATABLE :: agrid_t
+	    INTEGER                      :: na_t
 	
 	! Values for taxes in benchmark and experiment
     REAL(DP) :: tauk_bench, tauL_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
@@ -1256,7 +1257,7 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		Y_a_threshold = Y_a_threshold_bench
 		print*,'BENCH: rr=',rr,'wage=',wage,'Ebar=',Ebar
 		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
-		CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+		CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
 
@@ -1303,7 +1304,7 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		Y_a_threshold = Y_a_threshold_exp
 		print*,' EXP: rr=',rr,'wage=',wage,'Ebar=',Ebar
 		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
-		CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+		CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
 
@@ -1674,7 +1675,7 @@ SUBROUTINE FIND_DBN_EQ
 		! Compute labor units 
 			CALL ComputeLaborUnits(Ebar, wage) 
 		! Form YGRID for the capital income economy given interest rate "rr"
-			CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+			CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
 		! Solve for policy and value functions 
 			CALL EGM_RETIREMENT_WORKING_PERIOD 
 
@@ -1866,7 +1867,7 @@ SUBROUTINE FIND_DBN_EQ
 				! Compute labor units 
 					CALL ComputeLaborUnits(Ebar, wage) 
 				! Form YGRID for the capital income economy given interest rate "rr"
-					CALL FORM_Y_MB_GRID(YGRID,MBGRID) 
+					CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
 				! Solve for policy and value functions 
 					CALL EGM_RETIREMENT_WORKING_PERIOD 
 	        
@@ -2216,8 +2217,8 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	REAL(DP) :: ap_temp, brentvalue
 	REAL(DP) :: tempvar1, tempvar2, tempvar3
 	INTEGER  :: na1, na2, tempai
-	REAL(DP), DIMENSION(na) :: EndoCons, EndoYgrid, EndoHours
-
+	REAL(DP), DIMENSION(na_t) :: EndoCons, EndoYgrid, EndoHours
+	REAL(DP), DIMENSION(MaxAge,na_t,nz,nlambda,ne) :: Cons_t, Aprime_t, Hours_t
 	! These lines are note being used!!!!!!!!
 		! Set auxiliary value ofr psi 
 			psi = psi_PL * Ebar ** tauPL
@@ -2235,20 +2236,20 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	!------RETIREMENT PERIOD-----------------------------------------------------------------
 
 	! SET HOURS TO ZERO SO THAT RETIRED HAS ZERO HOURS
-	Hours = 0.0_DP
+	Hours_t = 0.0_DP
 
 	! Last period of life
 	age=MaxAge
 	DO lambdai=1,nlambda
 	DO zi=1,nz
     DO ei=1,ne
-    DO ai=1,na
-        Cons(age,ai,zi,lambdai,ei) =  YGRID(ai, zi) + RetY_lambda_e(lambdai,ei) 
+    DO ai=1,na_t
+        Cons_t(age,ai,zi,lambdai,ei) =  YGRID_t(ai, zi) + RetY_lambda_e(lambdai,ei) 
 	ENDDO ! ai
     ENDDO ! ei
     ENDDO ! zi
 	ENDDO ! lambdai
-	Aprime(age, :, :, :, :) = 0.0_DP
+	Aprime_t(age, :, :, :, :) = 0.0_DP
 
 	
 	! Rest of retirement
@@ -2256,10 +2257,10 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
     DO lambdai=1,nlambda
     DO zi=1,nz
     DO ei=1,ne
-    DO ai=1,na
+    DO ai=1,na_t
     	! Consumption on endogenous grid and implied asset income
-        EndoCons(ai) =   Cons(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID(ai,zi))    
-        EndoYgrid(ai) =  agrid(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
+        EndoCons(ai) =   Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID_t(ai,zi))    
+        EndoYgrid(ai) =  agrid_t(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
 	ENDDO ! ai
 
 	! Find  decision rules on exogenous grids
@@ -2271,37 +2272,37 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
 		! decision rules are obtained taking care of extrapolations
 		tempai=1           
-		DO WHILE ( YGRID(tempai,zi) .lt. EndoYgrid(1) )
+		DO WHILE ( YGRID_t(tempai,zi) .lt. EndoYgrid(1) )
             tempai = tempai + 1
         ENDDO
 	                
-		DO ai=tempai,na               
+		DO ai=tempai,na_t              
 		    ! CONSUMPTION ON EXOGENOUS GRIDS
-		    Cons(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid, EndoCons,na, YGRID(ai,zi))                                                                                 
-		    Aprime(age, ai, zi, lambdai,ei) = YGRID(ai,zi)+ RetY_lambda_e(lambdai,ei) - Cons(age, ai, zi, lambdai, ei)
-		    If (Aprime(age, ai, zi, lambdai,ei)  .lt. amin) then
-		    	Aprime(age, ai, zi, lambdai,ei) = amin
-	            Cons(age, ai, zi, lambdai,ei)   = YGRID(ai,zi) + RetY_lambda_e(lambdai,ei) - Aprime(age, ai, zi, lambdai,ei) 
-					IF (Cons(age, ai, zi, lambdai, ei) .le. 0.0_DP)  THEN
-					    print*,'r1: Cons(age, ai, zi, lambdai,ei)=',Cons(age, ai, zi, lambdai, ei)
+		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid, EndoCons,na_t, YGRID_t(ai,zi))                                                                                 
+		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)+ RetY_lambda_e(lambdai,ei) - Cons_t(age, ai, zi, lambdai, ei)
+		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
+		    	Aprime_t(age, ai, zi, lambdai,ei) = amin
+	            Cons_t(age, ai, zi, lambdai,ei)   = YGRID_t(ai,zi) + RetY_lambda_e(lambdai,ei) - Aprime_t(age, ai, zi, lambdai,ei) 
+					IF (Cons_t(age, ai, zi, lambdai, ei) .le. 0.0_DP)  THEN
+					    print*,'r1: Cons(age, ai, zi, lambdai,ei)=',Cons_t(age, ai, zi, lambdai, ei)
 					ENDIF                   
 	        endif                                                         
 		ENDDO ! ai  
 
         ai=1           
-        DO WHILE ( YGRID(ai,zi) .lt. EndoYgrid(1) )
+        DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
 			! ap_temp    = Aprime(age, tempai, zi, lambdai,1) 
 			! Solve for a' directly by solving the Euler equation for retirement FOC_R
-			brentvalue = brent(min(amin,YGRID(ai,zi)), (amin+YGRID(ai,zi))/2.0_DP , &
-			                & YGRID(ai,zi)+RetY_lambda_e(lambdai,ei) *0.95_DP, &
-			                & FOC_R, brent_tol, Aprime(age, ai, zi, lambdai,ei))
+			brentvalue = brent(min(amin,YGRID_t(ai,zi)), (amin+YGRID_t(ai,zi))/2.0_DP , &
+			                & YGRID_t(ai,zi)+RetY_lambda_e(lambdai,ei) *0.95_DP, &
+			                & FOC_R, brent_tol, Aprime_t(age, ai, zi, lambdai,ei))
 
-			Cons(age, ai, zi, lambdai, ei) =  YGRID(ai,zi)  + RetY_lambda_e(lambdai,ei)  - Aprime(age, ai, zi, lambdai,ei)
+			Cons_t(age, ai, zi, lambdai, ei) =  YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei)  - Aprime_t(age, ai, zi, lambdai,ei)
 			
-			IF (Cons(age, ai, zi, lambdai, ei) .le. 0.0_DP)  THEN
-			    print*,'r2: Cons(age, ai, zi, lambdai,ei)=',Cons(age, ai, zi, lambdai,ei)
-			    print*,'Aprime(age, ai, zi, lambdai,ei)=',Aprime(age, ai, zi, lambdai,ei)
-			    print*,'YGRID(ai,zi)+RetY_lambda_e(lambdai,ei)=',YGRID(ai,zi)+RetY_lambda_e(lambdai,ei)
+			IF (Cons_t(age, ai, zi, lambdai, ei) .le. 0.0_DP)  THEN
+			    print*,'r2: Cons(age, ai, zi, lambdai,ei)=',Cons_t(age, ai, zi, lambdai,ei)
+			    print*,'Aprime(age, ai, zi, lambdai,ei)=',Aprime_t(age, ai, zi, lambdai,ei)
+			    print*,'YGRID(ai,zi)+RetY_lambda_e(lambdai,ei)=',YGRID_t(ai,zi)+RetY_lambda_e(lambdai,ei)
 			    print*,'YGRID(ai,zi)=',YGRID(ai,zi),'EndoYgrid(1)=',EndoYgrid(1)
 			    print*,'RetY_lambda_e(lambdai,ei)=',RetY_lambda_e(lambdai,ei)
 			    print*,'lambdai=',lambdai
@@ -2324,83 +2325,101 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
     DO lambdai=1,nlambda
     DO zi=1,nz
     DO ei=1,ne	                
-    DO ai=1,na
+    DO ai=1,na_t
     	! Consumption, hours and asset income in endogenous grid
-		EndoCons(ai) =   1.0_DP /( beta*survP(age)*MBGRID(ai,zi)*SUM(pr_e(ei,:) /Cons(age+1,ai,zi,lambdai,:)))    
+		EndoCons(ai) =   1.0_DP /( beta*survP(age)*MBGRID_t(ai,zi)*SUM(pr_e(ei,:) /Cons_t(age+1,ai,zi,lambdai,:)))    
 		    
 		! Auxiliary consumption variable for FOC_H        
 		consin =  EndoCons(ai)     
 		! Solution of Labor FOC for hours
 		brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(ai) )           
 
-		EndoYgrid(ai) = agrid(ai) + EndoCons(ai) - psi*(yh(age, lambdai,ei)* EndoHours(ai))**(1.0_DP-tauPL)
+		EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - psi*(yh(age, lambdai,ei)* EndoHours(ai))**(1.0_DP-tauPL)
     ENDDO ! ai  
 
     	! Find  decision rules on exogenous grids
         tempai=1           
-        DO WHILE ( YGRID(tempai,zi) .lt. EndoYgrid(1) )
+        DO WHILE ( YGRID_t(tempai,zi) .lt. EndoYgrid(1) )
               tempai = tempai + 1
         ENDDO
 	                
 		! decision rules are obtained taking care of extrapolations
-		DO ai=tempai,na               
-		    Cons(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid, EndoCons,na, YGRID(ai,zi))   
+		DO ai=tempai,na_t               
+		    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid, EndoCons,na_t, YGRID_t(ai,zi))   
 		     
-		    consin = Cons(age, ai, zi, lambdai,ei)
+		    consin = Cons_t(age, ai, zi, lambdai,ei)
 
-		    brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, Hours(age, ai, zi, lambdai,ei))           
+		    brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
 
-		    Aprime(age, ai, zi, lambdai,ei) = YGRID(ai,zi)  &
-		                    & + psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
-		                    & - Cons(age, ai, zi, lambdai,ei)   
+		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)  &
+		                    & + psi*(yh(age, lambdai,ei)*Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
+		                    & - Cons_t(age, ai, zi, lambdai,ei)   
 		                    
-		    If   (Aprime(age, ai, zi, lambdai,ei)  .lt. amin) then
-            	Aprime(age, ai, zi, lambdai,ei) = amin
+		    If   (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
+            	Aprime_t(age, ai, zi, lambdai,ei) = amin
 		         
 	           	!compute  hours using FOC_HA                              
 		        ain = amin
 		           
-		        brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours(age, ai, zi, lambdai,ei))           
+		        brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
 
-	            Cons(age,ai,zi,lambdai,ei) = YGRID(ai,zi)+psi*(yh(age, lambdai,ei)&
-		                            		& * Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL) &
-		                            		& - Aprime(age, ai, zi, lambdai,ei)      
+	            Cons_t(age,ai,zi,lambdai,ei) = YGRID_t(ai,zi)+psi*(yh(age, lambdai,ei)&
+		                            		& * Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL) &
+		                            		& - Aprime_t(age, ai, zi, lambdai,ei)      
 
-				IF (Cons(age, ai, zi, lambdai,ei) .le. 0.0_DP)  THEN
-					print*,'w1: Cons(age, ai, zi, lambdai,ei)=',Cons(age, ai, zi, lambdai,ei)
+				IF (Cons_t(age, ai, zi, lambdai,ei) .le. 0.0_DP)  THEN
+					print*,'w1: Cons(age, ai, zi, lambdai,ei)=',Cons_t(age, ai, zi, lambdai,ei)
 				ENDIF                   
 		     endif      
 		ENDDO ! ai                  
 
 		ai=1           
-        DO WHILE ( YGRID(ai,zi) .lt. EndoYgrid(1) )
+        DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
 	        ! Solve for the Euler equation directly         
-			brentvalue = brent( min(amin,YGRID(ai,zi))   ,  (amin+YGRID(ai,zi))/2.0_DP  ,  &
-                             	& YGRID(ai,zi)  + psi * ( yh(age, lambdai,ei)*0.95_DP )**(1.0_DP-tauPL)  ,  &
-	                             & FOC_WH, brent_tol, Aprime(age, ai, zi, lambdai,ei) )
+			brentvalue = brent( min(amin,YGRID_t(ai,zi))   ,  (amin+YGRID_t(ai,zi))/2.0_DP  ,  &
+                             	& YGRID_t(ai,zi)  + psi * ( yh(age, lambdai,ei)*0.95_DP )**(1.0_DP-tauPL)  ,  &
+	                             & FOC_WH, brent_tol, Aprime_t(age, ai, zi, lambdai,ei) )
 
 			!compute  hours using FOC_HA                              
-			ain = Aprime(age, ai, zi, lambdai,ei)
+			ain = Aprime_t(age, ai, zi, lambdai,ei)
 	                       
-            brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours(age, ai, zi, lambdai,ei))           
+            brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
 	 
-            Cons(age, ai, zi, lambdai,ei)=  YGRID(ai,zi)  &
-                            & + psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  &
-                            & - Aprime(age, ai, zi, lambdai,ei)
-           IF (Cons(age, ai, zi, lambdai,ei) .le. 0.0_DP)  THEN
-                print*,'w2:',age,zi,lambdai,ei,ai, 'Cons(age, ai, zi, lambdai,ei)=',Cons(age, ai, zi, lambdai,ei), &
-                    & 'Aprime(age, ai, zi, lambdai,ei)=',Aprime(age, ai, zi, lambdai,ei), &
-                    & 'Hours(age, ai, zi, lambdai,ei)=', Hours(age, ai, zi, lambdai,ei), &
-                    & 'yh(age, lambdai,ei)=', yh(age, lambdai,ei),'YGRID(ai,zi)=',YGRID(ai,zi)
+            Cons_t(age, ai, zi, lambdai,ei)=  YGRID_t(ai,zi)  &
+                            & + psi*(yh(age, lambdai,ei)*Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  &
+                            & - Aprime_t(age, ai, zi, lambdai,ei)
+           IF (Cons_t(age, ai, zi, lambdai,ei) .le. 0.0_DP)  THEN
+                print*,'w2:',age,zi,lambdai,ei,ai, 'Cons(age, ai, zi, lambdai,ei)=',Cons_t(age, ai, zi, lambdai,ei), &
+                    & 'Aprime(age, ai, zi, lambdai,ei)=',Aprime_t(age, ai, zi, lambdai,ei), &
+                    & 'Hours(age, ai, zi, lambdai,ei)=', Hours_t(age, ai, zi, lambdai,ei), &
+                    & 'yh(age, lambdai,ei)=', yh(age, lambdai,ei),'YGRID(ai,zi)=',YGRID_t(ai,zi)
                 !pause
                 print*, "there is a problem in line 2063"
             ENDIF                   
             ai = ai + 1
         ENDDO  
 	                 
-    ENDDO  ! ei         
-    ENDDO ! zi
-    ENDDO ! lambdai
+    ENDDO !ei         
+    ENDDO !zi
+    ENDDO !lambdai
+	ENDDO !age
+
+
+	! Interpolate to get values of policy functions on agrid (note that policy functions are defined on agrid_t)
+	DO age=1,MaxAge
+    DO lambdai=1,nlambda
+    DO zi=1,nz
+    DO ei=1,ne	                
+    DO ai=1,na
+		Cons(age, ai, zi, lambdai,ei)   = Linear_Int(YGRID_t(:,zi) , Cons_t(age,:,zi,lambdai,ei)  , na_t , YGRID(ai,zi))
+    	Hours(age, ai, zi, lambdai,ei)  = Linear_Int(YGRID_t(:,zi) , Hours_t(age,:,zi,lambdai,ei) , na_t , YGRID(ai,zi))
+    	Aprime(age, ai, zi, lambdai,ei) = YGRID(ai,zi)  &
+		                    				& + psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
+		                    				& - Cons_t(age, ai, zi, lambdai,ei) 
+	ENDDO !ai         
+	ENDDO !ei         
+    ENDDO !zi
+    ENDDO !lambdai
 	ENDDO !age
 
 	! Adjust consumption by taxes
@@ -2455,21 +2474,28 @@ END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 ! THIS YGRID and Marginal Benefit of Investment GRID 
 ! NEEDS TO BE COMPUTED FOR EACH TIME THE INTEREST RATE "rr" IS UPDATED. 
 
-SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID)
+SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID,TYGRID_t,TMBGRID_t)
 	USE global
 	USE programfunctions
 	IMPLICIT NONE
-	REAL(DP), DIMENSION(na,nz), INTENT(OUT)  :: TYGRID, TMBGRID
+	REAL(DP), DIMENSION(na,nz),   INTENT(OUT) :: TYGRID, TMBGRID
+	REAL(DP), DIMENSION(na_t,nz), INTENT(OUT) :: TYGRID_t, TMBGRID_t
 	!REAL(DP), INTENT(IN) :: rr
 	!integer :: ai, zi
 
-	DO ai=1,na
 	DO zi=1,nz
+		DO ai=1,na
 		! Asset income grid (by current asset -ai- and entrepreneurial ability -zi-)
 		TYGRID(ai,zi)  = Y_a(agrid(ai),zgrid(zi))
 		! Asset marginal benefit grid (by current asset -ai- and entrepreneurial ability -zi-)
 	    TMBGRID(ai,zi) = MB_a(agrid(ai),zgrid(zi))
-	ENDDO
+		ENDDO
+		DO ai=1,na_t
+		! Asset income grid (by current asset -ai- and entrepreneurial ability -zi-)
+		TYGRID_t(ai,zi)  = Y_a(agrid_t(ai),zgrid(zi))
+		! Asset marginal benefit grid (by current asset -ai- and entrepreneurial ability -zi-)
+	    TMBGRID_t(ai,zi) = MB_a(agrid_t(ai),zgrid(zi))
+		ENDDO
 		!print*, TMBGRID(ai,:)*beta*survP(1)
 		!print*, 'TMBGRID(ai,nz)*beta*surP(age)=',TMBGRID(ai,nz)*beta*survP(1),TMBGRID(ai,nz)*beta*survP(11),TMBGRID(ai,nz)*beta*survP(21), &
 		!    & TMBGRID(ai,nz)*beta*survP(31), TMBGRID(ai,nz)*beta*survP(41),TMBGRID(ai,nz)*beta*survP(51),TMBGRID(ai,nz)*beta*survP(61)
