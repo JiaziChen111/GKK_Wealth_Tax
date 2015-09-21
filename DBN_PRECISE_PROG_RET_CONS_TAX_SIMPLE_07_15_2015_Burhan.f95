@@ -1883,6 +1883,10 @@ ENDDO
 !    & TMBGRID(ai,nz)*beta*survP(31), TMBGRID(ai,nz)*beta*survP(41),TMBGRID(ai,nz)*beta*survP(51),TMBGRID(ai,nz)*beta*survP(61)
 ENDDO
 
+print *, "Grid for asset income"
+do ai=1,na
+	write(*,*) TMBGRID(ai,:)
+end do
 !pause
 
 END SUBROUTINE FORM_Y_MB_GRID

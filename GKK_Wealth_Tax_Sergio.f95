@@ -170,7 +170,7 @@ MODULE global
     REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
     ! Auxiliary variables to find wealth tax that balances the budget in experiment economy
-    REAL(DP) :: tauWindx, tauW_low, tauW_up
+    REAL(DP) :: tauWindx, tauW_low_bt, tauW_up_bt, tauW_low_at, tauW_up_at
 
 	! Counters for the age, and index of lamnbda, z, a and e
     INTEGER :: age, lambdai, zi, ai, ei    
@@ -631,39 +631,6 @@ end Subroutine Asset_Grid_Threshold
 !========================================================================================
 !========================================================================================
 
-	FUNCTION Linear_Int_Aprime(xa,ya,n,x)  
-		USE parameters
-		IMPLICIT NONE      
-		      INTEGER:: n  
-		      REAL(DP)   :: x, xa(n),ya(n)  
-		      INTEGER k,khi,klo  
-		      REAL(DP)   :: a,b,h, Linear_Int_Aprime
-		      
-
-		!if (x .gt. amax) then
-		!    klo = na-1
-		!    elseif (x .lt. amin) then
-		!        klo = 1
-		!        else
-		!            klo = ((x - amin)/(amax-amin))**(1.0_DP/a_theta)*(na-1)+1          
-		!endif      
-		klo=1  
-		khi = klo + 1   
-		 
-		      h=xa(khi)-xa(klo)  
-		      if (h.eq.0.) then 
-		      	print*,'bad xa input in linear int'  
-		      end if
-		      a=(xa(khi)-x)/h  
-		      b=(x-xa(klo))/h  
-		      Linear_Int_Aprime=a*ya(klo)+b*ya(khi)     
-		     return  
-
-	END  Function Linear_Int_Aprime
-
-!========================================================================================
-!========================================================================================
-
 	FUNCTION brent(ax,bx,cx,func,tol,xmin)
 		USE nrtype; USE nrutil, ONLY : nrerror
 		IMPLICIT NONE
@@ -798,8 +765,8 @@ end Subroutine Asset_Grid_Threshold
 	      return  
 	END  FUNCTION ran1
 
-!******************************************************************************************
-!
+!========================================================================================
+!========================================================================================
 ! Sort: Sorts in ascending the elements of a one dimensional array of type real(8) 
 !       It also gives the original indeces of the sorted elements
 !
@@ -1148,7 +1115,7 @@ PROGRAM main
 			GBAR_exp_old = GBAR_exp
 			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
 			tauW_at = tauWmin_at + tauWindx * tauWinc_at
-			write(*,*) "This is tauW_bt currently", tauW_bt, "And tauW_at", tauW_at
+			write(*,*) "Bracketing GBAR: tauW_bt currently", tauW_bt, "And tauW_at", tauW_at
 			! Solve the model
 			CALL FIND_DBN_EQ
 			CALL COMPUTE_STATS
@@ -1158,19 +1125,20 @@ PROGRAM main
 			! Iteratioins  
 			tauWindx = tauWindx + 1.0_DP   
 
-			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
-			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 		ENDDO
 
 		! Set tauW as weighted average of point in  the grid to balance budget more precisely
-			tauW_up  = tauW_bt
-			tauW_low = tauW_bt  -  tauWinc_bt
-			tauW_bt  = tauW_low + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
-			tauW_up  = tauW_at
-			tauW_low = tauW_at  -  tauWinc_at  
-			tauW_at  = tauW_low + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			tauW_up_bt  = tauW_bt
+			tauW_low_bt = tauW_bt  -  tauWinc_bt
+			tauW_bt     = tauW_low_bt + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			tauW_up_at  = tauW_at
+			tauW_low_at = tauW_at  -  tauWinc_at  
+			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
 			print*,''
-			print*,'tauW_low =',tauW_low , 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at
+			print*,'GBAR bracketed by taxes:'
+			print*,'tauW_low_bt =', tauW_low_bt, 'tauW_up_bt=', tauW_up_bt, 'tauW_bt=', tauW_bt
+			print*,'tauW_low_at =', tauW_low_at, 'tauW_up_at=', tauW_up_at, 'tauW_bt=', tauW_at
 			print*,''
 
 		! Solve (again) experimental economy
@@ -1180,27 +1148,27 @@ PROGRAM main
 
 		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
 			GBAR_exp = GBAR
-			print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
-			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,"Gbar at midpoint of bracket and GBAR at benchmark"
+			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,''
+			print*,'Bisection for TauW:'
 			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
 			    if (GBAR_exp .gt. GBAR_bench ) then
-			        tauW_up  = tauW_bt 
+			        tauW_up_bt  = tauW_bt 
+			        tauW_up_at  = tauW_at 
 			    else
-			        tauW_low = tauW_bt
+			        tauW_low_bt = tauW_bt
+			        tauW_low_at = tauW_at
 			    endif
-			    tauW_bt = (tauW_low + tauW_up)/2.0_DP
-			    if (GBAR_exp .gt. GBAR_bench ) then
-			        tauW_up  = tauW_at 
-			    else
-			        tauW_low = tauW_at
-			    endif
-			    tauW_at = (tauW_low + tauW_up)/2.0_DP
+			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
+			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
 			    CALL FIND_DBN_EQ
 			    CALL COMPUTE_STATS
 			    CALL GOVNT_BUDGET
 			    GBAR_exp = GBAR
-			    print*,'tauW_low =', tauW_low, 'tauW_up=', tauW_up, 'tauW_bt=', tauW_bt, 'tauW_at=', tauW_at,&
-			        & 'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			    print*,'tauW_low_bt =', tauW_low_bt, 'tauW_up_bt=', tauW_up_bt, 'tauW_bt=', tauW_bt
+				print*,'tauW_low_at =', tauW_low_at, 'tauW_up_at=', tauW_up_at, 'tauW_bt=', tauW_at
+				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			ENDDO
 
 	! AGgregate variable in experimental economy
@@ -1623,7 +1591,7 @@ SUBROUTINE GOVNT_BUDGET
 	DO lambdai=1,nlambda
 	DO ei=1,ne
 	    GBAR = GBAR + DBN1(age,ai,zi,lambdai,ei) * ( tauK*( rr*(agrid(ai)*zgrid(zi))**mu-DepRate*agrid(ai) )  	&
-	          & + agrid(ai) + ( rr * (zgrid(zi) * agrid(ai) )**mu - DepRate*agrid(ai) ) *(1.0_DP-tauK)  		&
+	          & + (agrid(ai) + ( rr * (zgrid(zi) * agrid(ai) )**mu - DepRate*agrid(ai) ) *(1.0_DP-tauK)  )		&
 	          & - Y_a(agrid(ai),zgrid(zi)) 																		&	
 	          & + yh(age,lambdai,ei)*Hours(age,ai,zi,lambdai,ei)  												&
 	          & - psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  					&
@@ -1757,10 +1725,10 @@ SUBROUTINE FIND_DBN_EQ
 	        DO z2=1,nz
 	        DO lambda2=1,nlambda
 	        	DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2,lambda2,ne/2+1)   =  &
-	           		&DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
+	           		& DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
 	                & * (1.0_DP-survP(age1)) * pr_z(z1,z2) * pr_lambda(lambda1,lambda2)  *  PrAprimelo(age1, a1, z1, lambda1, e1)
 	            DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1)   =  &
-	           		&DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
+	           		& DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
 	                & * (1.0_DP-survP(age1)) * pr_z(z1,z2)*pr_lambda(lambda1,lambda2)    *  PrAprimehi(age1,a1,z1,lambda1,e1)   
 	        ENDDO
 	        ENDDO
@@ -1779,10 +1747,10 @@ SUBROUTINE FIND_DBN_EQ
 	        DO z2=1,nz
 	        DO lambda2=1,nlambda
 	            DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2,lambda2,ne/2+1)   =  &
-	           		&DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
+	           		& DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
 	                & * (1.0_DP-survP(age1)) * pr_z(z1,z2) * pr_lambda(lambda1,lambda2)  *  PrAprimelo(age1, a1, z1, lambda1, e1)     
 	            DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1)   =  &
-	           		&DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
+	           		& DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
 	                & *(1.0_DP-survP(age1)) * pr_z(z1,z2) *pr_lambda(lambda1,lambda2)*PrAprimehi(age1,a1,z1,lambda1,e1)   
 	        ENDDO
 	        ENDDO
@@ -1790,10 +1758,10 @@ SUBROUTINE FIND_DBN_EQ
 	        ! Those who live stay at z1, lambda1, and also e1 since they are retired
 	        !e2=e1
 	        DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e1) =  &
-	        	&DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e1) + DBN1(age1, a1, z1, lambda1, e1) &
+	        	& DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e1) + DBN1(age1, a1, z1, lambda1, e1) &
 	            & * survP(age1) * PrAprimelo(age1, a1, z1, lambda1, e1)     
 	        DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e1) =  &
-	          	&DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e1) + DBN1(age1, a1, z1, lambda1, e1) &
+	          	& DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e1) + DBN1(age1, a1, z1, lambda1, e1) &
 	            & * survP(age1) * PrAprimehi(age1, a1, z1, lambda1, e1) 
 	    ENDDO
 	    ENDDO
@@ -1811,10 +1779,10 @@ SUBROUTINE FIND_DBN_EQ
 	        DO z2=1,nz
 	        DO lambda2=1,nlambda
 	        	DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2,lambda2,ne/2+1)   =  &
-	           		&DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
+	           		& DBN2(1,Aplo(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) &
 	                & * (1.0_DP-survP(age1)) * pr_z(z1,z2) * pr_lambda(lambda1,lambda2)  *  PrAprimelo(age1, a1, z1, lambda1, e1)     
 	            DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1)   =  &
-	           		&DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
+	           		& DBN2(1,Aphi(age1, a1, z1, lambda1, e1), z2, lambda2, ne/2+1) + DBN1(age1, a1, z1, lambda1, e1) & 
 	                & *(1.0_DP-survP(age1)) * pr_z(z1,z2) *pr_lambda(lambda1,lambda2)*PrAprimehi(age1,a1,z1,lambda1,e1)   
 	        ENDDO
 	        ENDDO
@@ -1822,10 +1790,10 @@ SUBROUTINE FIND_DBN_EQ
 	        ! Those who live stay at z1, lambda1, but switch to e2
 	        DO e2=1, ne
 				DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e2) =  &
-	          		&DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e2) + DBN1(age1, a1, z1, lambda1, e1) &
+	          		& DBN2(age1+1, Aplo(age1, a1, z1, lambda1, e1), z1,lambda1,e2) + DBN1(age1, a1, z1, lambda1, e1) &
 	                & * survP(age1) * pr_e(e1,e2)   * PrAprimelo(age1, a1, z1, lambda1, e1)     
 	            DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e2) =  &
-	          		&DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e2) + DBN1(age1, a1, z1, lambda1, e1) &
+	          		& DBN2(age1+1, Aphi(age1, a1, z1, lambda1, e1), z1,lambda1,e2) + DBN1(age1, a1, z1, lambda1, e1) &
 	                & * survP(age1) * pr_e(e1,e2)  *  PrAprimehi(age1, a1, z1, lambda1, e1) 
 	        ENDDO
 	    ENDDO
@@ -1852,9 +1820,8 @@ SUBROUTINE FIND_DBN_EQ
 	        DO a1=1,na
 	        DO lambda1=1,nlambda
 	        DO e1=1, ne
-	             QBAR= QBAR+  DBN1(age1, a1, z1, lambda1, e1) * ( zgrid(z1) *agrid(a1) )**mu
-	             NBAR= NBAR+  DBN1(age1, a1, z1, lambda1, e1)  &
-	                             & * eff_un(age1, lambda1, e1) * Hours(age1, a1, z1, lambda1,e1)
+	             QBAR= QBAR+ DBN1(age1, a1, z1, lambda1, e1) * ( zgrid(z1) *agrid(a1) )**mu
+	             NBAR= NBAR+ DBN1(age1, a1, z1, lambda1, e1) * eff_un(age1, lambda1, e1) * Hours(age1, a1, z1, lambda1,e1)
 	        ENDDO
 	        ENDDO
 	        ENDDO    
@@ -1972,9 +1939,9 @@ SUBROUTINE COMPUTE_STATS
 	!print*,cdf_Gz_DBN
 
 	DO ai=1,na
-	     pr_a_dbn(ai)   = sum(DBN1(:,ai,:,:,:)) 
-	     cdf_a_dbn(ai) = sum( pr_a_dbn(1:ai) )      
-	     tot_a_by_grid(ai) = sum(DBN1(:,ai,:,:,:) * agrid(ai) )
+	     pr_a_dbn(ai)          = sum(DBN1(:,ai,:,:,:)) 
+	     cdf_a_dbn(ai)         = sum( pr_a_dbn(1:ai) )      
+	     tot_a_by_grid(ai)     = sum(DBN1(:,ai,:,:,:) * agrid(ai) )
 	     cdf_tot_a_by_grid(ai) = sum(tot_a_by_grid(1:ai))   
 	!     print*, pr_a_dbn(ai), cdf_a_dbn(ai)
 	ENDDO
@@ -2287,7 +2254,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
         ENDDO
 	                
 		DO ai=tempai,na_t              
-		    ! CONSUMPTION ON EXOGENOUS GRIDS
+		    ! CONSUMPTION ON EXOGENOUS GRIDS 
 		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid, EndoCons,na_t, YGRID_t(ai,zi))                                                                                 
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)+ RetY_lambda_e(lambdai,ei) - Cons_t(age, ai, zi, lambdai, ei)
 		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
@@ -2366,7 +2333,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		                    & + psi*(yh(age, lambdai,ei)*Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
 		                    & - Cons_t(age, ai, zi, lambdai,ei)   
 		                    
-		    If   (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
+		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
             	Aprime_t(age, ai, zi, lambdai,ei) = amin
 		         
 	           	!compute  hours using FOC_HA                              
@@ -2417,6 +2384,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
 
 	! Interpolate to get values of policy functions on agrid (note that policy functions are defined on agrid_t)
+	
+	if (Y_a_threshold.eq.0.0_dp) then 
+		Cons   = Cons_t
+		Hours  = Hours_t
+		Aprime = Aprime_t
+	else 
 	DO age=1,MaxAge
     DO lambdai=1,nlambda
     DO zi=1,nz
@@ -2432,6 +2405,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
     ENDDO !zi
     ENDDO !lambdai
 	ENDDO !age
+	end if 
 
 	! Deallocate policy functions on adjusted grid (so that they can be allocated later)
 	deallocate( YGRID_t  )
@@ -2501,8 +2475,6 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID,TYGRID_t,TMBGRID_t)
 	!REAL(DP), INTENT(IN) :: rr
 	!integer :: ai, zi
 
-	
-
 	DO zi=1,nz
 		DO ai=1,na
 		! Asset income grid (by current asset -ai- and entrepreneurial ability -zi-)
@@ -2520,7 +2492,7 @@ SUBROUTINE FORM_Y_MB_GRID(TYGRID, TMBGRID,TYGRID_t,TMBGRID_t)
 
 	!print *, "Grid for asset income"
 	!do ai=1,na
-	!	write(*,*) TYGRID(ai,:)
+	!	write(*,*) TMBGRID_t(ai,:)
  	!end do
 	!pause
 
