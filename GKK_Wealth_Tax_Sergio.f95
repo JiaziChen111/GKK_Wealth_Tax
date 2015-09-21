@@ -413,7 +413,7 @@ end Subroutine Asset_Grid_Threshold
 		! Compute consumption of next period given a' (given zi, lambdai and ei)
 			! The value of c' comes from interpolating next period's consumption policy function
 			! The policy function is defined over a grid of asset income Y, and is interpolated for y'
-		cprime =   Linear_Int(Ygrid(:,zi), Cons(age+1,:,zi,lambdai,ei),na, yprime)    
+		cprime =   Linear_Int(Ygrid_t(:,zi), Cons_t(age+1,:,zi,lambdai,ei),na_t, yprime)    
 
 		! Evaluate square residual of Euler equation at current state (given by (ai,zi,lambdai,ei)) and savings given by a'
 		FOC_R   = (1.0_DP / (YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
@@ -2303,10 +2303,11 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
 			! ap_temp    = Aprime(age, tempai, zi, lambdai,1) 
 			! Solve for a' directly by solving the Euler equation for retirement FOC_R
+
 			brentvalue = brent(min(amin,YGRID_t(ai,zi)), (amin+YGRID_t(ai,zi))/2.0_DP , &
 			                & YGRID_t(ai,zi)+RetY_lambda_e(lambdai,ei) *0.95_DP, &
 			                & FOC_R, brent_tol, Aprime_t(age, ai, zi, lambdai,ei))
-
+			
 			Cons_t(age, ai, zi, lambdai, ei) =  YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei)  - Aprime_t(age, ai, zi, lambdai,ei)
 			
 			IF (Cons_t(age, ai, zi, lambdai, ei) .le. 0.0_DP)  THEN
@@ -2343,7 +2344,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		consin =  EndoCons(ai)     
 		! Solution of Labor FOC for hours
 		brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(ai) )           
-
+		
 		EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - psi*(yh(age, lambdai,ei)* EndoHours(ai))**(1.0_DP-tauPL)
     ENDDO ! ai  
 
@@ -2360,7 +2361,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		    consin = Cons_t(age, ai, zi, lambdai,ei)
 
 		    brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
-
+		    
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)  &
 		                    & + psi*(yh(age, lambdai,ei)*Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
 		                    & - Cons_t(age, ai, zi, lambdai,ei)   
@@ -2372,7 +2373,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		        ain = amin
 		           
 		        brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
-
+		        
 	            Cons_t(age,ai,zi,lambdai,ei) = YGRID_t(ai,zi)+psi*(yh(age, lambdai,ei)&
 		                            		& * Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL) &
 		                            		& - Aprime_t(age, ai, zi, lambdai,ei)      
@@ -2389,12 +2390,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 			brentvalue = brent( min(amin,YGRID_t(ai,zi))   ,  (amin+YGRID_t(ai,zi))/2.0_DP  ,  &
                              	& YGRID_t(ai,zi)  + psi * ( yh(age, lambdai,ei)*0.95_DP )**(1.0_DP-tauPL)  ,  &
 	                             & FOC_WH, brent_tol, Aprime_t(age, ai, zi, lambdai,ei) )
-
+			
 			!compute  hours using FOC_HA                              
 			ain = Aprime_t(age, ai, zi, lambdai,ei)
 	                       
             brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
-	 
+	 		
             Cons_t(age, ai, zi, lambdai,ei)=  YGRID_t(ai,zi)  &
                             & + psi*(yh(age, lambdai,ei)*Hours_t(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  &
                             & - Aprime_t(age, ai, zi, lambdai,ei)
