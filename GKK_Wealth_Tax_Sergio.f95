@@ -13,6 +13,9 @@ MODULE parameters
     use nrtype
     use nrutil
 
+    ! Huge number
+    real(dp), parameter         ::  big_p   = HUGE(1.0_dp)
+
     ! Switch for computing social security with benchmark earnings
     	! If KeepSSatBench=1 then E_bar is kept at E_bar_bench for experiments
     INTEGER(I4B),  PARAMETER :: KeepSSatBench=1
@@ -381,6 +384,16 @@ end Subroutine Asset_Grid_Threshold
 		end if
 	END  FUNCTION MB_a
 
+	FUNCTION MB_a_at(a_in,z_in)
+		IMPLICIT NONE   
+		real(DP), intent(in) :: a_in, z_in
+		real(DP)             :: MB_a_at
+
+		! Compute asset marginal benefit - subject to taxes
+		MB_a_at = ( 1.0_DP + ( rr *mu* (z_in**mu) * (a_in**(mu-1.0_DP)) - DepRate ) *(1.0_DP-tauK) )*(1.0_DP-tauW_at)
+
+	END  FUNCTION MB_a_at
+
 
 !========================================================================================
 !========================================================================================
@@ -593,13 +606,12 @@ end Subroutine Asset_Grid_Threshold
 !========================================================================================
 ! Given arrays xa(1:n) and ya(1:n) of length n; this subroutine returns  linear interpolated value "y" at point "x"
 	FUNCTION Linear_Int(xa,ya,n,x)  
-	
 		USE parameters
 		IMPLICIT NONE      
-		      INTEGER:: n  
-		      REAL(DP)   :: x, xa(n),ya(n)  
-		      INTEGER k,khi,klo  
-		      REAL(DP)   :: a,b,h, Linear_Int
+		INTEGER    :: n  
+		REAL(DP)   :: x, xa(n),ya(n)  
+		INTEGER    :: k,khi,klo  
+		REAL(DP)   :: a,b,h, Linear_Int
 		      
 		   
 		klo=1  
@@ -955,8 +967,9 @@ PROGRAM main
 
 		rr    =  4.906133597851297E-002 
 		wage  =  1.97429920063330 
-		Ebar  =  1.82928004963637
+		Ebar  =  1.82928004963637  
 		Ebar_bench = Ebar
+		 
 
 		! ------- DO NOT REMOVE THE LINES ABOVE
 
@@ -2194,7 +2207,9 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	REAL(DP) :: ap_temp, brentvalue
 	REAL(DP) :: tempvar1, tempvar2, tempvar3
 	INTEGER  :: na1, na2, tempai
-	REAL(DP), DIMENSION(na_t) :: EndoCons, EndoYgrid, EndoHours
+	REAL(DP), DIMENSION(na_t+1) :: EndoCons, EndoYgrid, EndoHours
+	INTEGER , DIMENSION(na_t+1) :: sort_ind 
+	INTEGER  :: sw 
 
 	! These lines are note being used!!!!!!!!
 		! Set auxiliary value ofr psi 
@@ -2234,19 +2249,26 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
     DO lambdai=1,nlambda
     DO zi=1,nz
     DO ei=1,ne
+    	! Endogenous grid and consumption are initialized
+	    EndoCons  = big_p 
+	    EndoYgrid = big_p 
+	    sw 		  = 0
     DO ai=1,na_t
     	! Consumption on endogenous grid and implied asset income
-        EndoCons(ai) =   Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID_t(ai,zi))    
-        EndoYgrid(ai) =  agrid_t(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
+	        EndoCons(ai)  = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID_t(ai,zi))    
+	        EndoYgrid(ai) = agrid_t(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
+    	if (Y_a(agrid_t(ai),zgrid(zi)).eq.Y_a_threshold) then 
+	    	EndoCons(na_t+1)  = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi)) )  
+	    	EndoYgrid(na_t+1) = agrid_t(ai) +  EndoCons(na_t+1)   - RetY_lambda_e(lambdai,ei)
+	    	sw                = 1 
+	    end if 
 	ENDDO ! ai
+	
+	! Sort endogenous grid for interpolation
+	call Sort(na_t+1,EndoYgrid,EndoYgrid,sort_ind)
+	EndoCons = EndoCons(sort_ind)
 
 	! Find  decision rules on exogenous grids
-		! DO ai=1,na               
-			! CONSUMPTION ON EXOGENOUS GRIDS
-			! RetCons(age, ai, zi, lambdai) = Linear_Int(EndoYgrid, EndoCons,na, YGRID(ai,zi))                                                                                 
-			! Aprime(age, ai, zi, lambdai,:) = YGRID(ai,zi)+RetY(lambdai) -  RetCons(age, ai, zi, lambdai)                                         
-		! ENDDO ! ai  	
-
 		! decision rules are obtained taking care of extrapolations
 		tempai=1           
 		DO WHILE ( YGRID_t(tempai,zi) .lt. EndoYgrid(1) )
@@ -2255,7 +2277,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	                
 		DO ai=tempai,na_t              
 		    ! CONSUMPTION ON EXOGENOUS GRIDS 
-		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid, EndoCons,na_t, YGRID_t(ai,zi))                                                                                 
+		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))                                                                                 
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)+ RetY_lambda_e(lambdai,ei) - Cons_t(age, ai, zi, lambdai, ei)
 		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
 		    	Aprime_t(age, ai, zi, lambdai,ei) = amin
@@ -2302,7 +2324,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	DO age=RetAge-1,1,-1
     DO lambdai=1,nlambda
     DO zi=1,nz
-    DO ei=1,ne	                
+    DO ei=1,ne	
+    	! Endogenous grid and consumption are initialized
+	    EndoCons  = big_p 
+	    EndoYgrid = big_p 
+	    EndoHours = big_p 
+	    sw 		  = 0                    
     DO ai=1,na_t
     	! Consumption, hours and asset income in endogenous grid
 		EndoCons(ai) =   1.0_DP /( beta*survP(age)*MBGRID_t(ai,zi)*SUM(pr_e(ei,:) /Cons_t(age+1,ai,zi,lambdai,:)))    
@@ -2313,7 +2340,25 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(ai) )           
 		
 		EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - psi*(yh(age, lambdai,ei)* EndoHours(ai))**(1.0_DP-tauPL)
+
+		if (Y_a(agrid_t(ai),zgrid(zi)).eq.Y_a_threshold) then 
+	    	! Consumption, hours and asset income in endogenous grid with above threshold tax
+	    	EndoCons(na_t+1)  = 1.0_DP /( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi))* & 
+	    		                & SUM(pr_e(ei,:) /Cons_t(age+1,ai,zi,lambdai,:)))   
+	    	! Auxiliary consumption variable for FOC_H        
+			consin =  EndoCons(na_t+1)     
+			! Solution of Labor FOC for hours
+			brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(na_t+1) )           
+			
+			EndoYgrid(ai) = agrid_t(ai) + EndoCons(na_t+1) - psi*(yh(age, lambdai,ei)* EndoHours(na_t+1))**(1.0_DP-tauPL)
+	    	sw            = 1 
+	    end if 
+
     ENDDO ! ai  
+
+    ! Sort endogenous grid for interpolation
+	call Sort(na_t+1,EndoYgrid,EndoYgrid,sort_ind)
+	EndoCons = EndoCons(sort_ind)
 
     	! Find  decision rules on exogenous grids
         tempai=1           
@@ -2323,7 +2368,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 	                
 		! decision rules are obtained taking care of extrapolations
 		DO ai=tempai,na_t               
-		    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid, EndoCons,na_t, YGRID_t(ai,zi))   
+		    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))  
 		     
 		    consin = Cons_t(age, ai, zi, lambdai,ei)
 
@@ -2390,21 +2435,21 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 		Hours  = Hours_t
 		Aprime = Aprime_t
 	else 
-	DO age=1,MaxAge
-    DO lambdai=1,nlambda
-    DO zi=1,nz
-    DO ei=1,ne	                
-    DO ai=1,na
-		Cons(age, ai, zi, lambdai,ei)   = Linear_Int(YGRID_t(:,zi) , Cons_t(age,:,zi,lambdai,ei)  , na_t , YGRID(ai,zi))
-    	Hours(age, ai, zi, lambdai,ei)  = Linear_Int(YGRID_t(:,zi) , Hours_t(age,:,zi,lambdai,ei) , na_t , YGRID(ai,zi))
-    	Aprime(age, ai, zi, lambdai,ei) = YGRID(ai,zi)  &
-		                    				& + psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
-		                    				& - Cons_t(age, ai, zi, lambdai,ei) 
-	ENDDO !ai         
-	ENDDO !ei         
-    ENDDO !zi
-    ENDDO !lambdai
-	ENDDO !age
+		DO age=1,MaxAge
+	    DO lambdai=1,nlambda
+	    DO zi=1,nz
+	    DO ei=1,ne	                
+	    DO ai=1,na
+			Cons(age, ai, zi, lambdai,ei)   = Linear_Int(YGRID_t(:,zi) , Cons_t(age,:,zi,lambdai,ei)  , na_t , YGRID(ai,zi))
+	    	Hours(age, ai, zi, lambdai,ei)  = Linear_Int(YGRID_t(:,zi) , Hours_t(age,:,zi,lambdai,ei) , na_t , YGRID(ai,zi))
+	    	Aprime(age, ai, zi, lambdai,ei) = YGRID(ai,zi)  &
+			                    			& + psi*(yh(age, lambdai,ei)*Hours(age, ai, zi, lambdai,ei))**(1.0_DP-tauPL)  & 
+			                    			& - Cons_t(age, ai, zi, lambdai,ei) 
+		ENDDO !ai         
+		ENDDO !ei         
+	    ENDDO !zi
+	    ENDDO !lambdai
+		ENDDO !age
 	end if 
 
 	! Deallocate policy functions on adjusted grid (so that they can be allocated later)
