@@ -78,7 +78,7 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: tauWmin_at=0.005_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
 		INTEGER , PARAMETER  :: Y_a_threshold_pct = 0.0_dp ! Percentile of the distribution of wealth
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
@@ -237,6 +237,7 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 	real(dp)                :: max_wealth
 
 	allocate( p(2) )
+	a_ind = 0
 	! If the threshold for wealth taxes is positive then agrid is adjusted
 	if (Y_a_threshold_in.gt.0.0_dp) then 
 		p(1) = Y_a_threshold_in
@@ -922,6 +923,8 @@ PROGRAM main
 		INTEGER  ::nbeta, nphi, nsigmalambda, nrhoz, nsigmaz
 	! Counters for runs of the model
 		INTEGER  :: parindx1,  parindx2, parindx3, parindx4, parindx5
+	! Compute benchmark or load results
+		INTEGER  :: read_write_bench
 	
 	! Unused values of parameters
 		! the following solves equilibrium of capital tax economy
@@ -1079,6 +1082,8 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP
 
 	! Solve for the model and compute stats
+	read_write_bench = 1
+	if (read_write_bench.eq.0) then
 		print*,"	Initializing program"
 		CALL INITIALIZE
 		print*,"	Computing equilibrium distribution"
@@ -1089,6 +1094,12 @@ PROGRAM main
 		CALL GOVNT_BUDGET
 		print*,"	Writing variables"
 		CALL WRITE_VARIABLES(1)
+		print*,"	Saving results in text files to be read later"
+		CALL Write_Benchmark_Results(read_write_bench)
+	else
+		print*,"	Reading benchmark results from files"
+		CALL Write_Benchmark_Results(read_write_bench)
+	end if 
 
 	! Aggregate variables in benchmark economy
 		GBAR_bench  = GBAR
@@ -1105,6 +1116,9 @@ PROGRAM main
 		tauw_at_bench = tauW_at
 		Y_a_threshold_bench = Y_a_threshold
 
+		write(*,*) "Benchmark variables"
+		write(*,*) "GBAR=",GBAR,"EBAR=",EBAR,"NBAR=",NBAR,"QBAR=",QBAR,"rr=",rr,"wage=",wage
+
 
 	Print*,'--------------- SOLVING EXPERIMENT WITH BEST PARAMETERS -----------------'
 	PRINT*,''
@@ -1114,6 +1128,10 @@ PROGRAM main
 		solving_bench=0
 	! Set capital taxes to zero
 		tauK = 0.0_DP
+	! Set Y_a_threshold
+		Y_a_threshold = (sum(YGRID)/(100*na*nz))
+		write(*,*) "Y_a threshold set to 1/100*mean of Y_a grid under benchmark parameters"
+		write(*,*) "Y_a_threshold=", Y_a_threshold
 
 	! Find wealth taxes that balances budget
 	print*, "	Computing Wealth Tax to balance the budget"
@@ -1128,7 +1146,6 @@ PROGRAM main
 			GBAR_exp_old = GBAR_exp
 			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
 			tauW_at = tauWmin_at + tauWindx * tauWinc_at
-			write(*,*) "Bracketing GBAR: tauW_bt currently", tauW_bt, "And tauW_at", tauW_at
 			! Solve the model
 			CALL FIND_DBN_EQ
 			CALL COMPUTE_STATS
@@ -1137,7 +1154,7 @@ PROGRAM main
 			GBAR_exp = GBAR 
 			! Iteratioins  
 			tauWindx = tauWindx + 1.0_DP   
-
+			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 		ENDDO
 
@@ -1150,8 +1167,8 @@ PROGRAM main
 			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
 			print*,''
 			print*,'GBAR bracketed by taxes:'
-			print*,'tauW_low_bt =', tauW_low_bt, 'tauW_up_bt=', tauW_up_bt, 'tauW_bt=', tauW_bt
-			print*,'tauW_low_at =', tauW_low_at, 'tauW_up_at=', tauW_up_at, 'tauW_bt=', tauW_at
+			print*,'tauW_low_bt =', tauW_low_bt*100, 'tauW_up_bt=', tauW_up_bt*100, 'tauW_bt=', tauW_bt*100
+			print*,'tauW_low_at =', tauW_low_at*100, 'tauW_up_at=', tauW_up_at*100, 'tauW_at=', tauW_at*100
 			print*,''
 
 		! Solve (again) experimental economy
@@ -1179,8 +1196,8 @@ PROGRAM main
 			    CALL COMPUTE_STATS
 			    CALL GOVNT_BUDGET
 			    GBAR_exp = GBAR
-			    print*,'tauW_low_bt =', tauW_low_bt, 'tauW_up_bt=', tauW_up_bt, 'tauW_bt=', tauW_bt
-				print*,'tauW_low_at =', tauW_low_at, 'tauW_up_at=', tauW_up_at, 'tauW_bt=', tauW_at
+			    print*,'tauW_low_bt =', tauW_low_bt, 'tauW_up_bt=', tauW_up_bt, 'tauW_bt=', tauW_bt*100
+				print*,'tauW_low_at =', tauW_low_at, 'tauW_up_at=', tauW_up_at, 'tauW_at=', tauW_at*100
 				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			ENDDO
 
@@ -2940,6 +2957,93 @@ END SUBROUTINE LIFETIME_Y_ESTIMATE
 !========================================================================================
 !========================================================================================
 
+
+SUBROUTINE Write_Benchmark_Results(read_write)
+	use global
+	IMPLICIT NONE
+	integer :: read_write
+	
+	IF (read_write .eq. 0) then 
+		OPEN  (UNIT=1,  FILE='bench_results_cons'  , STATUS='replace')
+		WRITE (UNIT=1,  FMT=*) cons
+		CLOSE (unit=1)
+		OPEN  (UNIT=2,  FILE='bench_results_aprime', STATUS='replace')
+		WRITE (UNIT=2,  FMT=*) aprime
+		CLOSE (unit=2)
+		OPEN  (UNIT=3,  FILE='bench_results_hours' , STATUS='replace')
+		WRITE (UNIT=3,  FMT=*) hours
+		CLOSE (unit=3)
+		OPEN  (UNIT=4,  FILE='bench_results_value' , STATUS='replace')
+		WRITE (UNIT=4,  FMT=*) ValueFunction
+		CLOSE (unit=4)
+
+		OPEN  (UNIT=5,  FILE='bench_results_DBN'   , STATUS='replace')
+		WRITE (UNIT=5,  FMT=*) DBN1 
+		CLOSE (UNIT=5)
+		OPEN  (UNIT=60,  FILE='bench_results_GBAR'  , STATUS='replace')
+		WRITE (UNIT=60,  FMT=*) GBAR
+		CLOSE (UNIT=60)
+		OPEN  (UNIT=7,  FILE='bench_results_EBAR'  , STATUS='replace')
+		WRITE (UNIT=7,  FMT=*) EBAR
+		CLOSE (UNIT=7)
+		OPEN  (UNIT=8,  FILE='bench_results_NBAR'  , STATUS='replace')
+		WRITE (UNIT=8,  FMT=*) NBAR
+		CLOSE (UNIT=8)
+		OPEN  (UNIT=9,  FILE='bench_results_QBAR'  , STATUS='replace')
+		WRITE (UNIT=9,  FMT=*) QBAR
+		CLOSE (UNIT=9)
+		OPEN  (UNIT=10, FILE='bench_results_rr'    , STATUS='replace')
+		WRITE (UNIT=10, FMT=*) rr
+		CLOSE (UNIT=10)
+		OPEN  (UNIT=11, FILE='bench_results_wage'  , STATUS='replace')
+		WRITE (UNIT=11, FMT=*) wage 
+		CLOSE (UNIT=11)
+
+		print*, "Writing of benchmark results completed"
+	ELSE 
+		OPEN (UNIT=1,  FILE='bench_results_cons'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=2,  FILE='bench_results_aprime', STATUS='old', ACTION='read')
+		OPEN (UNIT=3,  FILE='bench_results_hours' , STATUS='old', ACTION='read')
+		OPEN (UNIT=4,  FILE='bench_results_value' , STATUS='old', ACTION='read')
+		OPEN (UNIT=5,  FILE='bench_results_DBN'   , STATUS='old', ACTION='read')
+		OPEN (UNIT=60, FILE='bench_results_GBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=7,  FILE='bench_results_EBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=8,  FILE='bench_results_NBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=9,  FILE='bench_results_QBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=10, FILE='bench_results_rr'    , STATUS='old', ACTION='read')
+		OPEN (UNIT=11, FILE='bench_results_wage'  , STATUS='old', ACTION='read')
+
+		READ (UNIT=1,  FMT=*), cons
+		READ (UNIT=2,  FMT=*), aprime
+		READ (UNIT=3,  FMT=*), hours
+		READ (UNIT=4,  FMT=*), ValueFunction
+		READ (UNIT=5,  FMT=*), DBN1 
+		READ (UNIT=60, FMT=*), GBAR 
+		READ (UNIT=7,  FMT=*), EBAR
+		READ (UNIT=8,  FMT=*), NBAR
+		READ (UNIT=9,  FMT=*), QBAR
+		READ (UNIT=10, FMT=*), rr
+		READ (UNIT=11, FMT=*), wage 
+
+		CLOSE (unit=1)
+		CLOSE (unit=2)
+		CLOSE (unit=3)
+		CLOSE (unit=4)
+		CLOSE (unit=5)
+		CLOSE (unit=60)
+		CLOSE (unit=7)
+		CLOSE (unit=8)
+		CLOSE (unit=9)
+		CLOSE (unit=10)
+		CLOSE (unit=11)
+
+		print*, "Reading of benchmark results completed"
+	END IF 
+END SUBROUTINE Write_Benchmark_Results
+
+!========================================================================================
+!========================================================================================
+!========================================================================================
 
 SUBROUTINE tauchen(mt,rhot,sigmat,nt,gridt,prt,Gt)
 	USE parameters
