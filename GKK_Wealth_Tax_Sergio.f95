@@ -1144,7 +1144,7 @@ PROGRAM main
 		write(*,*) "Y_a threshold is set to a proportion of the mean wealth under current distribution"
 		!Y_a_threshold = 0.0_dp ! big_p   !8.1812138704441200
 		!call Find_TauW_Threshold(DBN_bench,Y_a_threshold)  
-		!Y_a_threshold = 8.0
+		Y_a_threshold = 0.5_dp*Ebar_bench !0.75_dp
 
 	! Find wealth taxes that balances budget
 	print*, "	Computing Wealth Tax to balance the budget"
@@ -1728,7 +1728,7 @@ SUBROUTINE FIND_DBN_EQ
 
 	! Solve the model at current aggregate values
 		! Find the threshold for wealth taxes (a_bar)
-			call Find_TauW_Threshold(DBN1,Y_a_threshold)
+			!call Find_TauW_Threshold(DBN1,Y_a_threshold)
 		! Adjust grid to include breaking points
 			CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
 		! Compute labor units 
@@ -1919,7 +1919,7 @@ SUBROUTINE FIND_DBN_EQ
 
 	    	! Solve the model at current aggregate values
 				! Find the threshold for wealth taxes (a_bar)
-					call Find_TauW_Threshold(DBN1,Y_a_threshold)
+					!call Find_TauW_Threshold(DBN1,Y_a_threshold)
 				! Adjust grid to include breaking points
 					CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
 				! Compute labor units 

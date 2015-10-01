@@ -1,0 +1,136 @@
+GKK - Fixed Threshold - 0.5*Ebar
+
+
+Sergio-Ocampos-MacBook-Pro:Sergio_GGK_Code s_ocampo$ ./Sergio_2.a
+ na=         201 update_period=           5
+ 
+ --------------- SOLVING BENCHMARK WITH BEST PARAMETERS -----------------
+ 
+ CAPITAL TAX ECONOMY
+ 	Initializing program
+ 	Reading benchmark results from files
+ Reading of benchmark results completed
+ Benchmark variables
+ GBAR=  0.29319467317085779      EBAR=   1.2389672543256780      NBAR=  0.56044101813792024      QBAR=   7.9718221817907731      rr=   6.8571105030475185E-002 wage=   1.6090663039889772     
+ 
+ --------------- SOLVING EXPERIMENT WITH BEST PARAMETERS -----------------
+ 
+ Wealth Tax Economy
+ Y_a threshold is set to a proportion of the mean wealth under current distribution
+ 	Computing Wealth Tax to balance the budget
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   2.9691392635109257      Top 1%  0.39867578896620148      Top 10%  0.77669303839512382     
+ STD Labor Earnings  0.79276281745324717      Mean Labor Earnings  0.40399067877024369      Moments   8.9114969660900514E-003
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29356257611959857      SSC_Payments=  0.16526657882402176      GBAR_L=  0.28428098884446107      Av. Labor Tax=  0.22005977456606074     
+ GBAR_K=   0.0000000000000000      GBAR_W=   9.1344047307570411E-002 GBAR_C=   8.3204118791896139E-002
+ Tau_K=   0.0000000000000000      Tau_W=   2.0000000000000000E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   2.0000000000000000     
+ Current Threshold for wealth taxes  0.61948362716283900     
+ GBAR_exp =  0.29356257611959857      GBAR_bench=  0.29319467317085779     
+ 
+ GBAR bracketed by taxes:
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.5000000000000000      % tauW_up_at=   2.0000000000000000      % tauW_at=   1.9993733824086097      %
+ 
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   2.9698898921554351      Top 1%  0.39886069262647483      Top 10%  0.77676439039771750     
+ STD Labor Earnings  0.79275433012848751      Mean Labor Earnings  0.40399997389524606      Moments   8.8971830791081067E-003
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29356650317207289      SSC_Payments=  0.16526657882402987      GBAR_L=  0.28428799783399872      Av. Labor Tax=  0.22006520017212700     
+ GBAR_K=   0.0000000000000000      GBAR_W=   9.1337450551415469E-002 GBAR_C=   8.3207633610977050E-002
+ Tau_K=   0.0000000000000000      Tau_W=   1.9993733824086098E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ Gbar at midpoint of bracket and GBAR at benchmark
+ GBAR_exp =  0.29356650317207289      GBAR_bench=  0.29319467317085779     
+ 
+ Bisection for TauW:
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   3.0598335726174635      Top 1%  0.39385453118940350      Top 10%  0.77122632838793115     
+ STD Labor Earnings  0.79513421437818277      Mean Labor Earnings  0.40301984711201438      Moments   1.0261825575963921E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29007634554979034      SSC_Payments=  0.16526657882401877      GBAR_L=  0.28802964692882843      Av. Labor Tax=  0.22105002298606474     
+ GBAR_K=   0.0000000000000000      GBAR_W=   8.2905139662952460E-002 GBAR_C=   8.4408137782337689E-002
+ Tau_K=   0.0000000000000000      Tau_W=   1.7496866912043049E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.5000000000000000      % tauW_up_at=   1.9993733824086097      % tauW_at=   1.7496866912043048      %
+ Current Threshold for wealth taxes  0.61948362716283900     
+ GBAR_exp =  0.29007634554979034      GBAR_bench=  0.29319467317085779     
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   3.0155800898795238      Top 1%  0.39607736198235877      Top 10%  0.77388700247077258     
+ STD Labor Earnings  0.79402034129865773      Mean Labor Earnings  0.40347480653819934      Moments   7.5167894109174904E-003
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29191275698203517      SSC_Payments=  0.16526657882402346      GBAR_L=  0.28613115114479715      Av. Labor Tax=  0.22055022029513527     
+ GBAR_K=   0.0000000000000000      GBAR_W=   8.7235755077326296E-002 GBAR_C=   8.3812429584253501E-002
+ Tau_K=   0.0000000000000000      Tau_W=   1.8745300368064571E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.7496866912043048      % tauW_up_at=   1.9993733824086097      % tauW_at=   1.8745300368064570      %
+ Current Threshold for wealth taxes  0.61948362716283900     
+ GBAR_exp =  0.29191275698203517      GBAR_bench=  0.29319467317085779     
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   2.9940229715224560      Top 1%  0.39775329400545234      Top 10%  0.77545201536082786     
+ STD Labor Earnings  0.79348035875463152      Mean Labor Earnings  0.40376733868696157      Moments   7.7118327154462258E-003
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29282612316984613      SSC_Payments=  0.16526657882401591      GBAR_L=  0.28521841459189279      Av. Labor Tax=  0.22030635916861657     
+ GBAR_K=   0.0000000000000000      GBAR_W=   8.9349873035662344E-002 GBAR_C=   8.3524414366631883E-002
+ Tau_K=   0.0000000000000000      Tau_W=   1.9369517096075334E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.8745300368064570      % tauW_up_at=   1.9993733824086097      % tauW_at=   1.9369517096075335      %
+ Current Threshold for wealth taxes  0.61948362716283900     
+ GBAR_exp =  0.29282612316984613      GBAR_bench=  0.29319467317085779     
+ 
+ Current parameters
+ beta  0.94800001382827759      rho_z  0.20000000298023224      sigma_z  0.56000000238418579      sigma_lam  0.34000000357627869      phi   1.0199999809265137     
+ Statistics
+ W/GDP   2.9833260232927139      Top 1%  0.39873565704643554      Top 10%  0.77628237722129612     
+ STD Labor Earnings  0.79308655806464134      Mean Labor Earnings  0.40390398133176519      Moments   8.1842891876501549E-003
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.29329082830492542      SSC_Payments=  0.16526657882402113      GBAR_L=  0.28477947651822777      Av. Labor Tax=  0.22018716053525403     
+ GBAR_K=   0.0000000000000000      GBAR_W=   9.0394995177045190E-002 GBAR_C=   8.3382935433975222E-002
+ Tau_K=   0.0000000000000000      Tau_W=   1.9681625460080718E-002 Tau_C=   7.4999999999999997E-002 Threshold  0.61948362716283900     
+  
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.9369517096075335      % tauW_up_at=   1.9993733824086097      % tauW_at=   1.9681625460080718      %
+ Current Threshold for wealth taxes  0.61948362716283900     
+ GBAR_exp =  0.29329082830492542      GBAR_bench=  0.29319467317085779     
+ BENCH: rr=   6.8571105030475185E-002 wage=   1.6090663039889772      Ebar=   1.2389672543256780     
+ VALUE FUNCTION SPLINE
+  EXP: rr=   6.4375804381960666E-002 wage=   1.6695525796074024      Ebar=   1.2933518731335467     
+ VALUE FUNCTION SPLINE
+ ---------------------------
+ 
+ Average Welfare Gain Whole Population (prct)=   1.1775440651027034     
+ 
+ ---------------------------
+ ---------------------------
+ 
+ Output Gain Prct=   4.3895122020370492     
+ 
+ ---------------------------
+ Total time =   5976.6174099999998     
+Sergio-Ocampos-MacBook-Pro:Sergio_GGK_Code s_ocampo$ 
