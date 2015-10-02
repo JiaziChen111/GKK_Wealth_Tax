@@ -64,9 +64,11 @@ MODULE parameters
 
 	! Control for updates on stationary distribution
 		! Every "update_period" iterations policy functions are updated
-	INTEGER(I4B), PARAMETER  :: update_period=5
+	INTEGER(I4B), PARAMETER :: update_period=5
 		! The distribution is iterated until convergence or until "MaxSimuTime" iterations
-	INTEGER(I4B),  PARAMETER :: MaxSimuTime=500 
+	INTEGER(I4B), PARAMETER :: MaxSimuTime=500 
+		! Age categories are established
+	INTEGER(I4B), PARAMETER :: max_age_category=7
 
 	! Parameters for external functions and procedures
 		! Number of std std away from mean in tauchen
@@ -147,11 +149,13 @@ MODULE global
  
  	! Aggregate variables
 	 	! Benchmark values of Q, N, E, Wage, R, G, Y
-	    REAL(DP) :: QBAR_bench, NBAR_bench, Ebar_bench, wage_bench, rr_bench, GBAR_bench, Y_bench
+	    REAL(DP) :: QBAR_bench, NBAR_bench, Ebar_bench, wage_bench, rr_bench, GBAR_bench, Y_bench, W_bench
 	    ! Experiment values of Q, N, E, Wage, R, G, Y
 	    REAL(DP) :: QBAR_exp,   NBAR_exp,   Ebar_exp,   wage_exp,   rr_exp,   GBAR_exp, GBAR_exp_old, Y_exp
 	    ! Values for aggregate variables (used when solving a given economy)
 	    REAL(DP) :: rr, Ebar , wage, NBAR, QBAR, YBAR, GBAR
+	    ! Wealth tax threshold as proportion of mean benchmark wealth
+	    REAL(DP) :: Wealth_factor
 
 	! Asset, resources and marginal benefit of wealth grids
 		! Note that these grids will change as we change tax rates and for each intermediate good price
@@ -193,6 +197,8 @@ MODULE global
 	    REAL(DP) :: pop_25_60 , tothours_25_60, pop_pos_earn_25_60, tot_log_earnings_25_60, mean_log_earnings_25_60 
 	    REAL(DP) :: meanhours_25_60, Var_Log_Earnings_25_60, Std_Log_Earnings_25_60, MeanWealth, Wealth_Output
 	    REAL(DP) :: prct1_wealth, prct10_wealth, SSE_Moments, Min_SSE_Moments
+	    ! Welfare measures
+	    REAL(DP) :: Welfare_Gain_Pop_bench, Welfare_Gain_Pop_exp, Welfare_Gain_NB_bench, Welfare_Gain_NB_exp
 	
 	! Auxiliary variables for evaluating FOC: Consumption and assets
     	REAL(DP) :: consin, ain
@@ -1146,8 +1152,9 @@ PROGRAM main
 	! Set Y_a_threshold
 		write(*,*) "Y_a threshold is set to a proportion of the mean wealth under current distribution"
 		!Y_a_threshold = 0.0_dp ! big_p   !8.1812138704441200
-		!call Find_TauW_Threshold(DBN_bench,Y_a_threshold)  
+		call Find_TauW_Threshold(DBN_bench,W_bench)  
 		Y_a_threshold = Threshold_Factor*Ebar_bench !0.75_dp
+		Wealth_factor = Y_a_threshold/W_bench
 
 	! Find wealth taxes that balances budget
 	print*, "	Computing Wealth Tax to balance the budget"
@@ -1235,15 +1242,40 @@ PROGRAM main
 		tauw_at_exp = tauW_at
 		Y_a_threshold_exp = Y_a_threshold
 
+	CALL COMPUTE_STATS
 	CALL WRITE_VARIABLES(0)
-
 	! Compute welfare gain between economies
-	CALL COMPUTE_WELFARE_GAIN
+		CALL COMPUTE_WELFARE_GAIN
+
+	! Write in files some stats
+		OPEN (UNIT=19, FILE='Stats_Resuls', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) "Threshold_Factor="     	, Threshold_Factor
+			WRITE(UNIT=19, FMT=*) "Wealth_Factor="		  	, Wealth_Factor
+			WRITE(UNIT=19, FMT=*) "Threshold="			  	, Y_a_Threshold
+			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Below="	  	, TauW_bt
+			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above="	    , TauW_at
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(bench)" , Welfare_Gain_Pop_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(exp)"   , Welfare_Gain_Pop_exp
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
+			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)="	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
+			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) 'Wealth held by Top 1%' 	, prct1_wealth
+			WRITE(UNIT=19, FMT=*) 'Wealth held by Top 10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'STD Labor Earnings'	  	, Std_Log_Earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean Labor Earnings'   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
+		CLOSE(Unit=19)
+	
 	print*,'---------------------------'
 	print*,''
 	print*,'Output Gain Prct=', 100.0_DP*(Y_exp/Y_bench-1.0) 
 	print*,''
 	print*,'---------------------------'
+
+	print*," "
+	print*,"Wealth_factor=",Wealth_factor
+	print*," "
 
 	call cpu_time(finish_time)
 	print*,'Total time =',finish_time-start_time
@@ -1266,9 +1298,21 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 	use GLOBAL 
 	use programfunctions
 	IMPLICIT NONE
-	real(DP), DIMENSION(MaxAge):: CumDiscountF
-	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) ::  ValueFunction_Bench, ValueFunction_Exp, Cons_Eq_Welfare
-	REAL(DP), dimension(nz) ::  temp_ce_by_z
+	real(DP), dimension(MaxAge):: CumDiscountF
+	REAL(DP), dimension(MaxAge, na, nz, nlambda, ne) ::  ValueFunction_Bench, ValueFunction_Exp, Cons_Eq_Welfare
+	REAL(DP), dimension(nz) ::  temp_ce_by_z, temp_cons_by_z, temp_leisure_by_z, temp_dbn_by_z 
+	REAL(DP) :: frac_pos_welfare 
+	REAL(DP), dimension(MaxAge, nz) :: frac_pos_welfare_by_age_z, size_pos_welfare_by_age_z, size_by_age_z_bench, size_by_age_z_exp
+	INTEGER, dimension(max_age_category+1) :: age_limit
+	INTEGER :: age_group_counter
+	REAL(DP), dimension(max_age_category,nz) :: CE_by_agegroup_z 
+	REAL(DP), dimension(max_age_category,nz) :: size_pos_welfare_by_agegroup_z, frac_pos_welfare_by_agegroup_z  
+	REAL(DP), dimension(max_age_category,nz) :: tot_wealth_by_agegroup_z_bench, size_by_agegroup_z_bench, size_by_agegroup_z_exp
+	REAL(DP), dimension(max_age_category,nz) :: tot_wealth_by_agegroup_z_exp
+
+
+	! Age Brackets
+		age_limit = [0, 5, 15, 25, 35, 45, 55, MaxAge ]
 
 	! Discount factor
 		CumDiscountF(MaxAge)=1.0_DP
@@ -1353,17 +1397,17 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		    ENDDO    
 		 
 		    DO ai=1,na
-		        DO zi=1,nz
-		            DO lambdai=1,nlambda
-		                DO ei=1,ne
-		                    size_by_agegroup_z_bench(age_group_counter,zi) = size_by_agegroup_z_bench(age_group_counter,zi) + &
-		                             & DBN_bench(age,ai,zi,lambdai,ei)       
+	        DO zi=1,nz
+            DO lambdai=1,nlambda
+            DO ei=1,ne
+                size_by_agegroup_z_bench(age_group_counter,zi) = size_by_agegroup_z_bench(age_group_counter,zi) + &
+                         & DBN_bench(age,ai,zi,lambdai,ei)       
 
-		                    tot_wealth_by_agegroup_z_bench(age_group_counter,zi) = tot_wealth_by_agegroup_z_bench(age_group_counter,zi) + &
-		                             & agrid(ai)*DBN_bench(age,ai,zi,lambdai,ei)                           
-		                ENDDO
-		            ENDDO
-		        ENDDO
+                tot_wealth_by_agegroup_z_bench(age_group_counter,zi) = tot_wealth_by_agegroup_z_bench(age_group_counter,zi) + &
+                         & agrid(ai)*DBN_bench(age,ai,zi,lambdai,ei)                           
+            ENDDO
+            ENDDO
+	        ENDDO
 		    ENDDO
 		ENDDO
 
@@ -1470,68 +1514,132 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		close (unit=8)
 
 
-	! Compute consumption equivalent - Average consumption equivalents are stored
-	OPEN (UNIT=10, FILE='CE', STATUS='replace')  
-	OPEN (UNIT=11, FILE='CE_by_age', STATUS='replace')  
-	OPEN (UNIT=12, FILE='CE_by_age_z', STATUS='replace')  
+		! CE by AGE-Z GROUP
+		OPEN (UNIT=8, FILE='CE_by_AgeGroup_z', STATUS='replace') 
+		DO zi=1,nz
+		    DO age_group_counter=1,max_age_category
+		         CE_by_agegroup_z(age_group_counter,zi)= &
+		            & 100*sum(Cons_Eq_Welfare(age_limit(age_group_counter)+1:age_limit(age_group_counter+1),:,zi,:,:)* &
+		            &                         DBN_bench(age_limit(age_group_counter)+1:age_limit(age_group_counter+1),:,zi,:,:))/&
+		            &                sum( DBN_bench(age_limit(age_group_counter)+1:age_limit(age_group_counter+1),:,zi,:,:))
+		    ENDDO
+		ENDDO
+		DO age_group_counter=1,max_age_category
+		    WRITE  (UNIT=8, FMT=*)  CE_by_agegroup_z(age_group_counter,:)
+		ENDDO
+		close (unit=8)
 
-	WRITE  (UNIT=10, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
-	DO age=MaxAge,1,-1
-	    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
-	    WRITE  (UNIT=11, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
-	    DO zi=1,nz
-	         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
-	    ENDDO
-	    WRITE  (UNIT=12, FMT=*) temp_ce_by_z
+		! FRACTION POSITIVE WELFARE BY AGE-Z GROUP
+		frac_pos_welfare=0.0_DP
+		size_pos_welfare_by_age_z=0.0_DP
+
+		size_by_agegroup_z_exp = 0.0_DP
+		size_pos_welfare_by_agegroup_z = 0.0_DP
+
+		tot_wealth_by_agegroup_z_exp = 0.0_DP
+
+		age_group_counter=1
+		DO age=1,MaxAge 
+
+		    DO while (age .gt.   age_limit(age_group_counter+1) )
+		        age_group_counter=age_group_counter+1
+		    ENDDO    
+		 
+		    DO ai=1,na
+		    DO zi=1,nz
+            DO lambdai=1,nlambda
+            DO ei=1,ne
+		                    
+                If ( Cons_Eq_Welfare(age,ai,zi,lambdai,ei) .ge. 0.0_DP) then
+                    frac_pos_welfare = frac_pos_welfare +DBN_bench(age,ai,zi,lambdai,ei)
+                    size_pos_welfare_by_age_z(age,zi) = size_pos_welfare_by_age_z(age,zi) + DBN_bench(age,ai,zi,lambdai,ei)
+                    size_pos_welfare_by_agegroup_z(age_group_counter,zi)=size_pos_welfare_by_agegroup_z(age_group_counter,zi) &
+                         &+  DBN_bench(age,ai,zi,lambdai,ei)       
+                endif 
+                size_by_agegroup_z_exp(age_group_counter,zi) = size_by_agegroup_z_exp(age_group_counter,zi) + &
+                         & DBN1(age,ai,zi,lambdai,ei)       
+
+                tot_wealth_by_agegroup_z_exp(age_group_counter,zi) = tot_wealth_by_agegroup_z_exp(age_group_counter,zi) + &
+                         & agrid(ai)*DBN1(age,ai,zi,lambdai,ei)                           
+		                    
+	        ENDDO
+	        ENDDO
+	        ENDDO
+		    ENDDO
+		ENDDO
+
+
+	OPEN (UNIT=6, FILE='mean_wealth_by_agegroup_z_exp', STATUS='replace')  
+	OPEN (UNIT=7, FILE='size_by_agegroup_z_exp', STATUS='replace')  
+	DO age_group_counter=1,max_age_category
+	    WRITE  (UNIT=6, FMT=*)   tot_wealth_by_agegroup_z_exp(age_group_counter,:)/ size_by_agegroup_z_exp(age_group_counter,:)
+	    WRITE  (UNIT=7, FMT=*)   size_by_agegroup_z_exp(age_group_counter,:)
 	ENDDO
+	close (UNIT=6)
+	close (UNIT=7)
 
-	close (unit=10)
-	close (unit=11)
-	close (unit=12)
+	OPEN (UNIT=6, FILE='frac_pos_welfare_by_agegroup_z', STATUS='replace')  
+	DO age_group_counter=1,max_age_category
+	    WRITE  (UNIT=6, FMT=*)  size_pos_welfare_by_agegroup_z(age_group_counter,:)/ size_by_agegroup_z_bench(age_group_counter,:)
+	ENDDO
+	close (UNIT=6)
+
+	OPEN (UNIT=6, FILE='frac_pos_welfare', STATUS='replace')  
+	WRITE  (UNIT=6, FMT=*) frac_pos_welfare
+	close (unit=6)
+
+	OPEN (UNIT=6, FILE='frac_pos_welfare_by_age_z', STATUS='replace')  
+	DO age=1, MaxAge
+	    WRITE  (UNIT=6, FMT=*) size_pos_welfare_by_age_z(age,:)/size_by_age_z_bench(age,:)
+	ENDDO
+	close (UNIT=6)
+
+
+	! Compute average welfare
+		Welfare_Gain_Pop_bench = 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+		Welfare_Gain_Pop_exp   = 100.0_DP*sum(Cons_Eq_Welfare*DBN1)
+		Welfare_Gain_NB_bench  = 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN_bench(1,:,:,:,:))/sum(DBN_bench(1,:,:,:,:))
+		Welfare_Gain_NB_exp    = 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
 
 	print*,'---------------------------'
 	print*,''
-	print*,'Average Welfare Gain Whole Population (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+	print*,'Average Welfare Gain Whole Population (bench dbn) (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+	print*,'Average Welfare Gain Whole Population (exp dbn)     (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN1)
+	print*,'Average Welfare Gain NEW BORN (bench dbn) (prct)          =',&
+	    & 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN_bench(1,:,:,:,:))/sum(DBN_bench(1,:,:,:,:))
+	print*,'Average Welfare Gain NEW BORN (exp dbn)     (prct)          =',&
+	    & 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
 	print*,''
 	print*,'---------------------------'
 
-	! 
-		!OPEN (UNIT=7, FILE='value_bench', STATUS='replace')    
-		!WRITE  (UNIT=7, FMT=*) ValueFunction_Bench
-		!close (unit=7)
-		!
-		!OPEN (UNIT=7, FILE='value_exp', STATUS='replace')    
-		!WRITE  (UNIT=7, FMT=*) ValueFunction_Exp
-		!close (unit=7)
-		!
-		!OPEN (UNIT=7, FILE=' cons_eq_welfare', STATUS='replace')    
-		!WRITE  (UNIT=7, FMT=*)  Cons_Eq_Welfare
-		!close (unit=7)
-		!
-		!OPEN (UNIT=1, FILE=' vbench', STATUS='replace')    
-		!OPEN (UNIT=2, FILE=' vexp', STATUS='replace')    
-		!OPEN (UNIT=3, FILE=' vdbn', STATUS='replace')    
-		!OPEN (UNIT=4, FILE=' v_CE', STATUS='replace')    
-		!DO age=1,MaxAge 
-		!DO ai=1,na    
-		!    DO zi=1,nz
-		!        DO lambdai=1,nlambda          
-		!             DO ei=1,ne
-		!                    WRITE  (UNIT=1, FMT=*) ValueFunction_Bench(age, ai, zi, lambdai, ei)
-		!                    WRITE  (UNIT=2, FMT=*) ValueFunction_exp(age, ai, zi, lambdai, ei)
-		!                    WRITE  (UNIT=3, FMT=*) DBN1(age, ai, zi, lambdai, ei)                  
-		!                    WRITE  (UNIT=4, FMT=*) Cons_Eq_Welfare(age, ai, zi, lambdai, ei)                 
-		!             ENDDO ! ei          
-		!        ENDDO ! lambdai
-		!    ENDDO ! zi
-		!ENDDO ! ai
-		!ENDDO
-		!close (unit=1)
-		!close (unit=2)
-		!close (unit=3)
-		!close (unit=4)
-		!
-		!
+
+		! The following lines come from an older version of reporting Consumption Equivalent Welfare
+			! 	! Compute consumption equivalent - Average consumption equivalents are stored
+			! 	OPEN (UNIT=10, FILE='CE', STATUS='replace')  
+			! 	OPEN (UNIT=11, FILE='CE_by_age', STATUS='replace')  
+			! 	OPEN (UNIT=12, FILE='CE_by_age_z', STATUS='replace')  
+
+			! 	WRITE  (UNIT=10, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+			! 	DO age=MaxAge,1,-1
+			! 	    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+			! 	    WRITE  (UNIT=11, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
+			! 	    DO zi=1,nz
+			! 	         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
+			! 	    ENDDO
+			! 	    WRITE  (UNIT=12, FMT=*) temp_ce_by_z
+			! 	ENDDO
+
+			! 	close (unit=10)
+			! 	close (unit=11)
+			! 	close (unit=12)
+
+			! 	print*,'---------------------------'
+			! 	print*,''
+			! 	print*,'Average Welfare Gain Whole Population (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+			! 	print*,''
+			! 	print*,'---------------------------'
+
+	
 
 END SUBROUTINE  COMPUTE_WELFARE_GAIN
 
@@ -2255,58 +2363,6 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 	use  programfunctions
 	IMPLICIT NONE
 	integer :: bench_indx,  prctile
-		!IF (bench_indx .gt. 0) then 
-		!    OPEN (UNIT=2, FILE='cons_bench', STATUS='replace')
-		!    OPEN (UNIT=3, FILE='aprime_bench', STATUS='replace')
-		!    OPEN (UNIT=4, FILE='agrid_bench', STATUS='replace')
-		!    OPEN (UNIT=6, FILE='hours_bench', STATUS='replace')
-		!    OPEN (UNIT=7, FILE='Value_Bench', STATUS='replace')    
-		!    OPEN   (UNIT=8, FILE='DBN_bench', STATUS='replace')
-		!    OPEN   (UNIT=9, FILE='QBAR_bench', STATUS='replace')
-		!    OPEN   (UNIT=10, FILE='NBAR_bench', STATUS='replace')
-		!ELSE
-		!    OPEN (UNIT=2, FILE='cons_exp', STATUS='replace')
-		!    OPEN (UNIT=3, FILE='aprime_exp', STATUS='replace')
-		!    OPEN (UNIT=4, FILE='agrid_exp', STATUS='replace')
-		!    OPEN (UNIT=6, FILE='hours_exp', STATUS='replace')
-		!    OPEN (UNIT=7, FILE='Value_exp', STATUS='replace')    
-		!    OPEN   (UNIT=8, FILE='DBN_exp', STATUS='replace')
-		!    OPEN   (UNIT=9, FILE='QBAR_exp', STATUS='replace')
-		!    OPEN   (UNIT=10, FILE='NBAR_exp', STATUS='replace')
-		!    OPEN   (UNIT=11, FILE='Cons_Eq_Welfare', STATUS='replace')
-		!    WRITE(unit=11, FMT=*) Cons_Eq_Welfare
-		!    CLOSE (unit=11)
-		!ENDIF
-		!
-		!WRITE  (UNIT=2, FMT=*) cons
-		!WRITE  (UNIT=3, FMT=*) Aprime
-		!WRITE  (UNIT=4, FMT=*) agrid
-		!WRITE  (UNIT=6, FMT=*) Hours
-		!WRITE  (UNIT=7, FMT=*) ValueFunction
-		!WRITE  (UNIT=8, FMT=*) DBN1
-		!WRITE  (UNIT=9, FMT=*) QBAR 
-		!WRITE  (UNIT=10, FMT=*) NBAR
-		!
-		!close (unit=2)
-		!close (unit=3)
-		!close (unit=4)
-		!close (unit=6)
-		!close (unit=7)
-		!close (unit=8)
-		!close (unit=9)
-		!close (unit=10)
-		!
-		!OPEN   (UNIT=2, FILE='pr_a_dbn', STATUS='replace')
-		!DO ai=1,na
-		!     WRITE(unit=2, FMT=*) pr_a_dbn(ai), cdf_a_dbn(ai), tot_a_by_grid(ai), cdf_tot_a_by_grid(ai)
-		!ENDDO
-		!CLOSE (unit=2)
-		!
-		!OPEN   (UNIT=2, FILE='prctile_a_dbn', STATUS='replace')
-		!DO prctile=1,100
-		!    WRITE(unit=2, FMT=*) prctile, cdf_a_dbn(prctile_ai(prctile)),   prctile_ai(prctile),  cdf_tot_a_by_prctile(prctile)
-		!ENDDO
-		!CLOSE (unit=2)
 
 	! If benchmark economy then write as follows
 	IF (bench_indx .gt. 0) then 
@@ -2665,7 +2721,7 @@ Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_out)
 		! Mean Wealth
 		Mean_Wealth = sum( Wealth*DBN_az )
 		! Set threshold
-		Y_a_threshold_out = 0.75_dp*Mean_Wealth
+		Y_a_threshold_out = Mean_Wealth
 			!print*, "Current Threshold for wealth taxes", Y_a_threshold_out
 	end if 
 			! 	! Compute threshold for wealth tax
@@ -2882,6 +2938,10 @@ SUBROUTINE  INITIALIZE
 		agrid=amin+agrid**a_theta
 		!	print*,'agrid=',agrid
 		!!pause
+
+		OPEN   (UNIT=12, FILE='agrid', STATUS='replace')
+		WRITE(unit=12, FMT=*) agrid
+		CLOSE (unit=12)
 
 		! Fine grid
 		m=(amax-amin)**(1.0_DP/a_theta)/REAL(fine_na-1,DP)
