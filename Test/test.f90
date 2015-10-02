@@ -71,6 +71,8 @@ real, dimension(3,4)       :: dbn_1, dbn_2, a_mat, z_mat
 real, dimension(3)         :: agrid
 real, dimension(4)         :: zgrid
 integer :: i,j
+character(100) :: mydir 
+real :: aaa = 3.25
 !answer = select (array)
 call select(array,answer)
 
@@ -138,6 +140,19 @@ end do
 print*, shape( sum(sum(sum(dbn,5),4),1)  )
 print*, shape( spread(agrid,2,4) )
 print*, shape( spread(zgrid,1,3) )
+
+
+print*, " "
+print*, " "
+print*, "Make new directory"
+print*, aaa
+write(mydir,'(f4.2)') aaa
+print*, mydir
+print*, trim(mydir)
+mydir = 'Sub_Test_'//trim(mydir)
+call execute_command_line( 'mkdir -p ' // trim(mydir) )
+
+
 
 stop
 
