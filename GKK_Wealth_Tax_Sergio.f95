@@ -79,7 +79,7 @@ MODULE parameters
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
 		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
-		INTEGER , PARAMETER  :: Y_a_threshold_pct = 0.0_dp ! Percentile of the distribution of wealth
+		REAL(DP), PARAMETER  :: Threshold_Factor = 0.0_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -953,6 +953,9 @@ PROGRAM main
 		params=[ 0.9455 ,  0.8 , 0.255 , 0.34  , 1.00 ]
 		params=[ 0.948  ,  0.2 , 0.56  , 0.34  , 1.02 ]
 
+		! Latests parameters
+		params=[0.9489479959, 0.40, 0.514595031738281, 0.34, 1.01]
+
 
 	!print*,'---------------------------       PSI    NOT  ADJUSTED   ---------------------------'
 	!print*,'------------------------- RETIREMENT BENEFITS ADJUSTED - DBN ADJUSTED ------------------------'
@@ -1144,7 +1147,7 @@ PROGRAM main
 		write(*,*) "Y_a threshold is set to a proportion of the mean wealth under current distribution"
 		!Y_a_threshold = 0.0_dp ! big_p   !8.1812138704441200
 		!call Find_TauW_Threshold(DBN_bench,Y_a_threshold)  
-		Y_a_threshold = 0.5_dp*Ebar_bench !0.75_dp
+		Y_a_threshold = Threshold_Factor*Ebar_bench !0.75_dp
 
 	! Find wealth taxes that balances budget
 	print*, "	Computing Wealth Tax to balance the budget"
@@ -1291,43 +1294,90 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
 
-		! Compute the value function using interpolation and save it
-			!CALL COMPUTE_VALUE_FUNCTION_LINEAR
-			CALL COMPUTE_VALUE_FUNCTION_SPLINE  
-			ValueFunction_Bench = ValueFunction
-! 				if (any(isnan(ValueFunction_Bench))) then 
-! 					print*, "isnan - ValueFunction_Bench"
-! 					STOP 
-! 				else
-! 					print*, "Sum(ValueFunction_Bench)=",sum(ValueFunction_Bench) 
-! 				end if 
-		
-		!CALL COMPUTE_STATS
-		
-		! Print policy and value function benchmark economy
-			!OPEN (UNIT=7, FILE='c_bench', STATUS='replace')    
-			!OPEN (UNIT=8, FILE='n_bench', STATUS='replace')    
-			!OPEN (UNIT=9, FILE='ap_bench', STATUS='replace')    
-			!OPEN (UNIT=10, FILE='v_bench', STATUS='replace')    
-			!DO age=1,MaxAge 
-			!DO ai=1,na    
-			!    DO zi=1,nz
-			!        DO lambdai=1,nlambda          
-			!             DO ei=1,ne
-			!                  WRITE  (UNIT=7, FMT=*) cons(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=8, FMT=*) HOURS(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=9, FMT=*) Aprime(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=10, FMT=*) ValueFunction_Bench(age, ai, zi, lambdai, ei)
-			!               ENDDO ! ei          
-			!        ENDDO ! lambdai
-			!    ENDDO ! zi
-			!ENDDO ! ai
-			!ENDDO
-			!close (unit=7)
-			!close (unit=8)
-			!close (unit=9)
-			!close (unit=10)
+	! Compute the value function using interpolation and save it
+		!CALL COMPUTE_VALUE_FUNCTION_LINEAR
+		CALL COMPUTE_VALUE_FUNCTION_SPLINE  
+		ValueFunction_Bench = ValueFunction
 
+	! Print policy functions and distribution 
+		OPEN (UNIT=7, FILE='cons_by_age_z_bench', STATUS='replace')    
+		OPEN (UNIT=8, FILE='leisure_by_age_z_bench', STATUS='replace')    
+		OPEN (UNIT=9, FILE='dbn_by_age_z_bench', STATUS='replace')   
+		DO age=1,MaxAge    
+		    DO zi=1,nz
+		          temp_cons_by_z(zi)       		= sum(Cons(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
+		          temp_leisure_by_z(zi)    		= sum((1.0_DP-HOURS(age,:,zi,:,:))*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
+		          size_by_age_z_bench(age, zi)  = sum(DBN_bench(age,:,zi,:,:))
+		    ENDDO ! zi
+		    WRITE  (UNIT=7, FMT=*) temp_cons_by_z
+		    WRITE  (UNIT=8, FMT=*) temp_leisure_by_z
+		    WRITE  (UNIT=9, FMT=*)  size_by_age_z_bench(age, :) 
+		ENDDO
+		close (unit=7)
+		close (unit=8)
+		close (unit=9)
+
+	! This prints Aprime for different "z" for median lambda and e
+		OPEN (UNIT=5, FILE='aprime_age1_bench', STATUS='replace')     
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(1, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)
+
+		OPEN (UNIT=5, FILE='aprime_age16_bench', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(16, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+		OPEN (UNIT=5, FILE='aprime_age31_bench', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(31, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+		OPEN (UNIT=5, FILE='aprime_age46_bench', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(46, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+	! Wealth by age group
+		age_group_counter=1
+		tot_wealth_by_agegroup_z_bench=0.0_DP
+		size_by_agegroup_z_bench =0.0_DP
+		DO age=1,MaxAge 
+
+		    DO while (age .gt.   age_limit(age_group_counter+1) )
+		        age_group_counter=age_group_counter+1
+		    ENDDO    
+		 
+		    DO ai=1,na
+		        DO zi=1,nz
+		            DO lambdai=1,nlambda
+		                DO ei=1,ne
+		                    size_by_agegroup_z_bench(age_group_counter,zi) = size_by_agegroup_z_bench(age_group_counter,zi) + &
+		                             & DBN_bench(age,ai,zi,lambdai,ei)       
+
+		                    tot_wealth_by_agegroup_z_bench(age_group_counter,zi) = tot_wealth_by_agegroup_z_bench(age_group_counter,zi) + &
+		                             & agrid(ai)*DBN_bench(age,ai,zi,lambdai,ei)                           
+		                ENDDO
+		            ENDDO
+		        ENDDO
+		    ENDDO
+		ENDDO
+
+		OPEN (UNIT=6, FILE='mean_wealth_by_agegroup_z_bench', STATUS='replace')  
+		OPEN (UNIT=7, FILE='size_by_agegroup_z_bench', STATUS='replace')  
+		DO age_group_counter=1,max_age_category
+		    WRITE  (UNIT=6, FMT=*)   tot_wealth_by_agegroup_z_bench(age_group_counter,:)/ size_by_agegroup_z_bench(age_group_counter,:)
+		    WRITE  (UNIT=7, FMT=*)    size_by_agegroup_z_bench(age_group_counter,:)
+		ENDDO
+		close (UNIT=6)
+		close (UNIT=7)
+		
+
+	!=========================================== SOLVING EXP NEXT =================================
 	! Solve the experimental economy  
 		solving_bench = 0  
 		tauK  = tauK_exp
@@ -1344,45 +1394,80 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		CALL ComputeLaborUnits(Ebar, wage) 
 		CALL EGM_RETIREMENT_WORKING_PERIOD 
 
-		! Compute the value function using interpolation and save it
-			!CALL COMPUTE_VALUE_FUNCTION_LINEAR
-			CALL COMPUTE_VALUE_FUNCTION_SPLINE 
-			ValueFunction_Exp = ValueFunction
+	! Compute the value function using interpolation and save it
+		!CALL COMPUTE_VALUE_FUNCTION_LINEAR
+		CALL COMPUTE_VALUE_FUNCTION_SPLINE 
+		ValueFunction_Exp = ValueFunction
 
-! 				if (any(isnan(ValueFunction_Exp))) then 
-! 					print*, "isnan - ValueFunction_Exp"
-! 					STOP 
-! 				else
-! 					print*, "Sum(ValueFunction_Exp)=",sum(ValueFunction_Exp) 
-! 					print*, "Max(Cons)=", maxval(Cons),"max(Val)",maxval(ValueFunction_Exp)
-! 					print*, "Maxloc(Cons)=", maxloc(Cons),"maxloc(Val)",maxloc(ValueFunction_Exp)
-! 				end if 
+	! Print policy functions and distribution 
+		OPEN (UNIT=7, FILE='cons_by_age_z_exp', STATUS='replace')    
+		OPEN (UNIT=8, FILE='leisure_by_age_z_exp', STATUS='replace')   
+		OPEN (UNIT=9, FILE='dbn_by_age_z_exp', STATUS='replace')   
+		DO age=1,MaxAge 
+		    DO zi=1,nz
+		          temp_cons_by_z(zi)       = sum(Cons(age,:,zi,:,:)*DBN1(age,:,zi,:,:))/sum(DBN1(age,:,zi,:,:))
+		          temp_leisure_by_z(zi)    = sum((1.0_DP-HOURS(age,:,zi,:,:))*DBN1(age,:,zi,:,:))/sum(DBN1(age,:,zi,:,:))
+		          size_by_age_z_exp(age, zi)         = sum(DBN1(age,:,zi,:,:))
+		    ENDDO ! zi
+		    WRITE  (UNIT=7, FMT=*) temp_cons_by_z
+		    WRITE  (UNIT=8, FMT=*) temp_leisure_by_z
+		    WRITE  (UNIT=9, FMT=*) size_by_age_z_exp(age, :)  
+		ENDDO
+		close (unit=7)
+		close (unit=8)
+		close (unit=9)
 
-		!CALL COMPUTE_STATS
+	! This prints Aprime for different "z" for median lambda and e
+		OPEN (UNIT=5, FILE='aprime_age1_exp', STATUS='replace')     
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(1, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)
 
-		! Print policy and value function benchmark economy
-			!OPEN (UNIT=7, FILE='c_exp', STATUS='replace')    
-			!OPEN (UNIT=8, FILE='n_exp', STATUS='replace')    
-			!OPEN (UNIT=9, FILE='ap_exp', STATUS='replace')    
-			!OPEN (UNIT=10, FILE='v_exp', STATUS='replace')    
-			!DO age=1,MaxAge 
-			!DO ai=1,na    
-			!    DO zi=1,nz
-			!        DO lambdai=1,nlambda          
-			!             DO ei=1,ne
-			!                  WRITE  (UNIT=7, FMT=*) cons(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=8, FMT=*) HOURS(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=9, FMT=*) Aprime(age, ai, zi, lambdai, ei)
-			!                  WRITE  (UNIT=10, FMT=*) ValueFunction_exp(age, ai, zi, lambdai, ei)
-			!               ENDDO ! ei          
-			!        ENDDO ! lambdai
-			!    ENDDO ! zi
-			!ENDDO ! ai
-			!ENDDO
-			!close (unit=7)
-			!close (unit=8)
-			!close (unit=9)
-			!close (unit=10)
+		OPEN (UNIT=5, FILE='aprime_age16_exp', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(16, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+		OPEN (UNIT=5, FILE='aprime_age31_exp', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(31, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+		OPEN (UNIT=5, FILE='aprime_age46_exp', STATUS='replace')   
+		DO zi=1,nz 
+		    WRITE  (UNIT=5, FMT=*) Aprime(46, :, zi, nlambda/2+1, ne/2+1)
+		ENDDO
+		close (unit=5)  
+
+	! Consumption Equivalent Welfare
+		OPEN (UNIT=5, FILE='CE_NEWBORN', STATUS='replace')  
+		OPEN (UNIT=6, FILE='CE', STATUS='replace')  
+		OPEN (UNIT=7, FILE='CE_by_age', STATUS='replace')  
+		OPEN (UNIT=8, FILE='CE_by_age_z', STATUS='replace')  
+
+		DO age=1,MaxAge
+		    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+		    WRITE  (UNIT=7, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
+		    DO zi=1,nz
+		         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
+		    ENDDO
+		    WRITE  (UNIT=8, FMT=*) temp_ce_by_z
+		    print*,'age=',age, temp_ce_by_z, ', mean:  ', &
+		        & 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
+		ENDDO
+
+		WRITE  (UNIT=5, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN_bench(1,:,:,:,:))/sum(DBN_bench(1,:,:,:,:))
+		WRITE  (UNIT=5, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
+		WRITE  (UNIT=6, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
+		WRITE  (UNIT=6, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN1)
+
+		close (unit=5)
+		close (unit=6)
+		close (unit=7)
+		close (unit=8)
 
 
 	! Compute consumption equivalent - Average consumption equivalents are stored
