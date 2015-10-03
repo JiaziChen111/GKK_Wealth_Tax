@@ -3,11 +3,11 @@ GKK_Wealth_Tax: Sergio.a
 simple: Sergio_Simple.a
 simple_2: Sergio_Simple_2.a
 
-NRTYPE.o: NRTYPE.f90
-	gfortran -c NRTYPE.f90
+NRTYPE.o: NRTYPE.F90
+	gfortran -c NRTYPE.F90
 
-NRUTIL.o: NRUTIL.f90 NRTYPE.o
-	gfortran -c NRUTIL.f90 NRTYPE.o
+NRUTIL.o: NRUTIL.F90 NRTYPE.o
+	gfortran -c NRUTIL.F90 NRTYPE.o
 
 Toolbox.o: Toolbox.f90 NRTYPE.o NRUTIL.o
 	gfortran Toolbox.f90 NRTYPE.o NRUTIL.o
