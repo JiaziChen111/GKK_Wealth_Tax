@@ -80,8 +80,8 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 0.0_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 1.00_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -978,7 +978,7 @@ PROGRAM main
 	print*,'na=',na,'update_period=',update_period
 
 	! Set parameters to be used in all simulations economy
-		OPEN   (UNIT=3, FILE=Result_Folder//'params', STATUS='replace')
+		OPEN   (UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
 		WRITE(unit=3, FMT=*) params
 		CLOSE (unit=3)
 		
@@ -1257,7 +1257,7 @@ PROGRAM main
 		CALL COMPUTE_WELFARE_GAIN
 
 	! Write in files some stats
-		OPEN (UNIT=19, FILE=Result_Folder//'Stats_Resuls', STATUS='replace') 
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'Stats_Resuls', STATUS='replace') 
 			WRITE(UNIT=19, FMT=*) "Threshold_Factor="     	, Threshold_Factor
 			WRITE(UNIT=19, FMT=*) "Wealth_Factor="		  	, Wealth_Factor
 			WRITE(UNIT=19, FMT=*) "Threshold="			  	, Y_a_Threshold
@@ -1361,9 +1361,9 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		ValueFunction_Bench = ValueFunction
 
 	! Print policy functions and distribution 
-		OPEN (UNIT=7, FILE=Result_Folder//'cons_by_age_z_bench', STATUS='replace')    
-		OPEN (UNIT=8, FILE=Result_Folder//'leisure_by_age_z_bench', STATUS='replace')    
-		OPEN (UNIT=9, FILE=Result_Folder//'dbn_by_age_z_bench', STATUS='replace')   
+		OPEN (UNIT=7, FILE=trim(Result_Folder)//'cons_by_age_z_bench', STATUS='replace')    
+		OPEN (UNIT=8, FILE=trim(Result_Folder)//'leisure_by_age_z_bench', STATUS='replace')    
+		OPEN (UNIT=9, FILE=trim(Result_Folder)//'dbn_by_age_z_bench', STATUS='replace')   
 		DO age=1,MaxAge    
 		    DO zi=1,nz
 		          temp_cons_by_z(zi)       		= sum(Cons(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
@@ -1379,25 +1379,25 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		close (unit=9)
 
 	! This prints Aprime for different "z" for median lambda and e
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age1_bench', STATUS='replace')     
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age1_bench', STATUS='replace')     
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(1, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age16_bench', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age16_bench', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(16, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)  
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age31_bench', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age31_bench', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(31, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)  
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age46_bench', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age46_bench', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(46, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
@@ -1428,8 +1428,8 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		    ENDDO
 		ENDDO
 
-		OPEN (UNIT=6, FILE=Result_Folder//'mean_wealth_by_agegroup_z_bench', STATUS='replace')  
-		OPEN (UNIT=7, FILE=Result_Folder//'size_by_agegroup_z_bench', STATUS='replace')  
+		OPEN (UNIT=6, FILE=trim(Result_Folder)//'mean_wealth_by_agegroup_z_bench', STATUS='replace')  
+		OPEN (UNIT=7, FILE=trim(Result_Folder)//'size_by_agegroup_z_bench', STATUS='replace')  
 		DO age_group_counter=1,max_age_category
 		    WRITE  (UNIT=6, FMT=*)   tot_wealth_by_agegroup_z_bench(age_group_counter,:)/ size_by_agegroup_z_bench(age_group_counter,:)
 		    WRITE  (UNIT=7, FMT=*)    size_by_agegroup_z_bench(age_group_counter,:)
@@ -1461,9 +1461,9 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		ValueFunction_Exp = ValueFunction
 
 	! Print policy functions and distribution 
-		OPEN (UNIT=7, FILE=Result_Folder//'cons_by_age_z_exp', STATUS='replace')    
-		OPEN (UNIT=8, FILE=Result_Folder//'leisure_by_age_z_exp', STATUS='replace')   
-		OPEN (UNIT=9, FILE=Result_Folder//'dbn_by_age_z_exp', STATUS='replace')   
+		OPEN (UNIT=7, FILE=trim(Result_Folder)//'cons_by_age_z_exp', STATUS='replace')    
+		OPEN (UNIT=8, FILE=trim(Result_Folder)//'leisure_by_age_z_exp', STATUS='replace')   
+		OPEN (UNIT=9, FILE=trim(Result_Folder)//'dbn_by_age_z_exp', STATUS='replace')   
 		DO age=1,MaxAge 
 		    DO zi=1,nz
 		          temp_cons_by_z(zi)       = sum(Cons(age,:,zi,:,:)*DBN1(age,:,zi,:,:))/sum(DBN1(age,:,zi,:,:))
@@ -1479,35 +1479,35 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		close (unit=9)
 
 	! This prints Aprime for different "z" for median lambda and e
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age1_exp', STATUS='replace')     
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age1_exp', STATUS='replace')     
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(1, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age16_exp', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age16_exp', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(16, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)  
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age31_exp', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age31_exp', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(31, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)  
 
-		OPEN (UNIT=5, FILE=Result_Folder//'aprime_age46_exp', STATUS='replace')   
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'aprime_age46_exp', STATUS='replace')   
 		DO zi=1,nz 
 		    WRITE  (UNIT=5, FMT=*) Aprime(46, :, zi, nlambda/2+1, ne/2+1)
 		ENDDO
 		close (unit=5)  
 
 	! Consumption Equivalent Welfare
-		OPEN (UNIT=5, FILE=Result_Folder//'CE_NEWBORN', STATUS='replace')  
-		OPEN (UNIT=6, FILE=Result_Folder//'CE', STATUS='replace')  
-		OPEN (UNIT=7, FILE=Result_Folder//'CE_by_age', STATUS='replace')  
-		OPEN (UNIT=8, FILE=Result_Folder//'CE_by_age_z', STATUS='replace')  
+		OPEN (UNIT=5, FILE=trim(Result_Folder)//'CE_NEWBORN', STATUS='replace')  
+		OPEN (UNIT=6, FILE=trim(Result_Folder)//'CE', STATUS='replace')  
+		OPEN (UNIT=7, FILE=trim(Result_Folder)//'CE_by_age', STATUS='replace')  
+		OPEN (UNIT=8, FILE=trim(Result_Folder)//'CE_by_age_z', STATUS='replace')  
 
 		DO age=1,MaxAge
 		    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
@@ -1532,7 +1532,7 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 
 
 		! CE by AGE-Z GROUP
-		OPEN (UNIT=8, FILE=Result_Folder//'CE_by_AgeGroup_z', STATUS='replace') 
+		OPEN (UNIT=8, FILE=trim(Result_Folder)//'CE_by_AgeGroup_z', STATUS='replace') 
 		DO zi=1,nz
 		    DO age_group_counter=1,max_age_category
 		         CE_by_agegroup_z(age_group_counter,zi)= &
@@ -1586,8 +1586,8 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 		ENDDO
 
 
-	OPEN (UNIT=6, FILE=Result_Folder//'mean_wealth_by_agegroup_z_exp', STATUS='replace')  
-	OPEN (UNIT=7, FILE=Result_Folder//'size_by_agegroup_z_exp', STATUS='replace')  
+	OPEN (UNIT=6, FILE=trim(Result_Folder)//'mean_wealth_by_agegroup_z_exp', STATUS='replace')  
+	OPEN (UNIT=7, FILE=trim(Result_Folder)//'size_by_agegroup_z_exp', STATUS='replace')  
 	DO age_group_counter=1,max_age_category
 	    WRITE  (UNIT=6, FMT=*)   tot_wealth_by_agegroup_z_exp(age_group_counter,:)/ size_by_agegroup_z_exp(age_group_counter,:)
 	    WRITE  (UNIT=7, FMT=*)   size_by_agegroup_z_exp(age_group_counter,:)
@@ -1595,17 +1595,17 @@ SUBROUTINE COMPUTE_WELFARE_GAIN
 	close (UNIT=6)
 	close (UNIT=7)
 
-	OPEN (UNIT=6, FILE=Result_Folder//'frac_pos_welfare_by_agegroup_z', STATUS='replace')  
+	OPEN (UNIT=6, FILE=trim(Result_Folder)//'frac_pos_welfare_by_agegroup_z', STATUS='replace')  
 	DO age_group_counter=1,max_age_category
 	    WRITE  (UNIT=6, FMT=*)  size_pos_welfare_by_agegroup_z(age_group_counter,:)/ size_by_agegroup_z_bench(age_group_counter,:)
 	ENDDO
 	close (UNIT=6)
 
-	OPEN (UNIT=6, FILE=Result_Folder//'frac_pos_welfare', STATUS='replace')  
+	OPEN (UNIT=6, FILE=trim(Result_Folder)//'frac_pos_welfare', STATUS='replace')  
 	WRITE  (UNIT=6, FMT=*) frac_pos_welfare
 	close (unit=6)
 
-	OPEN (UNIT=6, FILE=Result_Folder//'frac_pos_welfare_by_age_z', STATUS='replace')  
+	OPEN (UNIT=6, FILE=trim(Result_Folder)//'frac_pos_welfare_by_age_z', STATUS='replace')  
 	DO age=1, MaxAge
 	    WRITE  (UNIT=6, FMT=*) size_pos_welfare_by_age_z(age,:)/size_by_age_z_bench(age,:)
 	ENDDO
@@ -2383,7 +2383,7 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 
 	! If benchmark economy then write as follows
 	IF (bench_indx .gt. 0) then 
-		OPEN   (UNIT=2, FILE=Result_Folder//'output_bench.txt', STATUS='replace')
+		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_bench.txt', STATUS='replace')
 
 		WRITE  (UNIT=2, FMT=*)  'Params=[', params,']'
 		WRITE  (UNIT=2, FMT=*)  'GBAR_bench=', GBAR_bench
@@ -2398,7 +2398,7 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 	! If experimental economy then write as follows
 	else
 
-		OPEN   (UNIT=2, FILE=Result_Folder//'output_exp.txt', STATUS='replace')
+		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_exp.txt', STATUS='replace')
 
 		WRITE  (UNIT=2, FMT=*)  'GBAR_exp=', GBAR_exp
 		WRITE  (UNIT=2, FMT=*)  'QBAR_exp=',QBAR_exp
@@ -2956,7 +2956,7 @@ SUBROUTINE  INITIALIZE
 		!	print*,'agrid=',agrid
 		!!pause
 
-		OPEN   (UNIT=12, FILE=Result_Folder//'agrid', STATUS='replace')
+		OPEN   (UNIT=12, FILE=trim(Result_Folder)//'agrid', STATUS='replace')
 		WRITE(unit=12, FMT=*) agrid
 		CLOSE (unit=12)
 
