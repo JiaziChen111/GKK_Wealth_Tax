@@ -80,8 +80,8 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.015_DP, tauWinc_at=0.005_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 1.50_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 2.77_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -1268,11 +1268,11 @@ PROGRAM main
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
 			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)="	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
-			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
-			WRITE(UNIT=19, FMT=*) 'Wealth held by Top 1%' 	, prct1_wealth
-			WRITE(UNIT=19, FMT=*) 'Wealth held by Top 10%'	, prct10_wealth
-			WRITE(UNIT=19, FMT=*) 'STD Labor Earnings'	  	, Std_Log_Earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean Labor Earnings'   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) "W/GDP="				  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'   	, meanhours_25_60
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
 			WRITE(UNIT=19, FMT=*) ' '
 			WRITE(UNIT=19, FMT=*) 'GBAR_bench='				, GBAR_bench                   , 'GBAR_exp=' , GBAR_exp
