@@ -80,8 +80,8 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.02_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 2.77_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.023_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 2.80_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -158,7 +158,7 @@ MODULE global
 	    ! Values for aggregate variables (used when solving a given economy)
 	    REAL(DP) :: rr, Ebar , wage, NBAR, QBAR, YBAR, GBAR
 	    ! Wealth tax threshold as proportion of mean benchmark wealth
-	    REAL(DP) :: Wealth_factor
+	    REAL(DP) :: Wealth_factor, Threshold_Share
 
 	! Asset, resources and marginal benefit of wealth grids
 		! Note that these grids will change as we change tax rates and for each intermediate good price
@@ -1188,7 +1188,7 @@ PROGRAM main
 			! Iteratioins  
 			tauWindx = tauWindx + 1.0_DP   
 			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
-			print*, "Current Threshold for wealth taxes", Y_a_threshold
+			print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 		ENDDO
 
@@ -1232,7 +1232,7 @@ PROGRAM main
 			    GBAR_exp = GBAR
 			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
 				print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
-				print*, "Current Threshold for wealth taxes", Y_a_threshold
+				print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
 				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			ENDDO
 
@@ -1274,6 +1274,7 @@ PROGRAM main
 			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'   	, meanhours_25_60
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
+			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
 			WRITE(UNIT=19, FMT=*) ' '
 			WRITE(UNIT=19, FMT=*) 'GBAR_bench='				, GBAR_bench                   , 'GBAR_exp=' , GBAR_exp
 			WRITE(UNIT=19, FMT=*) 'QBAR_bench='				, QBAR_bench                   , 'QBAR_exp=' , QBAR_exp
@@ -2222,6 +2223,7 @@ SUBROUTINE COMPUTE_STATS
 	REAL(DP):: MeanReturn, StdReturn, VarReturn 
 	REAL(DP), DIMENSION(nz) :: cdf_Gz_DBN 
 	REAL(DP), DIMENSION(nz):: MeanReturn_by_z, size_by_z
+	REAL(dp), DIMENSION(na,nz) :: DBN_az, wealth
 
 	DO zi=1,nz
 	    cdf_Gz_DBN(zi) = sum(DBN1(:,:,zi,:,:))
@@ -2354,14 +2356,29 @@ SUBROUTINE COMPUTE_STATS
 	ENDDO    
 	MeanReturn_by_z = MeanReturn_by_z / size_by_z
 
+	! Percentage of the population above threshold
+		! Compute distribution of agents by (a,z)
+		DBN_az = sum(sum(sum(DBN1,5),4),1)
+		! Compute mean before tax wealth
+		Wealth = spread(agrid,2,nz)+(rr*(spread(zgrid,1,na)*spread(agrid,2,nz))**mu-DepRate*spread(agrid,2,nz))*(1.0_DP-tauK)
+		! Compute share of agents above threshold
+		Threshold_Share = 0.0_dp
+		do ai=1,na
+		do zi=1,nz 
+			if (Wealth(ai,zi).gt.Y_a_threshold) then 
+				Threshold_Share = Threshold_Share + DBN_az(ai,zi)
+			end if 
+		end do 
+		end do 
+
 	!print*, 'MeanReturn=',MeanReturn, 'StdReturn=', StdReturn
 	!print*,'MeanReturn_by_z=',MeanReturn_by_z
 
 	SSE_Moments = (Wealth_Output-3.0_DP)**2.0_DP + (prct1_wealth-0.34_DP)**2.0_DP  + (prct10_wealth-0.71_DP)**2.0_DP &
 	                   & + (Std_Log_Earnings_25_60 -0.8_DP)**2.0_DP + (meanhours_25_60-0.4_DP)**2.0_DP
 	!print*,''
-	print*,"Current parameters"
-	print*,'beta',beta,'rho_z',rho_z,'sigma_z',sigma_z_eps,'sigma_lam',sigma_lambda_eps,'phi',phi
+	!print*,"Current parameters"
+	!print*,'beta',beta,'rho_z',rho_z,'sigma_z',sigma_z_eps,'sigma_lam',sigma_lambda_eps,'phi',phi
 	print*,"Statistics"
 	print*,'W/GDP',Wealth_Output,'Top 1%',prct1_wealth,'Top 10%',prct10_wealth
 	print*,'STD Labor Earnings',Std_Log_Earnings_25_60,'Mean Labor Earnings',meanhours_25_60,'Moments',SSE_Moments 
