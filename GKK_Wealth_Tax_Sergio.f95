@@ -1065,7 +1065,8 @@ PROGRAM main
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
 		Result_Folder = './NSU_Results/Factor_'//trim(Result_Folder)//'/'
-		call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
+		! call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
+		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
 	
 	! Unused values of parameters
