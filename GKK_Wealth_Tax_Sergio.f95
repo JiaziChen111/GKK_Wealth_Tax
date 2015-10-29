@@ -1853,7 +1853,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                    DO ai=1,na                        
 	                         call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
 	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-	                               & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)* ValueP(ai)                        
+	                               & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)* ValueP(ai)
 	                    ENDDO ! ai
 	               ENDDO ! ei          
 	        ENDDO ! lambdai
@@ -2283,7 +2283,7 @@ SUBROUTINE FIND_DBN_EQ()
                 Aplo(age,ai,zi,lambdai, ei)  = tklo
                 Aphi(age,ai,zi,lambdai, ei)  = tkhi        
                 PrAprimelo(age,ai,zi,lambdai, ei) = ( agrid(tkhi) - Aprime(age,ai,zi,lambdai, ei) ) / ( agrid(tkhi) -agrid(tklo) )
-                PrAprimehi(age,ai,zi,lambdai, ei) = ( Aprime(age,ai,zi,lambdai, ei) - agrid(tklo) ) / ( agrid(tkhi) -agrid(tklo) )            
+                PrAprimehi(age,ai,zi,lambdai, ei) = ( Aprime(age,ai,zi,lambdai, ei) - agrid(tklo) ) / ( agrid(tkhi) -agrid(tklo) )
 	        ENDDO
 	        ENDDO
 	        ENDDO
@@ -2667,7 +2667,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	                
 		DO ai=tempai,na_t              
 		    ! CONSUMPTION ON EXOGENOUS GRIDS 
-		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))                                                                                 
+		    Cons_t(age, ai, zi, lambdai, ei)  = Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)+ RetY_lambda_e(lambdai,ei) - Cons_t(age, ai, zi, lambdai, ei)
 		    
 		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
