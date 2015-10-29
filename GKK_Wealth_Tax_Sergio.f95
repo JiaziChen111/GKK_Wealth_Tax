@@ -33,7 +33,7 @@ MODULE parameters
 
     ! Switch for seprable vs non-separable utiltiy
     	! If Utility_Type=1 then use separable utility
-    INTEGER(I4B),  PARAMETER :: Utility_Type=0
+    INTEGER(I4B),  PARAMETER :: Utility_Type=1
 
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
@@ -95,8 +95,8 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.023_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 0.0_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 2.0_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -164,6 +164,7 @@ MODULE global
     	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda) :: AnRetCons,   AnRetValue, AnRetHours 
 	! Policy function and value function (defined on the adjusted grid for breakpoints)
 	REAL(DP), DIMENSION(:,:,:,:,:), allocatable :: Cons_t, Hours_t, Aprime_t
+	!REAL(DP), DIMENSION(MaxAge,na+nz,nz,nlambda,ne) :: Cons_t, Hours_t, Aprime_t
  
  	! Aggregate variables
 	 	! Benchmark values of Q, N, E, Wage, R, G, Y
@@ -257,10 +258,11 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 	real(dp), dimension(nz) :: a_aux
 	integer                 :: a_ind
 	integer , dimension(:), allocatable :: agrid_t_ind
-	real(dp), dimension(:), allocatable :: p
+	!real(dp), dimension(:), allocatable :: p
+	real(dp), dimension(2)  :: p
 	real(dp)                :: max_wealth
 
-	allocate( p(2) )
+	!allocate( p(2) )
 	a_ind = 0
 	! If the threshold for wealth taxes is positive then agrid is adjusted
 	if (Y_a_threshold_in.gt.0.0_dp) then 
@@ -269,9 +271,15 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 			! New points are added to agrid if there is an "a" st Y(a,z))=Y_threshold
 			max_wealth = (1.0_dp-DepRate)*agrid(na)+rr*(agrid(na)*zgrid(zi))**mu
 			if (Y_a_threshold_in.lt.max_wealth) then
+				print*, 'Im here'
 				a_ind		 = a_ind + 1 
 				p(2)         = zgrid(zi)
-				a_aux(a_ind) = zbrent_p(Y_a_res,0.0_dp,agrid(na),brent_tol,p) 
+				!a_aux(a_ind) = zbrent_p(Y_a_res,0.0_dp,agrid(na),brent_tol,p) 
+				a_aux(a_ind) = zbrent(Y_a_res,0.0_dp,agrid(na),brent_tol)
+				print*, 'Im there' 
+			else 
+				print*, 'Error in forming a grid with threshold'
+				STOP
 			end if 
  		end do 
 
@@ -297,16 +305,18 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 
 	contains 
 
-		function Y_a_res(a_in,p)
+		!function Y_a_res(a_in,p)
+		function Y_a_res(a_in)
 			real(dp), intent(in) :: a_in
-			real(dp), dimension(:), allocatable, intent(in) :: p
+			!real(dp), dimension(:), allocatable, intent(in) :: p
 			real(dp) :: Y_a_res, Y_a_th, z_in
-
+			print*, 'Im inside'
 			Y_a_th = p(1)
 			z_in   = p(2)
-
+			print*, 'Im after p'
+			print*, p
 			Y_a_res = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) ) - Y_a_th
-
+			print*, 'Im at the end'
 		end function Y_a_res
 
 end Subroutine Asset_Grid_Threshold
@@ -1025,8 +1035,8 @@ PROGRAM main
 	! Set initia lvalues of R, Wage, Ebar to find equilibrium
 		! ------- DO NOT REMOVE THE LINES BELOW
 
-		!rr    =  4.906133597851297E-002 
-		rr    =  0.10_dp
+		rr    =  4.906133597851297E-002 
+		!! rr    =  0.10_dp
 		wage  =  1.97429920063330 
 		Ebar  =  1.82928004963637  
 		Ebar_bench = Ebar
@@ -1142,7 +1152,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 0
+	read_write_bench = 1
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
@@ -2649,7 +2659,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 					! Solution for hours from Euler equation
 					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
 					! Implied consumption by hours from Labor FOC
-					EndoCons(ai) = (theta/(1-theta))*(1-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+					EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
 				end if 
 				! Endogenous grid for asset income
 				EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - Y_h(EndoHours(ai),age,lambdai,ei,wage)
@@ -2667,7 +2677,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 					! Solution for hours from Euler equation
 					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(na_t+1) ) 
 					! Implied consumption by hours from Labor FOC
-					EndoCons(na_t+1) = (theta/(1-theta))*(1-EndoHours(na_t+1))*MB_h(EndoHours(na_t+1),age,lambdai,ei,wage)
+					EndoCons(na_t+1) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(na_t+1))*MB_h(EndoHours(na_t+1),age,lambdai,ei,wage)
 				end if 
 				! Endogenous grid for asset income
 				EndoYgrid(na_t+1) = agrid_t(ai) + EndoCons(na_t+1) -  Y_h(EndoHours(na_t+1),age,lambdai,ei,wage)
@@ -2687,7 +2697,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				! Solution for hours from Euler equation
 				brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
 				! Implied consumption by hours from Labor FOC
-				EndoCons(ai) = (theta/(1-theta))*(1-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+				EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
 			end if
 			EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) -  Y_h(EndoHours(ai),age,lambdai,ei,wage)
 	    end if 
@@ -2733,7 +2743,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				Hours_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoHours(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))
 				!print*, 'Interpolated Hours:',  Hours_t(age, ai, zi, lambdai,ei)
 				! Get value of consumption from labor FOC
-				Cons_t(age,ai,zi,lambdai,ei) = (theta/(1-theta))*(1-Hours_t(age,ai,zi,lambdai,ei))* &
+				Cons_t(age,ai,zi,lambdai,ei) = (theta/(1.0_dp-theta))*(1.0_dp-Hours_t(age,ai,zi,lambdai,ei))* &
 				                                MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
 				if (isnan(MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage))) then
 					print*,'Error number 1'
