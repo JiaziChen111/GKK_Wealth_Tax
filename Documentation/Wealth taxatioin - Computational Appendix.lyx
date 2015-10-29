@@ -3610,5 +3610,694 @@ Then obtain
 \end_layout
 
 \end_deeper
+\begin_layout Section
+Non-separable utility
+\end_layout
+
+\begin_layout Standard
+Consider the problem of an agent while working:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray}
+V_{h}\left(a,z,\lambda,e\right) & = & \max_{c,n,a^{'}}\, U\left(c,n\right)+\beta s_{h}E\left[V_{h+1}\left(a^{'},z,\lambda,e^{'}\right)|e\right]\label{eq: Value Fun. Working-1}\\
+\mbox{s.t.} &  & \left(1+\tau_{c}\right)\hat{c}+a^{'}=\left(a+\left(P\left(za\right)za-\delta a\right)\left(1-\tau_{k}\right)\right)\left(1-\tau_{w}\right)+T_{n}\left(W\hat{y}_{ih}n\right)\nonumber 
+\end{eqnarray}
+
+\end_inset
+
+In this problem there are linear taxes on consumption, capital income, and
+ wealth, as well as a nonlinear tax on labor income, described by function
+ 
+\begin_inset Formula $T_{n}\left(\cdot\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+After retirement 
+\begin_inset Formula $\left(h\geq\overline{h}\right)$
+\end_inset
+
+ the problem of the a gent is:
+\begin_inset Formula 
+\begin{eqnarray}
+V_{h}\left(a,z,\lambda,e\right) & = & \max_{c,n,a^{'}}\, U\left(c,0\right)+\beta s_{h}E\left[V_{h+1}\left(a^{'},z,\lambda,e^{'}\right)|e\right]\label{eq: Value Fun. Retirement-1}\\
+\mbox{s.t.} &  & \left(1+\tau_{c}\right)\hat{c}+a^{'}=\left(a+\left(P\left(za\right)za-\delta a\right)\left(1-\tau_{k}\right)\right)\left(1-\tau_{w}\right)+y^{R}\left(\lambda,e\right)\nonumber 
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It will be convenient to define:
+\begin_inset Formula 
+\begin{equation}
+c=\left(1+\tau_{c}\right)\hat{c}\qquad y_{ih}=W\hat{y}_{ih}\qquad Y\left(a\right)=\left(a+\left(P\left(za\right)za-\delta a\right)\left(1-\tau_{k}\right)\right)\left(1-\tau_{w}\right)
+\end{equation}
+
+\end_inset
+
+and 
+\begin_inset Formula 
+\[
+Y_{nh}=\begin{cases}
+T_{n}\left(y_{ih}n\right) & \mbox{ if }h<\overline{h}\\
+y^{R}\left(\lambda,e\right) & \mbox{ if }h\geq\overline{h}
+\end{cases}
+\]
+
+\end_inset
+
+Note that 
+\begin_inset Formula 
+\[
+c=Y\left(a\right)+Y_{nh}-a^{'}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consider the consumption savings decision in any period.
+ The solution is characterized by the Euler equation:
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Formula 
+\[
+\log\left(\hat{c}\right)=\log\left(c\right)-\log\left(1-\tau_{c}\right)=\log\left(Y+Y_{nh}-a^{'}\right)-\log\left(1-\tau_{c}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray*}
+U_{c}\left(c_{h},n_{h}\right) & = & \beta s_{h+1}E\left[V_{h+1}^{'}\left(a^{'},z,\lambda,e^{'}\right)|e\right]\\
+\frac{1}{c_{h}} & = & \beta s_{h+1}E\left[V_{h+1}^{'}\left(a^{'},z,\lambda,e^{'}\right)|e\right]
+\end{eqnarray*}
+
+\end_inset
+
+The envelope condition of the problem is:
+\begin_inset Formula 
+\begin{eqnarray*}
+V_{h}^{'}\left(a,z,\lambda,e\right) & = & U_{c}\left(c_{h}\left(a,z,\lambda,e\right),n_{h}\left(a,z,\lambda,e\right)\right)\left(\frac{\partial Y}{\partial a}\right)\\
+ & = & U_{c}\left(c_{h}\left(a,z,\lambda,e\right),n_{h}\left(a,z,\lambda,e\right)\right)\left(1+\left(P^{'}\left(za\right)z^{2}a+P\left(za\right)z-\delta\right)\left(1-\tau_{k}\right)\right)\left(1-\tau_{w}\right)\\
+ & = & U_{c}\left(c_{h}\left(a,z,\lambda,e\right),n_{h}\left(a,z,\lambda,e\right)\right)\mbox{MB}\left(a,z\right)
+\end{eqnarray*}
+
+\end_inset
+
+where 
+\begin_inset Formula $c_{h}\left(a,z,\lambda,e\right)$
+\end_inset
+
+ and 
+\begin_inset Formula $n_{h}\left(\left(a,z,\lambda,e\right)\right)$
+\end_inset
+
+ are the optimal consumption and labor functions at age 
+\begin_inset Formula $h$
+\end_inset
+
+, and 
+\begin_inset Formula 
+\begin{equation}
+\mbox{MB}\left(a\right)=\left(1+\left(P^{'}\left(za\right)z^{2}a+P\left(za\right)z-\delta\right)\left(1-\tau_{k}\right)\right)\left(1-\tau_{w}\right)
+\end{equation}
+
+\end_inset
+
+ gives the marginal benefit of an extra unit of assets.
+ Note that MB is not stochastic or age dependent, it is completely determined
+ by the value of 
+\begin_inset Formula $a$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Joining the expressions:
+\begin_inset Formula 
+\begin{equation}
+\left(c_{h},n_{h}\right)=\beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[U_{c}\left(c_{h+1},n_{h+1}\right)|e\right]\label{eq: Euler Equation-1}
+\end{equation}
+
+\end_inset
+
+From this equation it is possible recover the optimal value of current consumpti
+on 
+\begin_inset Formula $c$
+\end_inset
+
+ implied by a level of savings 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+, given a consumption function for the next age.
+ Note that this equation is valid for all periods before 
+\begin_inset Formula $H$
+\end_inset
+
+, regardless of retirement.
+ In the last period of life the optimal consumption decision implies not
+ savings and gives:
+\begin_inset Formula 
+\begin{equation}
+c_{H}\left(a,z,\lambda,e\right)=Y\left(a\right)+Y_{nH}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consider now the labor choice decision for periods before retirement.
+ The solution is characterized by the following equation:
+\begin_inset Formula 
+\begin{eqnarray}
+T_{n}^{'}\left(y_{ih}n\right)y_{ih}U_{c}\left(c_{h},n_{h}\right) & = & U_{n}\left(c_{h},n_{h}\right)\label{eq: Labor Choice Equation-1}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Functional form
+\end_layout
+
+\begin_layout Standard
+Let the utility be given by:
+\begin_inset Formula 
+\[
+U\left(c,n\right)=\frac{\left(c^{\theta}\left(1-n\right)^{1-\theta}\right)^{1-\sigma}}{1-\sigma}
+\]
+
+\end_inset
+
+which implies:
+\begin_inset Formula 
+\[
+U_{c}\left(c,n\right)=\theta c^{\left(1-\sigma\right)\theta-1}\left(1-n\right)^{\left(1-\sigma\right)\left(1-\theta\right)}\qquad U_{n}\left(c,n\right)=\left(1-\theta\right)c^{\left(1-\sigma\right)\theta}\left(1-n\right)^{\left(1-\sigma\right)\left(1-\theta\right)-1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Replacing on the FOC when working we get:
+\begin_inset Formula 
+\begin{eqnarray*}
+\theta c_{h}^{\left(1-\sigma\right)\theta-1}\left(1-n_{h}\right)^{\left(1-\sigma\right)\left(1-\theta\right)} & = & \beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[\theta c_{h+1}^{\left(1-\sigma\right)\theta-1}\left(1-n_{h+1}\right)^{\left(1-\sigma\right)\left(1-\theta\right)}|e\right]\\
+T_{n}^{'}\left(y_{ih}n\right)y_{ih}\frac{\theta}{1-\theta}\left(1-n_{h}\right) & = & c_{h}
+\end{eqnarray*}
+
+\end_inset
+
+Then we can solve for 
+\begin_inset Formula $n_{h}$
+\end_inset
+
+ from the first equation, letting 
+\begin_inset Formula $c_{h}$
+\end_inset
+
+ be given by the second equation.
+ 
+\end_layout
+
+\begin_layout Standard
+The problem during retirement is simpler since 
+\begin_inset Formula $n_{h}=0$
+\end_inset
+
+.
+ The equation so solve is:
+\begin_inset Formula 
+\[
+c_{h}=\left[\frac{\beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[\theta c_{h+1}^{\left(1-\sigma\right)\theta-1}|e\right]}{\theta}\right]^{\frac{1}{\left(1-\sigma\right)\theta-1}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algorithm
+\end_layout
+
+\begin_layout Standard
+The EGM algorithm can be partially applied to this setting.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Retirement:
+\end_layout
+
+\begin_layout Enumerate
+Set 
+\begin_inset Formula $n_{h}\left(a,z,\lambda,e\right)=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $h$
+\end_inset
+
+ in retirement and state 
+\begin_inset Formula $\left(a,z,\lambda,e\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+In the last period 
+\begin_inset Formula $c_{H}\left(a,z,\lambda,e\right)=Y\left(a\right)+Y_{nH}$
+\end_inset
+
+ and 
+\begin_inset Formula $a_{H}^{'}\left(a,z,\lambda,e\right)=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $\left(a,z,\lambda,e\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+For 
+\begin_inset Formula $h<H$
+\end_inset
+
+ in retirement first set an 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+ and define 
+\begin_inset Formula $\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)$
+\end_inset
+
+ as the endogenous consumption implied by 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)=\left[\beta s_{h}\mbox{MB}\left(a^{'}\right)\right]^{\frac{1}{\left(1-\sigma\right)\theta-1}}c_{h+1}\left(a^{'},z,\lambda,e^{'}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+This implies an endogenous value of current asset income 
+\begin_inset Formula $\tilde{Y}\left(a^{'}\right)$
+\end_inset
+
+ given by:
+\begin_inset Formula 
+\[
+\tilde{Y}\left(a^{'}\right)=a^{'}+\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)-y^{R}\left(\lambda,e\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Obtain the the policy function for consumption by interpolating the values
+ of 
+\begin_inset Formula $\tilde{c}_{h}$
+\end_inset
+
+, at known values of 
+\begin_inset Formula $\tilde{Y}$
+\end_inset
+
+, for the values of 
+\begin_inset Formula $Y\left(a\right)$
+\end_inset
+
+ implied by the grid 
+\begin_inset Formula $\vec{a}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+The value of 
+\begin_inset Formula $a_{h}^{'}\left(a,z,\lambda,e\right)$
+\end_inset
+
+ is obtained as: 
+\begin_inset Formula 
+\[
+a_{h}^{'}\left(a,z,\lambda,e\right)=Y\left(a\right)+y^{R}\left(\lambda,e\right)-c_{h}\left(a,z,\lambda,e\right)
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $c_{h}$
+\end_inset
+
+ is obtained through interpolation.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Two things can go wrong in the process above:
+\end_layout
+
+\begin_layout Enumerate
+This process can induce values of 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+ that lie below the minimum value of the grid 
+\begin_inset Formula $a_{min}$
+\end_inset
+
+.
+ In that case set 
+\begin_inset Formula $a_{h}^{'}\left(a,z,\lambda,e\right)=a_{min}$
+\end_inset
+
+ and 
+\begin_inset Formula $c_{h}\left(a,z,\lambda,e\right)=Y\left(a\right)+y^{R}\left(\lambda,e\right)-a_{min}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+This process above can induce extrapolation if 
+\begin_inset Formula $\vec{a}_{i}$
+\end_inset
+
+ induces 
+\begin_inset Formula $Y\left(\vec{a}_{i}\right)<\tilde{Y}\left(a_{min}\right)$
+\end_inset
+
+.
+ When this happens the Euler equation is solved numerically for 
+\begin_inset Formula $a_{h}^{'}\left(\vec{a}_{i}\right)$
+\end_inset
+
+.
+ The equation to be solved is:
+\begin_inset Formula 
+\[
+0=\left(Y\left(\vec{a}_{i}\right)+y^{R}\left(\lambda,e\right)-a^{'}\right)^{\left(1-\sigma\right)\theta-1}-\beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[c_{h+1}^{\left(1-\sigma\right)\theta-1}|e\right]
+\]
+
+\end_inset
+
+where the value of 
+\begin_inset Formula $c_{h+1}\left(a^{'},z,\lambda,e\right)$
+\end_inset
+
+ is obtained through interpolation since the values of 
+\begin_inset Formula $c_{h+1}$
+\end_inset
+
+ are known at the values of the grid 
+\begin_inset Formula $\vec{a}$
+\end_inset
+
+.
+ 
+\begin_inset Newline newline
+\end_inset
+
+Once 
+\begin_inset Formula $a_{h}^{'}\left(\vec{a}_{i},z,\lambda,e\right)$
+\end_inset
+
+ is obtained consumption is computed as 
+\begin_inset Formula $c_{h}\left(\vec{a}_{i},z,\lambda,e\right)=Y\left(\vec{a}_{i}\right)+y^{R}\left(\lambda,e\right)-a_{h}^{'}\left(\vec{a}_{i},z,\lambda,e\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Working
+\end_layout
+
+\begin_layout Enumerate
+Note that for any working period the policy functions for 
+\begin_inset Formula $c_{h+1}$
+\end_inset
+
+ and 
+\begin_inset Formula $n_{h+1}$
+\end_inset
+
+ are known.
+\end_layout
+
+\begin_layout Enumerate
+Set an 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+ and define 
+\begin_inset Formula $\tilde{n}_{h}\left(a^{'},z,\lambda,e\right)$
+\end_inset
+
+, 
+\begin_inset Formula $\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)$
+\end_inset
+
+ as the endogenous labor and consumption implied by 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+ when solving:
+\begin_inset Formula 
+\[
+0=\tilde{c}_{h}^{\left(1-\sigma\right)\theta-1}\left(1-\tilde{n}_{h}\left(a^{'}\right)\right)^{\left(1-\sigma\right)\left(1-\theta\right)}-\beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[c_{h+1}^{\left(1-\sigma\right)\theta-1}\left(1-n_{h+1}\right)^{\left(1-\sigma\right)\left(1-\theta\right)}|e\right]
+\]
+
+\end_inset
+
+where where 
+\begin_inset Formula 
+\[
+\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)=T_{n}^{'}\left(y_{ih}\tilde{n}_{h}\left(a^{'}\right)\right)y_{ih}\frac{\theta}{1-\theta}\left(1-\tilde{n}_{h}\left(a^{'}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Knowing consumption and labor the respective point of 
+\begin_inset Formula $\tilde{Y}\left(a^{'}\right)$
+\end_inset
+
+ is obtained:
+\begin_inset Formula 
+\[
+\tilde{Y}\left(a^{'}\right)=a^{'}+\tilde{c}_{h}\left(a^{'},z,\lambda,e\right)-T_{h}\left(y_{h}\left(\lambda,e\right)n_{h}\left(a^{'}\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The policy function for labor can be obtained by interpolating the values
+ of 
+\begin_inset Formula $\tilde{n}_{h}$
+\end_inset
+
+, at known values of 
+\begin_inset Formula $\tilde{Y}$
+\end_inset
+
+, for the values of 
+\begin_inset Formula $Y\left(a\right)$
+\end_inset
+
+ implied by the grid 
+\begin_inset Formula $\vec{a}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+With the labor choice consumption can be set as:
+\begin_inset Formula 
+\[
+c_{h}\left(a,z,\lambda,e\right)=T_{n}^{'}\left(y_{ih}n_{h}\left(a\right)\right)y_{ih}\frac{\theta}{1-\theta}\left(1-n_{h}\left(a\right)\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The value of 
+\begin_inset Formula $a_{h}^{'}\left(a,z,\lambda,e\right)$
+\end_inset
+
+ is obtained as: 
+\begin_inset Formula 
+\[
+a_{h}^{'}\left(a,z,\lambda,e\right)=Y\left(a\right)+T_{n}\left(y_{h}\left(\lambda,e\right)n_{h}\left(a,z,\lambda,e\right)\right)-c_{h}\left(a,z,\lambda,e\right)
+\]
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Two things can go wrong in the process above:
+\end_layout
+
+\begin_layout Enumerate
+This process can induce values of 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+ that lie below the minimum value of the grid 
+\begin_inset Formula $a_{min}$
+\end_inset
+
+.
+ In that case set 
+\begin_inset Formula $a_{h}^{'}\left(a,z,\lambda,e\right)=a_{min}$
+\end_inset
+
+ and solve for 
+\begin_inset Formula $n_{h}\left(a,z,\lambda,e\right)$
+\end_inset
+
+ from the equation:
+\begin_inset Formula 
+\[
+0=\left(Y\left(a\right)+T_{n}\left(y_{h}\left(\lambda,e\right)n_{h}\left(a_{min},z,\lambda,e\right)\right)-a_{min}\right)-T_{n}^{'}\left(y_{ih}n_{h}\left(a_{min}\right)\right)y_{ih}\frac{\theta}{1-\theta}\left(1-n_{h}\left(a_{min}\right)\right)
+\]
+
+\end_inset
+
+solved over 
+\begin_inset Formula $n_{h}$
+\end_inset
+
+.
+ 
+\begin_inset Newline newline
+\end_inset
+
+Finally consumption is given by 
+\begin_inset Formula $c_{h}\left(a,z,\lambda,e\right)=Y\left(a\right)+T_{n}\left(y_{h}\left(\lambda,e\right)n_{h}\left(a_{min},z,\lambda,e\right)\right)-a_{min}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+This process can induce extrapolation if 
+\begin_inset Formula $\vec{a}_{i}$
+\end_inset
+
+ induces 
+\begin_inset Formula $Y\left(\vec{a}_{i}\right)<\tilde{Y}\left(a_{min}\right)$
+\end_inset
+
+.
+ When this happens the Euler equation is solved numerically for 
+\begin_inset Formula $a_{h}^{'}\left(\vec{a}_{i}\right)$
+\end_inset
+
+.
+ With respect to the problem after retirement now labor has to be solved
+ as well.
+ To deal with this guess a value of 
+\begin_inset Formula $a^{'}$
+\end_inset
+
+, for that value solve for 
+\begin_inset Formula $n_{h}$
+\end_inset
+
+ as in the equation of the previous point.
+ Then solve equation:
+\begin_inset Formula 
+\[
+0=\theta\left(Y\left(a\right)+T_{n}\left(y_{h}\left(\lambda,e\right)n_{h}\left(a,z,\lambda,e\right)\right)-a\right)^{\left(1-\sigma\right)\theta-1}\left(1-\tilde{n}_{h}\left(a^{'}\right)\right)^{\left(1-\sigma\right)\left(1-\theta\right)}-\beta s_{h}\mbox{MB}\left(a^{'}\right)E\left[\theta c_{h+1}^{\left(1-\sigma\right)\theta-1}\left(1-n_{h+1}\right)^{\left(1-\sigma\right)\left(1-\theta\right)}|e\right]
+\]
+
+\end_inset
+
+where the value of 
+\begin_inset Formula $c_{h+1}\left(a^{'},z,\lambda,e\right)$
+\end_inset
+
+ is obtained through interpolation since the values of 
+\begin_inset Formula $c_{h+1}$
+\end_inset
+
+ are known at the values of the grid 
+\begin_inset Formula $\vec{a}$
+\end_inset
+
+.
+ 
+\begin_inset Newline newline
+\end_inset
+
+Once 
+\begin_inset Formula $a_{h}^{'}\left(\vec{a}_{i},z,\lambda,e\right)$
+\end_inset
+
+ is obtained consumption is computed as 
+\begin_inset Formula $c_{h}\left(\vec{a}_{i},z,\lambda,e\right)=Y\left(\vec{a}_{i}\right)+y^{R}\left(\lambda,e\right)-a_{h}^{'}\left(\vec{a}_{i},z,\lambda,e\right)$
+\end_inset
+
+.
+\end_layout
+
 \end_body
 \end_document
