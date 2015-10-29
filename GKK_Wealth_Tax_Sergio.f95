@@ -33,7 +33,7 @@ MODULE parameters
 
     ! Switch for seprable vs non-separable utiltiy
     	! If Utility_Type=1 then use separable utility
-    INTEGER(I4B),  PARAMETER :: Utility_Type=1
+    INTEGER(I4B),  PARAMETER :: Utility_Type=0
 
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
@@ -1152,7 +1152,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 1
+	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
