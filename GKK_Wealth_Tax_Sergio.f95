@@ -258,11 +258,11 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 	real(dp), dimension(nz) :: a_aux
 	integer                 :: a_ind
 	integer , dimension(:), allocatable :: agrid_t_ind
-	!real(dp), dimension(:), allocatable :: p
-	real(dp), dimension(2)  :: p
+	real(dp), dimension(:), allocatable :: p
+	!real(dp), dimension(2)  :: p
 	real(dp)                :: max_wealth
 
-	!allocate( p(2) )
+	allocate( p(2) )
 	a_ind = 0
 	! If the threshold for wealth taxes is positive then agrid is adjusted
 	if (Y_a_threshold_in.gt.0.0_dp) then 
@@ -273,8 +273,8 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 			if (Y_a_threshold_in.lt.max_wealth) then
 				a_ind		 = a_ind + 1 
 				p(2)         = zgrid(zi)
-				!a_aux(a_ind) = zbrent_p(Y_a_res,0.0_dp,agrid(na),brent_tol,p) 
-				a_aux(a_ind) = zbrent(Y_a_res,0.0_dp,agrid(na),brent_tol)
+				a_aux(a_ind) = zbrent_p(Y_a_res,0.0_dp,agrid(na),brent_tol,p) 
+				!a_aux(a_ind) = zbrent(Y_a_res,0.0_dp,agrid(na),brent_tol)
 			else 
 				print*, 'Error in forming a grid with threshold'
 				STOP
@@ -301,12 +301,15 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 		allocate( Hours_t(MaxAge,na_t,nz,nlambda,ne) )
 		allocate( Aprime_t(MaxAge,na_t,nz,nlambda,ne) )
 
-	contains 
+	!contains 
 
-		!function Y_a_res(a_in,p)
-		function Y_a_res(a_in)
+		
+end Subroutine Asset_Grid_Threshold
+
+		function Y_a_res(a_in,p)
+		!function Y_a_res(a_in)
 			real(dp), intent(in) :: a_in
-			!real(dp), dimension(:), allocatable, intent(in) :: p
+			real(dp), dimension(:), allocatable, intent(in) :: p
 			real(dp) :: Y_a_res, Y_a_th, z_in
 
 			Y_a_th = p(1)
@@ -315,7 +318,6 @@ Subroutine Asset_Grid_Threshold(Y_a_threshold_in,agrid_t,na_t)
 			Y_a_res = ( a_in + ( rr * (z_in * a_in )**mu - DepRate*a_in ) ) - Y_a_th
 		end function Y_a_res
 
-end Subroutine Asset_Grid_Threshold
 
 !========================================================================================
 !========================================================================================
@@ -953,87 +955,87 @@ end Subroutine Asset_Grid_Threshold
 !========================================================================================
 !========================================================================================
 
-	! 	FUNCTION zbrent_p(func,x1,x2,tol,par)
-	! 		USE nrtype; USE nrutil, ONLY : nrerror
-	! 		IMPLICIT NONE
-	! 		REAL(DP), INTENT(IN) :: x1,x2,tol
-	! 		REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
-	! 		REAL(DP) :: zbrent_p
-	! 		INTERFACE
-	! 			FUNCTION func(x,par)
-	! 			USE nrtype
-	! 			IMPLICIT NONE
-	! 			REAL(DP), INTENT(IN) :: x
-	! 			REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
-	! 			REAL(DP) :: func
-	! 			END FUNCTION func
-	! 		END INTERFACE
-	! 		INTEGER(I4B), PARAMETER :: ITMAX=100
-	! 		REAL(DP), PARAMETER :: EPS=epsilon(x1)
-	! 		INTEGER(I4B) :: iter
-	! 		REAL(DP) :: a,b,c,d,e,fa,fb,fc,p,q,r,s,tol1,xm
-	! 		a=x1
-	! 		b=x2
-	! 		fa=func(a,par)
-	! 		fb=func(b,par)
-	! 		if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) &
-	! 			call nrerror('root must be bracketed for zbrent_p')
-	! 		c=b
-	! 		fc=fb
-	! 		do iter=1,ITMAX
-	! 			if ((fb > 0.0 .and. fc > 0.0) .or. (fb < 0.0 .and. fc < 0.0)) then
-	! 				c=a
-	! 				fc=fa
-	! 				d=b-a
-	! 				e=d
-	! 			end if
-	! 			if (abs(fc) < abs(fb)) then
-	! 				a=b
-	! 				b=c
-	! 				c=a
-	! 				fa=fb
-	! 				fb=fc
-	! 				fc=fa
-	! 			end if
-	! 			tol1=2.0_DP*EPS*abs(b)+0.5_DP*tol
-	! 			xm=0.5_DP*(c-b)
-	! 			if (abs(xm) <= tol1 .or. fb == 0.0) then
-	! 				zbrent_p=b
-	! 				RETURN
-	! 			end if
-	! 			if (abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
-	! 				s=fb/fa
-	! 				if (a == c) then
-	! 					p=2.0_DP*xm*s
-	! 					q=1.0_DP-s
-	! 				else
-	! 					q=fa/fc
-	! 					r=fb/fc
-	! 					p=s*(2.0_DP*xm*q*(q-r)-(b-a)*(r-1.0_DP))
-	! 					q=(q-1.0_DP)*(r-1.0_DP)*(s-1.0_DP)
-	! 				end if
-	! 				if (p > 0.0) q=-q
-	! 				p=abs(p)
-	! 				if (2.0_DP*p  <  min(3.0_DP*xm*q-abs(tol1*q),abs(e*q))) then
-	! 					e=d
-	! 					d=p/q
-	! 				else
-	! 					d=xm
-	! 					e=d
-	! 				end if
-	! 			else
-	! 				d=xm
-	! 				e=d
-	! 			end if
-	! 			a=b
-	! 			fa=fb
-	! 			b=b+merge(d,sign(tol1,xm), abs(d) > tol1 )
-	! 			fb=func(b,par)
-	! 		end do
-	! 		call nrerror('zbrent_p: exceeded maximum iterations')
-	! 		zbrent_p=b
-			
-	! 	END FUNCTION zbrent_p
+	FUNCTION zbrent_p(func,x1,x2,tol,par)
+		USE nrtype; USE nrutil, ONLY : nrerror
+		IMPLICIT NONE
+		REAL(DP), INTENT(IN) :: x1,x2,tol
+		REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
+		REAL(DP) :: zbrent_p
+		INTERFACE
+			FUNCTION func(x,par)
+			USE nrtype
+			IMPLICIT NONE
+			REAL(DP), INTENT(IN) :: x
+			REAL(DP), dimension(:), allocatable, INTENT(IN) :: par
+			REAL(DP) :: func
+			END FUNCTION func
+		END INTERFACE
+		INTEGER(I4B), PARAMETER :: ITMAX=100
+		REAL(DP), PARAMETER :: EPS=epsilon(x1)
+		INTEGER(I4B) :: iter
+		REAL(DP) :: a,b,c,d,e,fa,fb,fc,p,q,r,s,tol1,xm
+		a=x1
+		b=x2
+		fa=func(a,par)
+		fb=func(b,par)
+		if ((fa > 0.0 .and. fb > 0.0) .or. (fa < 0.0 .and. fb < 0.0)) &
+			call nrerror('root must be bracketed for zbrent_p')
+		c=b
+		fc=fb
+		do iter=1,ITMAX
+			if ((fb > 0.0 .and. fc > 0.0) .or. (fb < 0.0 .and. fc < 0.0)) then
+				c=a
+				fc=fa
+				d=b-a
+				e=d
+			end if
+			if (abs(fc) < abs(fb)) then
+				a=b
+				b=c
+				c=a
+				fa=fb
+				fb=fc
+				fc=fa
+			end if
+			tol1=2.0_DP*EPS*abs(b)+0.5_DP*tol
+			xm=0.5_DP*(c-b)
+			if (abs(xm) <= tol1 .or. fb == 0.0) then
+				zbrent_p=b
+				RETURN
+			end if
+			if (abs(e) >= tol1 .and. abs(fa) > abs(fb)) then
+				s=fb/fa
+				if (a == c) then
+					p=2.0_DP*xm*s
+					q=1.0_DP-s
+				else
+					q=fa/fc
+					r=fb/fc
+					p=s*(2.0_DP*xm*q*(q-r)-(b-a)*(r-1.0_DP))
+					q=(q-1.0_DP)*(r-1.0_DP)*(s-1.0_DP)
+				end if
+				if (p > 0.0) q=-q
+				p=abs(p)
+				if (2.0_DP*p  <  min(3.0_DP*xm*q-abs(tol1*q),abs(e*q))) then
+					e=d
+					d=p/q
+				else
+					d=xm
+					e=d
+				end if
+			else
+				d=xm
+				e=d
+			end if
+			a=b
+			fa=fb
+			b=b+merge(d,sign(tol1,xm), abs(d) > tol1 )
+			fb=func(b,par)
+		end do
+		call nrerror('zbrent_p: exceeded maximum iterations')
+		zbrent_p=b
+		
+	END FUNCTION zbrent_p
 
 end module programfunctions
 
