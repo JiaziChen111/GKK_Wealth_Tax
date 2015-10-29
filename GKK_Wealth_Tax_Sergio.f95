@@ -1234,7 +1234,7 @@ PROGRAM main
 	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
-	if (read_write_bench.eq.1) then
+	if (read_write_bench.eq.0) then
 		print*,"	Computing equilibrium distribution"
 		CALL FIND_DBN_EQ
 		print*,"	Computing satitics"
