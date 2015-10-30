@@ -33,7 +33,7 @@ MODULE parameters
 
     ! Switch for seprable vs non-separable utiltiy
     	! If Utility_Type=1 then use separable utility
-    INTEGER(I4B),  PARAMETER :: Utility_Type=1
+    INTEGER(I4B),  PARAMETER :: Utility_Type=0
 
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
@@ -96,7 +96,7 @@ MODULE parameters
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
 		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 2.0_dp 
+		REAL(DP), PARAMETER  :: Threshold_Factor = 0.0_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -2580,7 +2580,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	REAL(DP), DIMENSION(na_t+1) :: EndoCons, EndoYgrid, EndoHours
 	INTEGER , DIMENSION(na_t+1) :: sort_ind 
 	INTEGER  :: sw 
-	REAL(DP) :: Wealth
+	REAL(DP) :: Wealth, C_euler, C_foc, H_min
 
 	! These lines are note being used!!!!!!!!
 		! Set auxiliary value ofr psi 
@@ -2594,7 +2594,10 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	! Set psi to psi_PL
 		psi = psi_PL
 
-		print*, 'R=',rr, 'W=',wage
+	! Set a minimum value for labor to check in the FOC
+		H_min = 0.000001_dp
+
+		!print*, 'R=',rr, 'W=',wage
 	!========================================================================================
 	!------RETIREMENT PERIOD-----------------------------------------------------------------
 
@@ -2736,12 +2739,20 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 					! Solution of Labor FOC for hours
 					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(ai) ) 
 				else 
-					! Set Marginal benefit of assets to the below threshold level
-					MB_a_in = MB_a_bt(agrid_t(ai),zgrid(zi))
-					! Solution for hours from Euler equation
-					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
-					! Implied consumption by hours from Labor FOC
-					EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+					C_euler = Cons_t(age+1, ai, zi, lambdai,ei)  &
+					          & *( beta*survP(age)*MB_a_bt(agrid_t(ai),zgrid(zi)))**(1/((1.0_dp-sigma)*theta-1.0_dp))
+					C_foc   = (theta/(1.0_dp-theta))*(1.0_dp-H_min)*MB_h(H_min,age,lambdai,ei,wage)
+					if (C_euler.ge.C_foc) then
+						EndoCons(ai)  = C_euler 
+						EndoHours(ai) = 0.0_dp
+					else
+						! Set Marginal benefit of assets to the below threshold level
+						MB_a_in = MB_a_bt(agrid_t(ai),zgrid(zi))
+						! Solution for hours from Euler equation
+						brentvalue = brent(H_min, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
+						! Implied consumption by hours from Labor FOC
+						EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+					end if
 				end if 
 				! Endogenous grid for asset income
 				EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - Y_h(EndoHours(ai),age,lambdai,ei,wage)
@@ -2754,12 +2765,20 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 					! Solution of Labor FOC for hours
 					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(na_t+1) )           
 				else 
-					! Set Marginal benefit of assets to the above threshold level
-					MB_a_in = MB_a_at(agrid_t(ai),zgrid(zi))
-					! Solution for hours from Euler equation
-					brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(na_t+1) ) 
-					! Implied consumption by hours from Labor FOC
-					EndoCons(na_t+1) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(na_t+1))*MB_h(EndoHours(na_t+1),age,lambdai,ei,wage)
+					C_euler = Cons_t(age+1, ai, zi, lambdai,ei)  &
+					          & *( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi)))**(1/((1.0_dp-sigma)*theta-1.0_dp))
+					C_foc   = (theta/(1.0_dp-theta))*(1.0_dp-H_min)*MB_h(H_min,age,lambdai,ei,wage)
+					if (C_euler.ge.C_foc) then
+						EndoCons(ai)  = C_euler 
+						EndoHours(ai) = 0.0_dp
+					else
+						! Set Marginal benefit of assets to the below threshold level
+						MB_a_in = MB_a_at(agrid_t(ai),zgrid(zi))
+						! Solution for hours from Euler equation
+						brentvalue = brent(H_min, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
+						! Implied consumption by hours from Labor FOC
+						EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+					end if
 				end if 
 				! Endogenous grid for asset income
 				EndoYgrid(na_t+1) = agrid_t(ai) + EndoCons(na_t+1) -  Y_h(EndoHours(na_t+1),age,lambdai,ei,wage)
@@ -2774,12 +2793,22 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				! Solution of Labor FOC for hours
 				brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H, brent_tol, EndoHours(ai) )           
 			else 
-				! Set Marginal benefit of assets to the below threshold level
-				MB_a_in = MBGRID_t(ai,zi)
-				! Solution for hours from Euler equation
-				brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
-				! Implied consumption by hours from Labor FOC
-				EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+				C_euler = Cons_t(age+1, ai, zi, lambdai,ei)  &
+					          & *( beta*survP(age)*MBGRID_t(ai,zi))**(1/((1.0_dp-sigma)*theta-1.0_dp))
+				C_foc   = (theta/(1.0_dp-theta))*(1.0_dp-H_min)*MB_h(H_min,age,lambdai,ei,wage)
+				if (C_euler.ge.C_foc) then
+					!print*,'Corner solution',C_euler,C_foc
+					EndoCons(ai)  = C_euler 
+					EndoHours(ai) = 0.0_dp
+				else
+					!print*,'Interior solution',C_euler,C_foc
+					! Set Marginal benefit of assets to the below threshold level
+					MB_a_in = MBGRID_t(ai,zi)
+					! Solution for hours from Euler equation
+					brentvalue = brent(H_min, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
+					! Implied consumption by hours from Labor FOC
+					EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+				end if
 			end if
 			EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) -  Y_h(EndoHours(ai),age,lambdai,ei,wage)
 	    end if 
@@ -2795,6 +2824,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
     ! Sort endogenous grid for interpolation
 	call Sort(na_t+1,EndoYgrid,EndoYgrid,sort_ind)
 	EndoHours = EndoHours(sort_ind)
+	EndoCons  = EndoCons(sort_ind)
 ! 	print*, ' '
 ! 	do ai=1,na_t+1
 ! 		print*, EndoHours(ai), EndoCons(ai), EndoYgrid(ai)
@@ -2825,47 +2855,51 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				Hours_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoHours(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))
 				!print*, 'Interpolated Hours:',  Hours_t(age, ai, zi, lambdai,ei)
 				! Get value of consumption from labor FOC
-				Cons_t(age,ai,zi,lambdai,ei) = (theta/(1.0_dp-theta))*(1.0_dp-Hours_t(age,ai,zi,lambdai,ei))* &
-				                                MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
-				if (isnan(MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage))) then
-					print*,'Error number 1'
-					print*, MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
-					print*, age,ai,zi,lambdai,ei
-					print*, Hours_t(age,ai,zi,lambdai,ei), YGRID_t(ai,zi), maxval(EndoYgrid(1:na_t+sw))
-					print*, ' '
-					do na1=1,na_t+1
-						print*, EndoHours(na1), EndoCons(na1), EndoYgrid(na1)
-					end do
-					print*, ' '
-					print*, rr, mu
-					print*, 'z_grid', zgrid
-					do na1=1,na_t+1
-						print*, agrid_t(na1), ' ', YGRID_t(na1,:)
-					end do
-					
-					STOP
+				if (Hours_t(age,ai,zi,lambdai,ei).eq.0.0_dp) then 
+					Cons_t(age, ai, zi, lambdai,ei) = Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))
+				else 
+					Cons_t(age,ai,zi,lambdai,ei) = (theta/(1.0_dp-theta))*(1.0_dp-Hours_t(age,ai,zi,lambdai,ei))* &
+					                                MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
 				end if 
+
+						if (isnan(MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage))) then
+							print*,'Error number 1'
+							print*, MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
+							print*, age,ai,zi,lambdai,ei
+							print*, Hours_t(age,ai,zi,lambdai,ei), YGRID_t(ai,zi), maxval(EndoYgrid(1:na_t+sw))
+							print*, ' '
+							do na1=1,na_t+1
+								print*, EndoHours(na1), EndoCons(na1), EndoYgrid(na1)
+							end do
+							print*, ' '
+							print*, rr, mu
+							print*, 'z_grid', zgrid
+							do na1=1,na_t+1
+								print*, agrid_t(na1), ' ', YGRID_t(na1,:)
+							end do
+							
+							STOP
+						end if 
+
 			end if     
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)  + Y_h(Hours_t(age, ai, zi, lambdai,ei),age,lambdai,ei,wage)  & 
 		                    					& - Cons_t(age, ai, zi, lambdai,ei)  
 		                    
 		    If (Aprime_t(age, ai, zi, lambdai,ei)  .lt. amin) then
+
+		    	print*, ' Aprime was below minimum!!!!'
             	Aprime_t(age, ai, zi, lambdai,ei) = amin
 		         
 	           	!compute  hours using FOC_HA                              
-		        ain = amin
-		        
+		        ain = amin		        
 		        brentvalue = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, Hours_t(age, ai, zi, lambdai,ei))           
-		        if (isnan(Hours_t(age,ai,zi,lambdai,ei))) then
-		        	print*,'Error number 2'
-					print*, Hours_t
-					print*, age,ai,zi,lambdai,ei
-				end if 
+
 	            Cons_t(age,ai,zi,lambdai,ei) = YGRID_t(ai,zi)+  Y_h(Hours_t(age, ai, zi, lambdai,ei),age,lambdai,ei,wage)  &
 		                            		  & - Aprime_t(age, ai, zi, lambdai,ei)      
 
 				IF (Cons_t(age, ai, zi, lambdai,ei) .le. 0.0_DP)  THEN
 					print*,'w1: Cons(age, ai, zi, lambdai,ei)=',Cons_t(age, ai, zi, lambdai,ei)
+					STOP
 				ENDIF                   
 		     endif      
 		ENDDO ! ai   
@@ -2878,6 +2912,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 
 		ai=1           
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
+        	! print*, ' Extrapolation between YGRID and EndoYgrid!!!!'
 	        ! Solve for the Euler equation directly
 	        if (Utility_Type.eq.1) then          
 			brentvalue = brent( min(amin,YGRID_t(ai,zi))   ,  (amin+YGRID_t(ai,zi))/2.0_DP  ,  &
@@ -2903,15 +2938,17 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
                     & 'yh(age, lambdai,ei)=', yh(age, lambdai,ei),'YGRID(ai,zi)=',YGRID_t(ai,zi)
                 !pause
                 print*, "there is a problem in line 2063"
+                STOP
             ENDIF                   
             ai = ai + 1
         ENDDO  
 
-    if (any(isnan(Cons_t))) then 
-		print*, "isnan - Consumption working 2"
-		print*, age,lambdai,ai,zi,ei
-		STOP 
-	end if 
+	    if (any(isnan(Cons_t))) then 
+			print*, "isnan - Consumption working 2"
+			print*, age,lambdai,ai,zi,ei
+			STOP 
+		end if 
+
 	                 
     ENDDO !ei         
     ENDDO !zi
@@ -2949,19 +2986,21 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	deallocate( Aprime_t )
 
 	! Adjust consumption by taxes
-	cons = cons/(1.0_DP+tauC)
+	Cons = Cons/(1.0_DP+tauC)
 
 	if (any(isnan(Cons))) then 
 		print*, "isnan - Consumption"
 		STOP 
 	end if 
 
-	print*, 'Policy Functions'
-	print*, 'YGRID','Cons','Hours','Aprime','A'
-	do ai=1,na
-		print*, YGRID(ai,4), Cons(40,ai,5,3,3), Hours(40,ai,5,3,3), Aprime(40,ai,5,3,3), agrid(ai)
-	end do 
-	print*, ' '
+! 	print*, 'Policy Functions'
+! 	print*, ' YGRID ',' Cons ',' Hours ',' Aprime ',' A '
+! 	do ai=1,na
+! 		print*, YGRID(ai,4), Cons(40,ai,4,3,3), Hours(40,ai,4,3,3), Aprime(40,ai,4,3,3), agrid(ai),&
+! 				& Y_h(Hours(40,ai,4,3,3),40,3,3,wage),&
+! 				& (1+tauC)*Cons(40,ai,4,3,3) + Aprime(40,ai,4,3,3) - YGRID(ai,4) -Y_h(Hours(40,ai,4,3,3),40,3,3,wage)
+! 	end do 
+! 	print*, ' '
 
 END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
