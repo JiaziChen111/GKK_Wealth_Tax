@@ -95,8 +95,8 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 0.0_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.015_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 0.25_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
@@ -1234,7 +1234,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 0
+	read_write_bench = 1
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
@@ -2126,9 +2126,9 @@ SUBROUTINE FIND_DBN_EQ()
 	DBN_dist=1.0_DP
 	simutime = 1
 	iter_indx = 1
-	print*, 'Computing Equilibrium Distribution'
+	!print*, 'Computing Equilibrium Distribution'
 	DO WHILE ( ( DBN_dist .ge. DBN_criteria ) .and. ( simutime .le. MaxSimuTime ) )
-		print*, 'Eq. Distribution difference=', DBN_dist
+		! print*, 'Eq. Distribution difference=', DBN_dist
 		!    print*, 'sum DBN1=', sum(DBN1)
 	    DBN2=0.0_DP
 
