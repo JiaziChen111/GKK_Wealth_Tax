@@ -2905,11 +2905,11 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		     endif      
 		ENDDO ! ai   
 
-		if (any(isnan(Cons_t))) then 
-			print*, "isnan - Consumption working 3"
-			print*, age,lambdai,ai,zi,ei
-			STOP 
-		end if                
+! 		if (any(isnan(Cons_t))) then 
+! 			print*, "isnan - Consumption working 3"
+! 			print*, age,lambdai,ai,zi,ei
+! 			STOP 
+! 		end if                
 
 		ai=1           
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
@@ -2944,11 +2944,11 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
             ai = ai + 1
         ENDDO  
 
-	    if (any(isnan(Cons_t))) then 
-			print*, "isnan - Consumption working 2"
-			print*, age,lambdai,ai,zi,ei
-			STOP 
-		end if 
+! 	    if (any(isnan(Cons_t))) then 
+! 			print*, "isnan - Consumption working 2"
+! 			print*, age,lambdai,ai,zi,ei
+! 			STOP 
+! 		end if 
 
 	                 
     ENDDO !ei         
@@ -2994,6 +2994,10 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		STOP 
 	end if 
 	if (any(isnan(Hours))) then 
+		print*, "isnan - Hours"
+		STOP 
+	end if 
+	if (any(isnan(Aprime))) then 
 		print*, "isnan - Hours"
 		STOP 
 	end if 
