@@ -2831,6 +2831,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 ! 	end do
 ! 	print*, ' '
 
+		if (any(isnan(EndoCons)).or.any(isnan(EndoHours)).or.any(isnan(EndoYgrid))) then 
+			print*, "isnan - Consumption working 4"
+			print*, age,lambdai,ai,zi,ei
+			STOP 
+		end if 
+
     	! Find  decision rules on exogenous grids
         tempai=1           
         DO WHILE ( YGRID_t(tempai,zi) .lt. EndoYgrid(1) )
@@ -2838,11 +2844,6 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
         ENDDO
 	                
 		! decision rules are obtained taking care of extrapolations
-		if (any(isnan(Cons_t))) then 
-			print*, "isnan - Consumption working 4"
-			print*, age,lambdai,ai,zi,ei
-			STOP 
-		end if 
 		DO ai=tempai,na_t 
 			if (Utility_Type.eq.1) then               
 			    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))  
@@ -2990,6 +2991,10 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 
 	if (any(isnan(Cons))) then 
 		print*, "isnan - Consumption"
+		STOP 
+	end if 
+	if (any(isnan(Hours))) then 
+		print*, "isnan - Hours"
 		STOP 
 	end if 
 
