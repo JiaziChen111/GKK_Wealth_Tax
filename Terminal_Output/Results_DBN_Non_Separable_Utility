@@ -1,0 +1,864 @@
+GKK - Non Separable Utiltiy - Threshold =  0
+
+
+ocamp020@cartman:~/RA_Guvenen/Wealth_Tax/GKK_Wealth_Tax 2% ./Sergio.a
+ Results are stored in directory: ./NSU_Results/Factor_0.00/                                                                          
+ na=         201 update_period=           5
+ 
+ --------------- SOLVING BENCHMARK WITH BEST PARAMETERS -----------------
+ 
+ CAPITAL TAX ECONOMY
+ 	Initializing program
+ 	Computing equilibrium distribution
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  3.19736870E-03
+ Eq. Distribution difference=  1.53702474E-03
+ Eq. Distribution difference=  7.75109744E-04
+ Eq. Distribution difference=  4.20823082E-04
+ Eq. Distribution difference=  4.92072199E-04
+ Eq. Distribution difference=  2.57995259E-03
+ Eq. Distribution difference=  1.54124724E-03
+ Eq. Distribution difference=  1.00365642E-03
+ Eq. Distribution difference=  7.29954801E-04
+ Eq. Distribution difference=  4.85419092E-04
+ Eq. Distribution difference=  3.87852633E-04
+ Eq. Distribution difference=  3.69497808E-04
+ Eq. Distribution difference=  3.53208685E-04
+ Eq. Distribution difference=  3.39675986E-04
+ Eq. Distribution difference=  3.29220231E-04
+ Eq. Distribution difference=  2.98279687E-04
+ Eq. Distribution difference=  2.49430654E-04
+ Eq. Distribution difference=  1.93953805E-04
+ Eq. Distribution difference=  1.36040006E-04
+ Eq. Distribution difference=  1.22648111E-04
+ Eq. Distribution difference=  2.38823326E-04
+ Eq. Distribution difference=  1.36759001E-04
+ Eq. Distribution difference=  6.90130109E-05
+ Eq. Distribution difference=  7.19086966E-05
+ Eq. Distribution difference=  5.71825040E-05
+ Eq. Distribution difference=  1.39122829E-04
+ Eq. Distribution difference=  7.43335258E-05
+ Eq. Distribution difference=  2.96088056E-05
+ Eq. Distribution difference=  5.41912668E-05
+ Eq. Distribution difference=  5.68878349E-05
+ Eq. Distribution difference=  1.50004693E-04
+ Eq. Distribution difference=  4.36312330E-05
+ Eq. Distribution difference=  2.16471235E-05
+ Eq. Distribution difference=  1.76543726E-05
+ Eq. Distribution difference=  1.75275363E-05
+ Eq. Distribution difference=  1.31387817E-04
+ Eq. Distribution difference=  2.74322883E-05
+ Eq. Distribution difference=  1.58688017E-05
+ Eq. Distribution difference=  1.13487922E-05
+ Eq. Distribution difference=  9.76304818E-06
+ Eq. Distribution difference=  1.13589849E-04
+ Eq. Distribution difference=  2.67862597E-05
+ Eq. Distribution difference=  1.22841711E-05
+ Eq. Distribution difference=  7.86639885E-06
+ Eq. Distribution difference=  6.93006632E-06
+ Eq. Distribution difference=  8.70707081E-05
+ Eq. Distribution difference=  2.04118533E-05
+ Eq. Distribution difference=  9.46571708E-06
+ Eq. Distribution difference=  6.44155534E-06
+ Eq. Distribution difference=  5.56306350E-06
+ Eq. Distribution difference=  6.85378254E-05
+ Eq. Distribution difference=  1.59928768E-05
+ Eq. Distribution difference=  7.46342857E-06
+ Eq. Distribution difference=  5.36651442E-06
+ Eq. Distribution difference=  4.74116632E-06
+ Eq. Distribution difference=  5.64330367E-05
+ Eq. Distribution difference=  1.32446348E-05
+ Eq. Distribution difference=  6.03828721E-06
+ Eq. Distribution difference=  4.51260621E-06
+ Eq. Distribution difference=  4.14409624E-06
+ Eq. Distribution difference=  4.56487214E-05
+ Eq. Distribution difference=  1.09253351E-05
+ Eq. Distribution difference=  5.02069406E-06
+ Eq. Distribution difference=  4.43601402E-06
+ Eq. Distribution difference=  4.08912956E-06
+ Eq. Distribution difference=  3.77932338E-05
+ Eq. Distribution difference=  9.23852804E-06
+ Eq. Distribution difference=  4.23869733E-06
+ Eq. Distribution difference=  3.63914205E-06
+ Eq. Distribution difference=  3.89426214E-06
+ Eq. Distribution difference=  3.24418179E-05
+ Eq. Distribution difference=  7.96892255E-06
+ Eq. Distribution difference=  3.67534926E-06
+ Eq. Distribution difference=  3.03395473E-06
+ Eq. Distribution difference=  2.68097892E-06
+ Eq. Distribution difference=  2.81475914E-05
+ Eq. Distribution difference=  6.82767086E-06
+ Eq. Distribution difference=  3.14280828E-06
+ Eq. Distribution difference=  2.44636817E-06
+ Eq. Distribution difference=  2.01507532E-06
+ Eq. Distribution difference=  2.41539874E-05
+ Eq. Distribution difference=  5.64330503E-06
+ Eq. Distribution difference=  2.56946714E-06
+ Eq. Distribution difference=  1.98755856E-06
+ Eq. Distribution difference=  1.59650313E-06
+ Eq. Distribution difference=  1.90704632E-05
+ Eq. Distribution difference=  4.41762541E-06
+ Eq. Distribution difference=  2.00780369E-06
+ Eq. Distribution difference=  1.69863642E-06
+ Eq. Distribution difference=  1.44995101E-06
+ Eq. Distribution difference=  1.40589618E-05
+ Eq. Distribution difference=  3.30217313E-06
+ Eq. Distribution difference=  1.65041706E-06
+ Eq. Distribution difference=  1.43018087E-06
+ Eq. Distribution difference=  1.23512552E-06
+ Eq. Distribution difference=  9.85181396E-06
+ Eq. Distribution difference=  2.41198995E-06
+ Eq. Distribution difference=  1.30564842E-06
+ Eq. Distribution difference=  1.14597424E-06
+ Eq. Distribution difference=  1.09295559E-06
+ Eq. Distribution difference=  6.98957092E-06
+ Eq. Distribution difference=  1.76200092E-06
+ Eq. Distribution difference=  9.95415689E-07
+ Eq. Distribution difference=  8.85724774E-07
+ Eq. Distribution difference=  9.71985628E-07
+ Eq. Distribution difference=  5.04097079E-06
+ Eq. Distribution difference=  1.32457387E-06
+ Eq. Distribution difference=  7.56112058E-07
+ Eq. Distribution difference=  6.81892857E-07
+ Eq. Distribution difference=  8.28989812E-07
+ Eq. Distribution difference=  3.81826430E-06
+ Eq. Distribution difference=  1.04632250E-06
+ Eq. Distribution difference=  6.31887417E-07
+ Eq. Distribution difference=  5.69764097E-07
+ Eq. Distribution difference=  6.84277211E-07
+ Eq. Distribution difference=  3.17457625E-06
+ Eq. Distribution difference=  8.87566955E-07
+ Eq. Distribution difference=  5.23408062E-07
+ Eq. Distribution difference=  4.71281822E-07
+ Eq. Distribution difference=  5.54271537E-07
+ Eq. Distribution difference=  2.81209327E-06
+ Eq. Distribution difference=  7.85250393E-07
+ Eq. Distribution difference=  4.29681194E-07
+ Eq. Distribution difference=  3.87146258E-07
+ Eq. Distribution difference=  4.43197479E-07
+ Eq. Distribution difference=  2.66045254E-06
+ Eq. Distribution difference=  7.26494477E-07
+ Eq. Distribution difference=  3.73910751E-07
+ Eq. Distribution difference=  3.16004616E-07
+ Eq. Distribution difference=  3.51335501E-07
+ Eq. Distribution difference=  2.54359952E-06
+ Eq. Distribution difference=  6.73320187E-07
+ Eq. Distribution difference=  3.38070606E-07
+ Eq. Distribution difference=  2.74719525E-07
+ Eq. Distribution difference=  2.75515930E-07
+ Eq. Distribution difference=  2.30790215E-06
+ Eq. Distribution difference=  5.96091411E-07
+ Eq. Distribution difference=  2.94165972E-07
+ Eq. Distribution difference=  2.36632459E-07
+ Eq. Distribution difference=  2.14978314E-07
+ Eq. Distribution difference=  1.97176064E-06
+ Eq. Distribution difference=  5.00449346E-07
+ Eq. Distribution difference=  2.56234017E-07
+ Eq. Distribution difference=  2.18603518E-07
+ Eq. Distribution difference=  1.86155845E-07
+ Eq. Distribution difference=  1.55862824E-06
+ Eq. Distribution difference=  3.92547747E-07
+ Eq. Distribution difference=  2.28479450E-07
+ Eq. Distribution difference=  1.96496075E-07
+ Eq. Distribution difference=  1.68636333E-07
+ Eq. Distribution difference=  1.05012032E-06
+ Eq. Distribution difference=  2.68951879E-07
+ Eq. Distribution difference=  1.86513915E-07
+ Eq. Distribution difference=  1.62619472E-07
+ Eq. Distribution difference=  1.45068427E-07
+ Eq. Distribution difference=  5.80375570E-07
+ Eq. Distribution difference=  1.59996503E-07
+ Eq. Distribution difference=  1.38658180E-07
+ Eq. Distribution difference=  1.23277658E-07
+ Eq. Distribution difference=  1.20701174E-07
+ Eq. Distribution difference=  2.22465772E-07
+ Eq. Distribution difference=  1.09122574E-07
+ 	Computing satitics
+ 
+ Statistics
+ W/GDP   3.0486848768474002      Top 1%  0.21137065117264442      Top 10%  0.56318114260804020     
+ STD Labor Earnings  0.82762664349892279      Mean Labor Earnings  0.39022222195588852      Moments  4.13303398737731517E-002
+ 	Computing government spending
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.25422061206441526      SSC_Payments=  0.14892421147903342      GBAR_L=  0.23120309996880506      Av. Labor Tax=  0.20708734118357924     
+ GBAR_K=  0.10006487656439521      GBAR_W=   0.0000000000000000      GBAR_C=  7.18768470103738899E-002
+ Tau_K=  0.25000000000000000      Tau_W=   0.0000000000000000      Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ 	Writing variables
+ 	Saving results in text files to be read later
+ Writing of benchmark results completed
+ Benchmark variables
+ GBAR=  0.25422061206441526      EBAR=   1.1164521145879585      NBAR=  0.54753382139812301      QBAR=   6.0963892058338303      rr=  7.86607071362062371E-002 wage=   1.4841342073060786     
+ 
+ --------------- SOLVING EXPERIMENT WITH BEST PARAMETERS -----------------
+ 
+ Wealth Tax Economy
+ Y_a threshold is set to a proportion of the mean wealth under current distribution
+ 	Computing Wealth Tax to balance the budget
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  3.60983802E-04
+ Eq. Distribution difference=  1.64071389E-04
+ Eq. Distribution difference=  1.06043655E-04
+ Eq. Distribution difference=  3.83314364E-05
+ Eq. Distribution difference=  3.07854571E-05
+ Eq. Distribution difference=  1.77229871E-04
+ Eq. Distribution difference=  3.65887317E-05
+ Eq. Distribution difference=  1.65328056E-05
+ Eq. Distribution difference=  1.04769024E-05
+ Eq. Distribution difference=  7.72259227E-06
+ Eq. Distribution difference=  1.01478523E-04
+ Eq. Distribution difference=  2.27375258E-05
+ Eq. Distribution difference=  1.20336726E-05
+ Eq. Distribution difference=  7.82005918E-06
+ Eq. Distribution difference=  5.59696446E-06
+ Eq. Distribution difference=  7.91953644E-05
+ Eq. Distribution difference=  1.93705637E-05
+ Eq. Distribution difference=  9.19412014E-06
+ Eq. Distribution difference=  4.82814312E-06
+ Eq. Distribution difference=  3.43240163E-06
+ Eq. Distribution difference=  6.18542254E-05
+ Eq. Distribution difference=  1.45263502E-05
+ Eq. Distribution difference=  6.54074165E-06
+ Eq. Distribution difference=  3.78088521E-06
+ Eq. Distribution difference=  2.72814350E-06
+ Eq. Distribution difference=  4.75097804E-05
+ Eq. Distribution difference=  1.11350409E-05
+ Eq. Distribution difference=  4.83741269E-06
+ Eq. Distribution difference=  2.97527777E-06
+ Eq. Distribution difference=  2.32007915E-06
+ Eq. Distribution difference=  3.67113898E-05
+ Eq. Distribution difference=  8.63515106E-06
+ Eq. Distribution difference=  3.61974980E-06
+ Eq. Distribution difference=  2.35148650E-06
+ Eq. Distribution difference=  1.77977006E-06
+ Eq. Distribution difference=  2.91751639E-05
+ Eq. Distribution difference=  6.75590309E-06
+ Eq. Distribution difference=  2.74710669E-06
+ Eq. Distribution difference=  1.87287139E-06
+ Eq. Distribution difference=  1.37438360E-06
+ Eq. Distribution difference=  2.33162136E-05
+ Eq. Distribution difference=  5.32166041E-06
+ Eq. Distribution difference=  2.16049875E-06
+ Eq. Distribution difference=  1.50683536E-06
+ Eq. Distribution difference=  1.07246308E-06
+ Eq. Distribution difference=  1.86054876E-05
+ Eq. Distribution difference=  4.34755702E-06
+ Eq. Distribution difference=  1.72290663E-06
+ Eq. Distribution difference=  1.22410370E-06
+ Eq. Distribution difference=  8.55149779E-07
+ Eq. Distribution difference=  1.42897716E-05
+ Eq. Distribution difference=  3.43806005E-06
+ Eq. Distribution difference=  1.38175562E-06
+ Eq. Distribution difference=  9.89841851E-07
+ Eq. Distribution difference=  7.18265710E-07
+ Eq. Distribution difference=  1.09735665E-05
+ Eq. Distribution difference=  2.71711656E-06
+ Eq. Distribution difference=  1.10769849E-06
+ Eq. Distribution difference=  7.99298618E-07
+ Eq. Distribution difference=  5.63733010E-07
+ Eq. Distribution difference=  8.40787834E-06
+ Eq. Distribution difference=  2.12055033E-06
+ Eq. Distribution difference=  8.76322986E-07
+ Eq. Distribution difference=  6.36056768E-07
+ Eq. Distribution difference=  4.43156381E-07
+ Eq. Distribution difference=  6.67587165E-06
+ Eq. Distribution difference=  1.68491567E-06
+ Eq. Distribution difference=  7.02552029E-07
+ Eq. Distribution difference=  5.11234987E-07
+ Eq. Distribution difference=  3.48986390E-07
+ Eq. Distribution difference=  5.28370174E-06
+ Eq. Distribution difference=  1.33443166E-06
+ Eq. Distribution difference=  5.61033403E-07
+ Eq. Distribution difference=  4.10449303E-07
+ Eq. Distribution difference=  2.80177375E-07
+ Eq. Distribution difference=  4.22218136E-06
+ Eq. Distribution difference=  1.07159633E-06
+ Eq. Distribution difference=  4.55343184E-07
+ Eq. Distribution difference=  3.34887375E-07
+ Eq. Distribution difference=  2.25099967E-07
+ Eq. Distribution difference=  3.42770090E-06
+ Eq. Distribution difference=  8.70787858E-07
+ Eq. Distribution difference=  3.71782363E-07
+ Eq. Distribution difference=  2.73528286E-07
+ Eq. Distribution difference=  1.81944145E-07
+ Eq. Distribution difference=  2.90991534E-06
+ Eq. Distribution difference=  7.37090829E-07
+ Eq. Distribution difference=  3.14530439E-07
+ Eq. Distribution difference=  2.31535836E-07
+ Eq. Distribution difference=  1.47926585E-07
+ Eq. Distribution difference=  2.23245729E-06
+ Eq. Distribution difference=  5.66629410E-07
+ Eq. Distribution difference=  2.44375656E-07
+ Eq. Distribution difference=  1.80629101E-07
+ Eq. Distribution difference=  1.19636553E-07
+ Eq. Distribution difference=  1.71868805E-06
+ Eq. Distribution difference=  4.37025193E-07
+ Eq. Distribution difference=  1.90081778E-07
+ Eq. Distribution difference=  1.40938923E-07
+ 
+ Statistics
+ W/GDP   3.4316444676067661      Top 1%  0.25444280266874697      Top 10%  0.60132954695206275     
+ STD Labor Earnings  0.82973256191111422      Mean Labor Earnings  0.38750485374198890      Moments  0.20648640171415877     
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.23832060605726041      SSC_Payments=  0.14892421147902679      GBAR_L=  0.25814556745347278      Av. Labor Tax=  0.21480308214402438     
+ GBAR_K=   0.0000000000000000      GBAR_W=  4.91101354662459785E-002 GBAR_C=  7.99891146167848038E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.00000000000000002E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.0000000000000000     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999999034     
+ GBAR_exp =  0.23832060605726041      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.21895306E-05
+ Eq. Distribution difference=  2.08613274E-05
+ Eq. Distribution difference=  8.01233546E-06
+ Eq. Distribution difference=  5.58792590E-06
+ Eq. Distribution difference=  3.60366698E-06
+ Eq. Distribution difference=  1.24062381E-05
+ Eq. Distribution difference=  3.00799888E-06
+ Eq. Distribution difference=  1.19708136E-06
+ Eq. Distribution difference=  9.34525815E-07
+ Eq. Distribution difference=  9.99138706E-07
+ Eq. Distribution difference=  8.13799033E-06
+ Eq. Distribution difference=  2.02808064E-06
+ Eq. Distribution difference=  8.32894045E-07
+ Eq. Distribution difference=  6.20700007E-07
+ Eq. Distribution difference=  8.16556053E-07
+ Eq. Distribution difference=  5.65353776E-06
+ Eq. Distribution difference=  1.45271451E-06
+ Eq. Distribution difference=  6.32697834E-07
+ Eq. Distribution difference=  4.91048411E-07
+ Eq. Distribution difference=  5.09545373E-07
+ Eq. Distribution difference=  3.88061926E-06
+ Eq. Distribution difference=  1.03097443E-06
+ Eq. Distribution difference=  4.25538872E-07
+ Eq. Distribution difference=  3.41482263E-07
+ Eq. Distribution difference=  3.39301977E-07
+ Eq. Distribution difference=  2.48135098E-06
+ Eq. Distribution difference=  6.92034348E-07
+ Eq. Distribution difference=  2.88623710E-07
+ Eq. Distribution difference=  2.36887644E-07
+ Eq. Distribution difference=  2.29474011E-07
+ Eq. Distribution difference=  1.66933421E-06
+ Eq. Distribution difference=  4.83122619E-07
+ Eq. Distribution difference=  1.93075294E-07
+ Eq. Distribution difference=  1.61094064E-07
+ Eq. Distribution difference=  1.53826832E-07
+ Eq. Distribution difference=  1.10075632E-06
+ Eq. Distribution difference=  3.33287431E-07
+ Eq. Distribution difference=  1.36499366E-07
+ Eq. Distribution difference=  1.22648885E-07
+ Eq. Distribution difference=  1.15988840E-07
+ Eq. Distribution difference=  7.17994226E-07
+ Eq. Distribution difference=  2.27090894E-07
+ 
+ Statistics
+ W/GDP   3.4039541383174408      Top 1%  0.25945168318906198      Top 10%  0.60633453282752048     
+ STD Labor Earnings  0.82842726475484219      Mean Labor Earnings  0.38835541691391462      Moments  0.18135721198564039     
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.24145438646722592      SSC_Payments=  0.14892421147901555      GBAR_L=  0.25726142025137699      Av. Labor Tax=  0.21451632271404489     
+ GBAR_K=   0.0000000000000000      GBAR_W=  5.35109417014827948E-002 GBAR_C=  7.96062359935915814E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.09999999999999994E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.0999999999999999     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999998734     
+ GBAR_exp =  0.24145438646722592      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.24921959E-05
+ Eq. Distribution difference=  2.06880341E-05
+ Eq. Distribution difference=  8.18592252E-06
+ Eq. Distribution difference=  5.51221956E-06
+ Eq. Distribution difference=  3.60743047E-06
+ Eq. Distribution difference=  1.40451157E-05
+ Eq. Distribution difference=  3.43778424E-06
+ Eq. Distribution difference=  1.18983235E-06
+ Eq. Distribution difference=  9.47420801E-07
+ Eq. Distribution difference=  1.08567372E-06
+ Eq. Distribution difference=  9.05461184E-06
+ Eq. Distribution difference=  2.24775886E-06
+ Eq. Distribution difference=  7.93975175E-07
+ Eq. Distribution difference=  7.82107406E-07
+ Eq. Distribution difference=  9.41159669E-07
+ Eq. Distribution difference=  6.41271572E-06
+ Eq. Distribution difference=  1.57979161E-06
+ Eq. Distribution difference=  6.55578560E-07
+ Eq. Distribution difference=  5.00246813E-07
+ Eq. Distribution difference=  5.82839789E-07
+ Eq. Distribution difference=  4.36671962E-06
+ Eq. Distribution difference=  1.10501344E-06
+ Eq. Distribution difference=  4.40959298E-07
+ Eq. Distribution difference=  3.48296311E-07
+ Eq. Distribution difference=  3.85023895E-07
+ Eq. Distribution difference=  2.97288852E-06
+ Eq. Distribution difference=  7.71140947E-07
+ Eq. Distribution difference=  2.98164650E-07
+ Eq. Distribution difference=  2.40270907E-07
+ Eq. Distribution difference=  2.56404320E-07
+ Eq. Distribution difference=  2.00885529E-06
+ Eq. Distribution difference=  5.34090873E-07
+ Eq. Distribution difference=  2.16179615E-07
+ Eq. Distribution difference=  1.94445064E-07
+ Eq. Distribution difference=  1.70332484E-07
+ Eq. Distribution difference=  1.43595958E-06
+ Eq. Distribution difference=  3.87430021E-07
+ Eq. Distribution difference=  1.48816582E-07
+ Eq. Distribution difference=  1.24205911E-07
+ Eq. Distribution difference=  1.15634684E-07
+ Eq. Distribution difference=  9.83581799E-07
+ Eq. Distribution difference=  2.69903495E-07
+ Eq. Distribution difference=  1.05202439E-07
+ 
+ Statistics
+ W/GDP   3.3661228062818997      Top 1%  0.26213845010800252      Top 10%  0.60959935888577588     
+ STD Labor Earnings  0.82729867014888847      Mean Labor Earnings  0.38912038762565448      Moments  0.15105220232477853     
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.24393782691696345      SSC_Payments=  0.14892421147901050      GBAR_L=  0.25609723561195796      Av. Labor Tax=  0.21416105957924148     
+ GBAR_K=   0.0000000000000000      GBAR_W=  5.76177634376126221E-002 GBAR_C=  7.91470393466919275E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.20000000000000002E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.2000000000000000     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999999056     
+ GBAR_exp =  0.24393782691696345      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.20657520E-05
+ Eq. Distribution difference=  2.07779758E-05
+ Eq. Distribution difference=  8.63840251E-06
+ Eq. Distribution difference=  5.48092521E-06
+ Eq. Distribution difference=  3.58808529E-06
+ Eq. Distribution difference=  1.44190744E-05
+ Eq. Distribution difference=  3.50779828E-06
+ Eq. Distribution difference=  1.22292079E-06
+ Eq. Distribution difference=  1.00950081E-06
+ Eq. Distribution difference=  1.10375299E-06
+ Eq. Distribution difference=  9.08571747E-06
+ Eq. Distribution difference=  2.28258091E-06
+ Eq. Distribution difference=  8.15148212E-07
+ Eq. Distribution difference=  8.52278902E-07
+ Eq. Distribution difference=  9.83671498E-07
+ Eq. Distribution difference=  6.23418600E-06
+ Eq. Distribution difference=  1.57931106E-06
+ Eq. Distribution difference=  6.40887663E-07
+ Eq. Distribution difference=  5.19129287E-07
+ Eq. Distribution difference=  6.09901235E-07
+ Eq. Distribution difference=  4.15326758E-06
+ Eq. Distribution difference=  1.08037000E-06
+ Eq. Distribution difference=  4.33341199E-07
+ Eq. Distribution difference=  3.42394685E-07
+ Eq. Distribution difference=  3.98793190E-07
+ Eq. Distribution difference=  2.83231930E-06
+ Eq. Distribution difference=  7.53304334E-07
+ Eq. Distribution difference=  2.91897180E-07
+ Eq. Distribution difference=  2.33712228E-07
+ Eq. Distribution difference=  2.59184674E-07
+ Eq. Distribution difference=  1.90157971E-06
+ Eq. Distribution difference=  5.18275442E-07
+ Eq. Distribution difference=  2.00103514E-07
+ Eq. Distribution difference=  1.53727612E-07
+ Eq. Distribution difference=  1.67383035E-07
+ Eq. Distribution difference=  1.21795313E-06
+ Eq. Distribution difference=  3.45318682E-07
+ Eq. Distribution difference=  1.37645799E-07
+ Eq. Distribution difference=  1.14007811E-07
+ Eq. Distribution difference=  1.07773879E-07
+ Eq. Distribution difference=  7.93142192E-07
+ Eq. Distribution difference=  2.32134369E-07
+ 
+ Statistics
+ W/GDP   3.3274485545110806      Top 1%  0.26432508220820328      Top 10%  0.61260497607736442     
+ STD Labor Earnings  0.82624249348211165      Mean Labor Earnings  0.38985134884022632      Moments  0.12322670330360350     
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.24628564695681282      SSC_Payments=  0.14892421147901014      GBAR_L=  0.25493174190792056      Av. Labor Tax=  0.21380569897014987     
+ GBAR_K=   0.0000000000000000      GBAR_W=  6.15874808118576991E-002 GBAR_C=  7.86906357162998754E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.30000000000000011E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.3000000000000000     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999999001     
+ GBAR_exp =  0.24628564695681282      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.15608733E-05
+ Eq. Distribution difference=  2.08667352E-05
+ Eq. Distribution difference=  8.97991413E-06
+ Eq. Distribution difference=  5.43676788E-06
+ Eq. Distribution difference=  3.59008277E-06
+ Eq. Distribution difference=  1.48036570E-05
+ Eq. Distribution difference=  3.49825223E-06
+ Eq. Distribution difference=  1.24472137E-06
+ Eq. Distribution difference=  1.07095786E-06
+ Eq. Distribution difference=  1.12633541E-06
+ Eq. Distribution difference=  9.30981332E-06
+ Eq. Distribution difference=  2.27223700E-06
+ Eq. Distribution difference=  8.27335668E-07
+ Eq. Distribution difference=  9.16950228E-07
+ Eq. Distribution difference=  1.00953537E-06
+ Eq. Distribution difference=  6.23310643E-06
+ Eq. Distribution difference=  1.57107399E-06
+ Eq. Distribution difference=  6.16951468E-07
+ Eq. Distribution difference=  5.57305043E-07
+ Eq. Distribution difference=  6.25997302E-07
+ Eq. Distribution difference=  4.19478874E-06
+ Eq. Distribution difference=  1.08817176E-06
+ Eq. Distribution difference=  4.18661699E-07
+ Eq. Distribution difference=  3.66921341E-07
+ Eq. Distribution difference=  4.09022590E-07
+ Eq. Distribution difference=  2.79100686E-06
+ Eq. Distribution difference=  7.45005025E-07
+ Eq. Distribution difference=  2.85907021E-07
+ Eq. Distribution difference=  2.43595906E-07
+ Eq. Distribution difference=  2.68242559E-07
+ Eq. Distribution difference=  1.85203021E-06
+ Eq. Distribution difference=  5.08228027E-07
+ Eq. Distribution difference=  1.98810511E-07
+ Eq. Distribution difference=  1.57025895E-07
+ Eq. Distribution difference=  1.70507903E-07
+ Eq. Distribution difference=  1.21822234E-06
+ Eq. Distribution difference=  3.45580503E-07
+ Eq. Distribution difference=  1.38503751E-07
+ Eq. Distribution difference=  1.11117892E-07
+ Eq. Distribution difference=  1.07090237E-07
+ Eq. Distribution difference=  7.99416625E-07
+ Eq. Distribution difference=  2.33425226E-07
+ 
+ Statistics
+ W/GDP   3.2890672732149597      Top 1%  0.26651862731297804      Top 10%  0.61568039005510078     
+ STD Labor Earnings  0.82497132371863435      Mean Labor Earnings  0.39057778317989839      Moments  9.85679345741249519E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.24855011830028548      SSC_Payments=  0.14892421147900151      GBAR_L=  0.25378927759279185      Av. Labor Tax=  0.21345625589644016     
+ GBAR_K=   0.0000000000000000      GBAR_W=  6.54417770840455687E-002 GBAR_C=  7.82432751027238027E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.40000000000000003E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.4000000000000001     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999998956     
+ GBAR_exp =  0.24855011830028548      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.31052317E-05
+ Eq. Distribution difference=  2.09489299E-05
+ Eq. Distribution difference=  9.19111517E-06
+ Eq. Distribution difference=  5.40396513E-06
+ Eq. Distribution difference=  3.70424414E-06
+ Eq. Distribution difference=  1.51332761E-05
+ Eq. Distribution difference=  3.51948734E-06
+ Eq. Distribution difference=  1.27192072E-06
+ Eq. Distribution difference=  1.13198985E-06
+ Eq. Distribution difference=  1.14000386E-06
+ Eq. Distribution difference=  9.63978528E-06
+ Eq. Distribution difference=  2.29915122E-06
+ Eq. Distribution difference=  8.47857791E-07
+ Eq. Distribution difference=  9.82250640E-07
+ Eq. Distribution difference=  1.03095067E-06
+ Eq. Distribution difference=  6.45071395E-06
+ Eq. Distribution difference=  1.57675299E-06
+ Eq. Distribution difference=  5.93046821E-07
+ Eq. Distribution difference=  6.01228805E-07
+ Eq. Distribution difference=  6.45136822E-07
+ Eq. Distribution difference=  4.26925590E-06
+ Eq. Distribution difference=  1.07063727E-06
+ Eq. Distribution difference=  4.07833085E-07
+ Eq. Distribution difference=  3.95356068E-07
+ Eq. Distribution difference=  4.22256278E-07
+ Eq. Distribution difference=  2.84924022E-06
+ Eq. Distribution difference=  7.33697732E-07
+ Eq. Distribution difference=  2.84487101E-07
+ Eq. Distribution difference=  2.55378126E-07
+ Eq. Distribution difference=  2.70495690E-07
+ Eq. Distribution difference=  1.90022195E-06
+ Eq. Distribution difference=  5.01710417E-07
+ Eq. Distribution difference=  1.97838034E-07
+ Eq. Distribution difference=  1.64129531E-07
+ Eq. Distribution difference=  1.71461764E-07
+ Eq. Distribution difference=  1.24910741E-06
+ Eq. Distribution difference=  3.40106197E-07
+ Eq. Distribution difference=  1.37171725E-07
+ Eq. Distribution difference=  1.07708487E-07
+ Eq. Distribution difference=  1.07606688E-07
+ Eq. Distribution difference=  8.39417055E-07
+ Eq. Distribution difference=  2.33313031E-07
+ 
+ Statistics
+ W/GDP   3.2513533463116637      Top 1%  0.26868497936957536      Top 10%  0.61811268772032957     
+ STD Labor Earnings  0.82380506234021156      Mean Labor Earnings  0.39128940086183295      Moments  7.73501705579379278E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.25071761973687401      SSC_Payments=  0.14892421147900578      GBAR_L=  0.25265050573371856      Av. Labor Tax=  0.21310748583090464     
+ GBAR_K=   0.0000000000000000      GBAR_W=  6.91871430582595565E-002 GBAR_C=  7.78041824241741675E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.49999999999999994E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.5000000000000000     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999999145     
+ GBAR_exp =  0.25071761973687401      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.52340386E-05
+ Eq. Distribution difference=  2.10254148E-05
+ Eq. Distribution difference=  9.26847406E-06
+ Eq. Distribution difference=  5.47727041E-06
+ Eq. Distribution difference=  3.74060778E-06
+ Eq. Distribution difference=  1.55222351E-05
+ Eq. Distribution difference=  3.55659131E-06
+ Eq. Distribution difference=  1.18925425E-06
+ Eq. Distribution difference=  1.18459900E-06
+ Eq. Distribution difference=  1.14761997E-06
+ Eq. Distribution difference=  9.84191684E-06
+ Eq. Distribution difference=  2.31367653E-06
+ Eq. Distribution difference=  8.17305192E-07
+ Eq. Distribution difference=  1.04798198E-06
+ Eq. Distribution difference=  1.05202093E-06
+ Eq. Distribution difference=  6.66129199E-06
+ Eq. Distribution difference=  1.59927390E-06
+ Eq. Distribution difference=  5.70659097E-07
+ Eq. Distribution difference=  6.39868460E-07
+ Eq. Distribution difference=  6.57883390E-07
+ Eq. Distribution difference=  4.36054688E-06
+ Eq. Distribution difference=  1.07226231E-06
+ Eq. Distribution difference=  3.98449657E-07
+ Eq. Distribution difference=  4.24301476E-07
+ Eq. Distribution difference=  4.34000384E-07
+ Eq. Distribution difference=  2.87024136E-06
+ Eq. Distribution difference=  7.22838422E-07
+ Eq. Distribution difference=  2.82285299E-07
+ Eq. Distribution difference=  2.71271546E-07
+ Eq. Distribution difference=  2.75843007E-07
+ Eq. Distribution difference=  1.90250751E-06
+ Eq. Distribution difference=  4.90089121E-07
+ Eq. Distribution difference=  1.94569168E-07
+ Eq. Distribution difference=  1.71125876E-07
+ Eq. Distribution difference=  1.72119258E-07
+ Eq. Distribution difference=  1.24474457E-06
+ Eq. Distribution difference=  3.30052899E-07
+ Eq. Distribution difference=  1.33968896E-07
+ Eq. Distribution difference=  1.32455980E-07
+ Eq. Distribution difference=  1.28492147E-07
+ Eq. Distribution difference=  7.93136792E-07
+ Eq. Distribution difference=  2.16759503E-07
+ Eq. Distribution difference=  1.08256977E-07
+ Eq. Distribution difference=  1.04810276E-07
+ Eq. Distribution difference=  1.01686538E-07
+ Eq. Distribution difference=  5.09920483E-07
+ Eq. Distribution difference=  1.42417250E-07
+ 
+ Statistics
+ W/GDP   3.2138876271489774      Top 1%  0.27089725907590567      Top 10%  0.62039105487751411     
+ STD Labor Earnings  0.82282523839168098      Mean Labor Earnings  0.39199763954995043      Moments  5.91378981770167150E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.25275500947042284      SSC_Payments=  0.14892421147900733      GBAR_L=  0.25149819977629767      Av. Labor Tax=  0.21275424523024791     
+ GBAR_K=   0.0000000000000000      GBAR_W=  7.28155366783115043E-002 GBAR_C=  7.73654844950999454E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.60000000000000003E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.6000000000000001     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999998912     
+ GBAR_exp =  0.25275500947042284      GBAR_bench=  0.25422061206441526     
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  6.63260944E-05
+ Eq. Distribution difference=  2.10900234E-05
+ Eq. Distribution difference=  9.16309727E-06
+ Eq. Distribution difference=  5.54821554E-06
+ Eq. Distribution difference=  3.75842433E-06
+ Eq. Distribution difference=  1.49304824E-05
+ Eq. Distribution difference=  3.49285983E-06
+ Eq. Distribution difference=  1.18736045E-06
+ Eq. Distribution difference=  1.21558548E-06
+ Eq. Distribution difference=  1.12844862E-06
+ Eq. Distribution difference=  9.93141475E-06
+ Eq. Distribution difference=  2.30224373E-06
+ Eq. Distribution difference=  9.57950874E-07
+ Eq. Distribution difference=  1.04035360E-06
+ Eq. Distribution difference=  9.81416974E-07
+ Eq. Distribution difference=  6.55026270E-06
+ Eq. Distribution difference=  1.55263012E-06
+ Eq. Distribution difference=  5.95051631E-07
+ Eq. Distribution difference=  6.43707210E-07
+ Eq. Distribution difference=  6.19830701E-07
+ Eq. Distribution difference=  4.33435935E-06
+ Eq. Distribution difference=  1.04900687E-06
+ Eq. Distribution difference=  3.90754877E-07
+ Eq. Distribution difference=  4.16788680E-07
+ Eq. Distribution difference=  4.00093512E-07
+ Eq. Distribution difference=  2.87283842E-06
+ Eq. Distribution difference=  7.10601626E-07
+ Eq. Distribution difference=  2.80073351E-07
+ Eq. Distribution difference=  2.67139143E-07
+ Eq. Distribution difference=  2.54129333E-07
+ Eq. Distribution difference=  1.94864288E-06
+ Eq. Distribution difference=  4.90933644E-07
+ Eq. Distribution difference=  2.21054904E-07
+ Eq. Distribution difference=  2.02168678E-07
+ Eq. Distribution difference=  1.72996153E-07
+ Eq. Distribution difference=  1.19890819E-06
+ Eq. Distribution difference=  3.13631858E-07
+ Eq. Distribution difference=  1.22920468E-07
+ Eq. Distribution difference=  1.10581283E-07
+ 
+ Statistics
+ W/GDP   3.1786039027576143      Top 1%  0.27295958937241815      Top 10%  0.62265141677456581     
+ STD Labor Earnings  0.82172727123999068      Mean Labor Earnings  0.39265806501522083      Moments  4.45495240537135753E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.25478693691733845      SSC_Payments=  0.14892421147900439      GBAR_L=  0.25038227657993761      Av. Labor Tax=  0.21240804983835579     
+ GBAR_K=   0.0000000000000000      GBAR_W=  7.63809575280110509E-002 GBAR_C=  7.69479142886461687E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.70000000000000012E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Bracketing GBAR: tauW_bt=   0.0000000000000000      And tauW_at=   1.7000000000000002     
+ Current Threshold for wealth taxes   0.0000000000000000      Share above threshold=  0.99999999999998990     
+ GBAR_exp =  0.25478693691733845      GBAR_bench=  0.25422061206441526     
+ 
+ GBAR bracketed by taxes:
+ tauW_low_bt =   0.0000000000000000      % tauW_up_bt=   0.0000000000000000      % tauW_bt=   0.0000000000000000      %
+ tauW_low_at =   1.6000000000000001      % tauW_up_at=   1.7000000000000002      % tauW_at=   1.6721286872824692      %
+ 
+ Computing Equilibrium Distribution
+ Eq. Distribution difference=   1.0000000    
+ Eq. Distribution difference=  1.97010540E-05
+ Eq. Distribution difference=  6.04729348E-06
+ Eq. Distribution difference=  2.58152181E-06
+ Eq. Distribution difference=  1.51859035E-06
+ Eq. Distribution difference=  1.03000002E-06
+ Eq. Distribution difference=  3.54387680E-06
+ Eq. Distribution difference=  7.97927328E-07
+ Eq. Distribution difference=  3.33441307E-07
+ Eq. Distribution difference=  2.90170874E-07
+ Eq. Distribution difference=  2.60578759E-07
+ Eq. Distribution difference=  2.30135311E-06
+ Eq. Distribution difference=  5.27199234E-07
+ Eq. Distribution difference=  2.29764467E-07
+ Eq. Distribution difference=  2.59120725E-07
+ Eq. Distribution difference=  2.47418086E-07
+ Eq. Distribution difference=  1.50308824E-06
+ Eq. Distribution difference=  3.53082868E-07
+ Eq. Distribution difference=  1.40523412E-07
+ Eq. Distribution difference=  1.57555178E-07
+ Eq. Distribution difference=  1.54303407E-07
+ Eq. Distribution difference=  9.72166958E-07
+ Eq. Distribution difference=  2.34759582E-07
+ 
+ Statistics
+ W/GDP   3.1850636068458007      Top 1%  0.27292820445751342      Top 10%  0.62225545486805522     
+ STD Labor Earnings  0.82185018237285334      Mean Labor Earnings  0.39256232235286620      Moments  4.69790190549917233E-002
+  
+ Government Budget - Revenues and taxes
+ GBAR=  0.25403195340574819      SSC_Payments=  0.14892421147899859      GBAR_L=  0.25060839018969999      Av. Labor Tax=  0.21247614130509415     
+ GBAR_K=   0.0000000000000000      GBAR_W=  7.53115509545804612E-002 GBAR_C=  7.70362237407214295E-002
+ Tau_K=   0.0000000000000000      Tau_W=  1.67212868728246929E-002 Tau_C=  7.49999999999999972E-002 Threshold   0.0000000000000000     
+  
+ Gbar at midpoint of bracket and GBAR at benchmark
+ GBAR_exp =  0.25403195340574819      GBAR_bench=  0.25422061206441526     
+ 
+ Bisection for TauW:
+ 
+ Statistics
+ W/GDP   3.1850636068458007      Top 1%  0.27292820445751342      Top 10%  0.62225545486805522     
+ STD Labor Earnings  0.82185018237285334      Mean Labor Earnings  0.39256232235286620      Moments  4.69790190549917233E-002
+ BENCH: rr=  7.86607071362062371E-002 wage=   1.4841342073060786      Ebar=   1.1164521145879585     
+ VALUE FUNCTION SPLINE
+  EXP: rr=  7.22794674229520484E-002 wage=   1.5591438993690661      Ebar=   1.1794660268695853     
+ VALUE FUNCTION SPLINE
+ age=           1   3.4473601252308668        3.2304563804455171        2.8570716142942625        2.4152422434730054        3.2452318861088529        8.9487880410585561        21.102563914716622      , mean:     3.3052260137988849     
+ age=           2   3.4629662855210097        3.2441001177072328        2.8637072651408291        2.4077536403475546        3.2257885076146926        8.9486203285916055        21.156224745147330      , mean:     3.3005693134934022     
+ age=           3   3.4710569259827357        3.2503575227426067        2.8640045274050721        2.3957428288533844        3.2028141448612013        8.9395466759963398        21.181135347647743      , mean:     3.2905655842986263     
+ age=           4   3.4720611930425593        3.2497719173424939        2.8580523980146881        2.3793607775659105        3.1768068083732772        8.9243127088682872        21.184693015105189      , mean:     3.2756683118590857     
+ age=           5   3.4663549178665964        3.2426368691561809        2.8461514632734009        2.3587634781925773        3.1481365182372256        8.9033881487540434        21.168978090864609      , mean:     3.2561620164569702     
+ age=           6   3.4541165553970514        3.2291663327021429        2.8285684371507074        2.3341335138619188        3.1170241051810263        8.8775534074294828        21.134915593084987      , mean:     3.2323025301661716     
+ age=           7   3.4358920150273922        3.2096506932795155        2.8055705228359993        2.3056700527778005        3.0835515164385843        8.8470308533857640        21.085337709742628      , mean:     3.2043036788527326     
+ age=           8   3.4120872243061537        3.1844264821659336        2.7774383472909085        2.2735797769480919        3.0478536119832516        8.8121990092028621        21.019877128026760      , mean:     3.1723888392100239     
+ age=           9   3.3830258435846550        3.1537995649067851        2.7444326925518521        2.2380684847852512        3.0100536763245924        8.7731191571398757        20.939951434181975      , mean:     3.1367631036464139     
+ age=          10   3.3488911881326828        3.1180335818454008        2.7068150129838267        2.1993459954587298        2.9702669535940878        8.7300372727544655        20.846390921798271      , mean:     3.0976353557074869     
+ age=          11   3.3097417595758820        3.0773659574427699        2.6648366405625419        2.1576112236384555        2.9285932501260392        8.6817268412943047        20.739682241732496      , mean:     3.0551085420942963     
+ age=          12   3.2656703085160328        3.0320158161480362        2.6187442169223423        2.1130606852775755        2.8851249056925967        8.6307363320126296        20.621630485085877      , mean:     3.0095225980013303     
+ age=          13   3.2168493989356408        2.9821856402072049        2.5687753326249654        2.0658909354546320        2.8399449851587995        8.5740061555890232        20.491470526272249      , mean:     2.9608494116672692     
+ age=          14   3.1634868894041444        2.9280590268834188        2.5151610694584372        2.0162923337667640        2.7931311290908560        8.5152894217358384        20.351102592879631      , mean:     2.9094928404725398     
+ age=          15   3.1057812436532228        2.8698193780234780        2.4581313045583637        1.9644511189292386        2.7447552773705626        8.4520357789339240        20.199750970957371      , mean:     2.8554466689390168     
+ age=          16   3.0438854312911245        2.8076444180150237        2.3979006655416910        1.9105393070480750        2.6948776065646007        8.3857623596249997        20.037825211179662      , mean:     2.7989510367226620     
+ age=          17   2.9779306710545859        2.7417168544876858        2.3346834794229210        1.8547225701537380        2.6435549368175897        8.3153547018126890        19.867059637635613      , mean:     2.7400890958649877     
+ age=          18   2.9080392893000631        2.6722149865949101        2.2686842574237001        1.7971575083102305        2.5908371740209022        8.2416656664703698        19.687059943992836      , mean:     2.6790437578800241     
+ age=          19   2.8343099346335867        2.5993190340196848        2.2001021960633205        1.7379932220067724        2.5367657206302963        8.1644079679767181        19.497498059284720      , mean:     2.6159217305327966     
+ age=          20   2.7568618030140501        2.5232076221714679        2.1291328228321720        1.6773715541713108        2.4813759414170673        8.0833911158825149        19.295969523350134      , mean:     2.5508170596214859     
+ age=          21   2.6758323978770169        2.4440544660382137        2.0559579862925759        1.6154142430969392        2.4246886037268047        7.9991459920140660        19.086858028418892      , mean:     2.4838980465949230     
+ age=          22   2.5913649341214238        2.3620229168400044        1.9807456488049882        1.5522299708435103        2.3667173447708314        7.9107374680308773        18.868714904679031      , mean:     2.4151936947639485     
+ age=          23   2.5035892103677213        2.2772707682999265        1.9036543422111856        1.4879099855610056        2.3074626696634604        7.8189063955358700        18.642247031603308      , mean:     2.3448380863715301     
+ age=          24   2.4126401476832910        2.1899627312390932        1.8248307449664818        1.4225272857344355        2.2469106174733144        7.7230320349016077        18.407066936210139      , mean:     2.2728612281944378     
+ age=          25   2.3186602069627025        2.1002542154378565        1.7444100852599642        1.3561354922893372        2.1850344413005738        7.6234288511116777        18.162560651887972      , mean:     2.1993356526832528     
+ age=          26   2.2217769995277772        2.0082676408131590        1.6624909340284837        1.2887541887383627        2.1217862586454550        7.5199767132806938        17.909563753147101      , mean:     2.1242874887217722     
+ age=          27   2.1220963408389677        1.9141082092416852        1.5791445982189181        1.2203736916749626        2.0570992879259817        7.4122858663307767        17.643345923176646      , mean:     2.0476663502443988     
+ age=          28   2.0197041223445829        1.8178628066926454        1.4944041161427282        1.1509484157858829        1.9908774100860160        7.3013505684410207        17.354233753969567      , mean:     1.9694437693605349     
+ age=          29   1.9146769440564058        1.7195927311831525        1.4082460099490861        1.0803905595355903        1.9229975133429049        7.1864815248636793        17.083493205231441      , mean:     1.8897823710035955     
+ age=          30   1.8070681080116151        1.6193204251256987        1.3206165688070173        1.0085638776511958        1.8532942393096992        7.0683108355983997        16.804830618970961      , mean:     1.8084463452193327     
+ age=          31   1.6968836265493472        1.5170028160406308        1.2314017889816320       0.93526681816743074        1.7815578966013366        6.9462531780803891        16.522255684639838      , mean:     1.7252682927727256     
+ age=          32   1.5840685382469148        1.4125296711821977        1.1404025742236812       0.86022725502269526        1.7075450965162913        6.8211414479164798        16.233597166423237      , mean:     1.6400679210828322     
+ age=          33   1.4684898312883621        1.3057047460271201        1.0473242948889112       0.78308661388659040        1.6309227623450142        6.6925813885653271        15.942884331129076      , mean:     1.5525462387402971     
+ age=          34   1.3499307697947236        1.1962316656572343       0.95175978708451947       0.70338798040739792        1.5512845434296041        6.5609768097562648        15.649118563375591      , mean:     1.4623316656132974     
+ age=          35   1.2280575477400577        1.0836862431132444       0.85318389015537754       0.62055052881958672        1.4681368948974471        6.4266583025486561        15.352654229994480      , mean:     1.3689515971596515     
+ age=          36   1.1023915638497130       0.96749133836870649       0.75092732077274382       0.53382633993701456        1.3808559269405771        6.2891023488820803        15.054814980589237      , mean:     1.2717467826406217     
+ age=          37  0.97226840622329747       0.84687892406783827       0.64413038335343609       0.44227167971710618        1.2886602205355762        6.1494694963450236        14.756194337184516      , mean:     1.1699856825060739     
+ age=          38  0.83679473391431958       0.72083714198873483       0.53169347329192562       0.34470490589768416        1.1905589027636039        6.0066694295413070        14.457358443782976      , mean:     1.0625819976363324     
+ age=          39  0.69477480243099388       0.58804428477434145       0.41220099030017820       0.23960035587071574        1.0853075440160758        5.8615626854787539        14.159804276156340      , mean:    0.94828647149522938     
+ age=          40  0.54459766626705197       0.44679027855721065       0.28381756393585333       0.12499115827809081       0.97128267420730585        5.7136629743921414        13.865485559183158      , mean:    0.82538221341671758     
+ age=          41  0.38407889439698562       0.29476568028483940       0.14407088339260793      -1.70582939353543239E-003  0.84637541982113729        5.5633532072127903        13.575771984753121      , mean:    0.69165595622450837     
+ age=          42  0.21016424301518744       0.12876002783116394      -1.04412647527160288E-002 -0.14397084736920909       0.70775169452680031        5.4100099791674410        13.293735629815759      , mean:    0.54404111800571808     
+ age=          43  1.82529357513402796E-002 -5.59729879263675331E-002 -0.18462424286458973      -0.30667360921198700       0.55148066942948959        5.2537749095996542        13.022191594342685      , mean:    0.37825529190604523     
+ age=          44 -0.19941992549752957      -0.26712600023035271      -0.38597103982266234      -0.49694995807730469       0.37197645121281586        5.0941538115924985        12.765167466126039      , mean:    0.18789544395386171     
+ age=          45 -0.45687372311519220      -0.51733575788417208      -0.62514776894721025      -0.72416576341783634       0.16035873355256361        4.9321423634279711        12.527025307627419      , mean:   -3.61039253917872782E-002
+ age=          46 -0.40388696264212942      -0.46394411439919747      -0.57202490745576584      -0.67769544129930626       0.16949131359101696        4.8518471894983515        12.312187876766613      , mean:   -6.11352392164107254E-003
+ age=          47 -0.35506986522049777      -0.41402143802410174      -0.52127223275109191      -0.63216387309109046       0.17809297555145989        4.7698918582992320        12.095284865462036      , mean:    2.24615338314227281E-002
+ age=          48 -0.31031835689073306      -0.36752374315577896      -0.47292163785041313      -0.58758847555233296       0.18620362062280812        4.6862182091117459        11.876230325983107      , mean:    4.96158036332979419E-002
+ age=          49 -0.26946185107439036      -0.32437241229585240      -0.42697748369839772      -0.54401764465586244       0.19380107285149392        4.6007458601473186        11.654700234423661      , mean:    7.53233615129579731E-002
+ age=          50 -0.23231304745401771      -0.28449503958946804      -0.38347077005532865      -0.50153902371810288       0.20083982418598564        4.5134128396314859        11.430644863379914      , mean:    9.95339433696833531E-002
+ age=          51 -0.19868191673283556      -0.24779874598673815      -0.34242339055839233      -0.46024714371136871       0.20725483398027286        4.4241986276672582        11.204054229561102      , mean:    0.12219624909217713     
+ age=          52 -0.16840166028063061      -0.21419259551253336      -0.30386140871359824      -0.42024769572325776       0.21297550048799446        4.3330985318081519        10.975221718589452      , mean:    0.14325507268974333     
+ age=          53 -0.14132510136240675      -0.18358288627674008      -0.26780190036291363      -0.38164556658964249       0.21792312916596365        4.2400804218561303        10.744267999426469      , mean:    0.16265294944602018     
+ age=          54 -0.11730555191094431      -0.15586623706105029      -0.23423789121427763      -0.34452824893470935       0.22201067493510609        4.1450611439024128        10.511394940512785      , mean:    0.18034079547135787     
+ age=          55 -9.62079275860447392E-002 -0.13095899918060461      -0.20317930518231439      -0.30900911230810513       0.22515029879009277        4.0480342865652901        10.276731405945167      , mean:    0.19625838137306809     
+ age=          56 -7.78812016036911914E-002 -0.10877027475403503      -0.17462393497893200      -0.27519644789402059       0.22724643547775403        3.9488688403567620        10.040620121580483      , mean:    0.21034272785685923     
+ age=          57 -6.21606170306608016E-002 -8.92026167074115445E-002 -0.14856255307847380      -0.24318866995760374       0.22821172225361563        3.8476255942027695        9.8034433390786138      , mean:    0.22255088597929559     
+ age=          58 -4.88627416777817278E-002 -7.21466916542004844E-002 -0.12497696491556509      -0.21306622852475335       0.22796069019360579        3.7443354778573981        9.5655680253164128      , mean:    0.23284827328432189     
+ age=          59 -3.77827326571229735E-002 -5.74697408540572469E-002 -0.10383115321633675      -0.18492547850401778       0.22640928251992834        3.6390065521973871        9.3273416513666731      , mean:    0.24119895410759112     
+ age=          60 -2.87055881479615360E-002 -4.50265975877035679E-002 -8.50853147234645751E-002 -0.15885828499741458       0.22348713509155305        3.5316165001373592        9.0889545664657110      , mean:    0.24757085246216981     
+ age=          61 -2.13994360580087445E-002 -3.46473681139715731E-002 -6.86726164669727857E-002 -0.13492847748359713       0.21913372533603709        3.4222051259463520        8.8508495988955520      , mean:    0.25195858385236714     
+ age=          62 -1.56283845303778826E-002 -2.61460338890889508E-002 -5.45068303131805224E-002 -0.11322024986054312       0.21331054528210938        3.3107082550641604        8.6129596259592205      , mean:    0.25435029344894172     
+ age=          63 -1.11606223839880864E-002 -1.93161596732065767E-002 -4.24739255749089287E-002 -9.37402544995343395E-002  0.20600216062368140        3.1970241558038017        8.3752006018135496      , mean:    0.25477470476831904     
+ age=          64 -7.77631272105553436E-003 -1.39440032211184586E-002 -3.24320182017936928E-002 -7.63895322871292609E-002  0.19720501835196047        3.0810119115895289        8.1373765097580435      , mean:    0.25330751751945496     
+ age=          65 -5.27566896944587759E-003 -9.81501043869342088E-003 -2.42218985853682976E-002 -6.12028020308203399E-002  0.18695019659632944        2.9625384827819619        7.8991657164542133      , mean:    0.24998574254317907     
+ age=          66 -3.48042169671328259E-003 -6.71961228874455932E-003 -1.76548482651042449E-002 -4.81241076552353236E-002  0.17531700075809073        2.8414478341695433        7.6600117417986660      , mean:    0.24489624419230827     
+ age=          67 -2.23402698507471544E-003 -4.46464104580227179E-003 -1.25334746155833371E-002 -3.70614317783034206E-002  0.16246256319449565        2.7175911570186941        7.4195906558528639      , mean:    0.23816130794226176     
+ age=          68 -1.40248768411649805E-003 -2.87446295138230360E-003 -8.64464774649759474E-003 -2.78960698433685685E-002  0.14861044024215464        2.5908165742966545        7.1770684200790571      , mean:    0.22992846274356599     
+ age=          69 -8.73645801894010654E-004 -1.79429273090404070E-003 -5.78094159401410131E-003 -2.04775833223242651E-002  0.13397108949632375        2.4609636303687843        6.9314484672202035      , mean:    0.22034973823432935     
+ age=          70 -5.55392739767065460E-004 -1.09149708753776033E-003 -3.74076015493413246E-003 -1.46333524506516190E-002  0.11871148138389745        2.3278829831516101        6.6812633736348088      , mean:    0.20956979240199086     
+ age=          71 -3.75894252045415615E-004 -6.56663524300669216E-004 -2.34027572099707384E-003 -1.01598798657262460E-002  0.10325813720501426        2.1914243340606734        6.4246008467800753      , mean:    0.19779890518497978     
+ age=          72 -2.81618320417206520E-004 -4.02343847086334176E-004 -1.41593376740233490E-003 -6.84426358928507273E-003  8.79991595538649890E-002   2.0514521929175271        6.1587917764215119      , mean:    0.18523124428918705     
+ age=          73 -2.35923276210255105E-004 -2.62111270108399716E-004 -8.31077318986577222E-004 -4.47020829993047698E-003  7.32858416619457803E-002   1.9078376025038770        5.8803771280570372      , mean:    0.17204070800374893     
+ age=          74 -2.15505421715829552E-004 -1.89143278216851428E-004 -4.75953432210141037E-004 -2.82668509565939729E-003  5.94819707191289390E-002   1.7604484983768538        5.5848238547067357      , mean:    0.15838720147962337     
+ age=          75 -2.06900030198658693E-004 -1.52865266179130272E-004 -2.67778506603857805E-004 -1.72723482047500696E-003  4.69592433827400665E-002   1.6091271401892855        5.2661641161661796      , mean:    0.14440465234086394     
+ age=          76 -2.03330964113768387E-004 -1.34967677610468167E-004 -1.48547370333424801E-004 -1.01185124626903666E-003  3.60731642446740358E-002   1.4535916742696091        4.9165856132322521      , mean:    0.13018651101929510     
+ age=          77 -2.01762156636871792E-004 -1.25785968889116645E-004 -7.97625834595003588E-005 -5.51792210492538823E-004  2.70431993625577342E-002   1.2931925268388504        4.5256936141236164      , mean:    0.11573661528006325     
+ age=          78 -2.00975941661412331E-004 -1.20674139721679380E-004 -3.85519106428983390E-005 -2.54035209950991437E-004  1.98948628868303064E-002   1.1267444733399901        4.0800724962195956      , mean:    0.10094144236703682     
+ age=          79 -2.00533904001691320E-004 -1.17577667327740609E-004 -1.24277688011772997E-005 -5.58376325079718009E-005  1.44442880281058644E-002  0.95110305384567606        3.5621994461112876      , mean:    8.54748580641773170E-002
+ age=          80 -2.00263941112348401E-004 -1.15599501560305796E-004  5.14196611785424191E-006  8.15877571613673395E-005  1.03599210435900771E-002  0.76042535237266529        2.9499082240055525      , mean:    6.87674328943089358E-002
+ age=          81 -2.00079439551282396E-004 -1.14298876796760748E-004  1.72884642408495974E-005  1.79603485357055946E-004  7.23360797370521755E-003  0.55318697643875225        2.2147434767224206      , mean:    5.04493442297351616E-002
+ ---------------------------
+ 
+ Average Welfare Gain Whole Population (bench dbn) (prct)=   1.6699156026647979     
+ Average Welfare Gain Whole Population (exp dbn)     (prct)=   1.7092897745682303     
+ Average Welfare Gain NEW BORN (bench dbn) (prct)          =   3.3052260137988849     
+ Average Welfare Gain NEW BORN (exp dbn)     (prct)          =   3.2894815942223747     
+ 
+ ---------------------------
+ ---------------------------
+ 
+ Output Gain Prct=   5.6441213607162366     
+ 
+ ---------------------------
+  
+ Wealth_factor=   0.0000000000000000     
+  
+ Total time =   57548.309999999998 

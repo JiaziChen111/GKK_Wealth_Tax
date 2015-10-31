@@ -2769,15 +2769,15 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 					          & *( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi)))**(1/((1.0_dp-sigma)*theta-1.0_dp))
 					C_foc   = (theta/(1.0_dp-theta))*(1.0_dp-H_min)*MB_h(H_min,age,lambdai,ei,wage)
 					if (C_euler.ge.C_foc) then
-						EndoCons(ai)  = C_euler 
-						EndoHours(ai) = 0.0_dp
+						EndoCons(na_t+1)  = C_euler 
+						EndoHours(na_t+1) = 0.0_dp
 					else
 						! Set Marginal benefit of assets to the below threshold level
 						MB_a_in = MB_a_at(agrid_t(ai),zgrid(zi))
 						! Solution for hours from Euler equation
-						brentvalue = brent(H_min, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(ai) ) 
+						brentvalue = brent(H_min, 0.4_DP, 0.99_DP, FOC_H_NSU, brent_tol, EndoHours(na_t+1) ) 
 						! Implied consumption by hours from Labor FOC
-						EndoCons(ai) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(ai))*MB_h(EndoHours(ai),age,lambdai,ei,wage)
+						EndoCons(na_t+1) = (theta/(1.0_dp-theta))*(1.0_dp-EndoHours(na_t+1))*MB_h(EndoHours(na_t+1),age,lambdai,ei,wage)
 					end if
 				end if 
 				! Endogenous grid for asset income
