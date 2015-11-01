@@ -96,7 +96,7 @@ MODULE parameters
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
 		REAL(DP), PARAMETER  :: tauWmin_at=0.015_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 0.50_dp 
+		REAL(DP), PARAMETER  :: Threshold_Factor = 2.00_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
