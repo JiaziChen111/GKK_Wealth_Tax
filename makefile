@@ -20,6 +20,6 @@ Sergio_Simple.a: GKK_simple.f95 NRTYPE.o NRUTIL.o
 	gfortran GKK_simple.f95 NRUTIL.o NRTYPE.o -o Sergio_Simple.a
 	./Sergio_Simple.a
 
-Sergio.a: GKK_Wealth_Tax_Sergio.f95 NRTYPE.o NRUTIL.o
+Sergio.a: GKK_Wealth_Tax_Sergio.f95 NRTYPE.o NRUTIL.o Toolbox.o
 	gfortran GKK_Wealth_Tax_Sergio.f95 NRUTIL.o NRTYPE.o Toolbox.o -o Sergio.a
 	./Sergio.a
