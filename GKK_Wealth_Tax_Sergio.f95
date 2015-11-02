@@ -95,14 +95,14 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.015_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 3.00_dp 
+		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: Threshold_Factor = 0.00_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.085_DP !tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
 			! 1-psi controls the level of tax, and tauPL controls progressivity
 		!REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi_PL=0.77_DP  
-		REAL(DP), PARAMETER  :: tauPL=1.0_DP, psi_PL=0.70_DP  
+		REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi_PL=0.70_DP  
 
 END MODULE parameters
 
@@ -737,8 +737,8 @@ PROGRAM main
 		! Parameters for comparisson with Burhan's linear taxes
 		beta        = 0.945_dp
 		rho_z       = 0.50_dp
-		sigma_z     = 0.60_dp
-		sigma_lamba = 0.35_dp
+		sigma_z_eps = 0.60_dp
+		sigma_lambda_eps = 0.35_dp
 		theta       = 0.377_dp
 		sigma       = 4.0_dp
 
@@ -2235,7 +2235,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	! Set a minimum value for labor to check in the FOC
 		H_min = 0.000001_dp
 
-		!print*, 'R=',rr, 'W=',wage
+		!! print*, 'R=',rr, 'W=',wage, 'na=', na, 'na_t=', na_t
 	!========================================================================================
 	!------RETIREMENT PERIOD-----------------------------------------------------------------
 
@@ -2499,7 +2499,6 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				else 
 					Cons_t(age,ai,zi,lambdai,ei) = (theta/(1.0_dp-theta))*(1.0_dp-Hours_t(age,ai,zi,lambdai,ei))* &
 					                                MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage)
-				end if 
 
 						if (isnan(MB_h(Hours_t(age,ai,zi,lambdai,ei),age,lambdai,ei,wage))) then
 							print*,'Error number 1'
@@ -2519,6 +2518,8 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 							
 							STOP
 						end if 
+				end if 
+
 
 			end if     
 		    Aprime_t(age, ai, zi, lambdai,ei) = YGRID_t(ai,zi)  + Y_h(Hours_t(age, ai, zi, lambdai,ei),age,lambdai,ei,wage)  & 
@@ -2543,11 +2544,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		     endif      
 		ENDDO ! ai   
 
-! 		if (any(isnan(Cons_t))) then 
-! 			print*, "isnan - Consumption working 3"
-! 			print*, age,lambdai,ai,zi,ei
-! 			STOP 
-! 		end if                
+		if (any(isnan(Cons_t))) then 
+			print*, "isnan - Consumption working 3"
+			print*, age,lambdai,ai,zi,ei
+			print*, Cons_t(age,ai,zi,lambdai,ei), Hours_t(age,ai,zi,lambdai,ei) 
+			STOP 
+		end if                
 
 		ai=1           
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
@@ -2582,11 +2584,12 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
             ai = ai + 1
         ENDDO  
 
-! 	    if (any(isnan(Cons_t))) then 
-! 			print*, "isnan - Consumption working 2"
-! 			print*, age,lambdai,ai,zi,ei
-! 			STOP 
-! 		end if 
+	    if (any(isnan(Cons_t))) then 
+			print*, "isnan - Consumption working 2"
+			print*, age,lambdai,ai,zi,ei
+			print*, Cons_t(age,ai,zi,lambdai,ei), Hours_t(age,ai,zi,lambdai,ei) 
+			STOP 
+		end if 
 
 	                 
     ENDDO !ei         
@@ -2640,14 +2643,14 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		STOP 
 	end if 
 
-! 	print*, 'Policy Functions'
-! 	print*, ' YGRID ',' Cons ',' Hours ',' Aprime ',' A '
-! 	do ai=1,na
-! 		print*, YGRID(ai,4), Cons(40,ai,4,3,3), Hours(40,ai,4,3,3), Aprime(40,ai,4,3,3), agrid(ai),&
-! 				& Y_h(Hours(40,ai,4,3,3),40,3,3,wage),&
-! 				& (1+tauC)*Cons(40,ai,4,3,3) + Aprime(40,ai,4,3,3) - YGRID(ai,4) -Y_h(Hours(40,ai,4,3,3),40,3,3,wage)
-! 	end do 
-! 	print*, ' '
+	print*, 'Policy Functions'
+	print*, ' YGRID ',' Cons ',' Hours ',' Aprime ',' A '
+	do ai=1,na
+		! print*, YGRID(ai,4), Cons(40,ai,4,3,3), Hours(40,ai,4,3,3), Aprime(40,ai,4,3,3), agrid(ai),&
+		! 		& Y_h(Hours(40,ai,4,3,3),40,3,3,wage),&
+		! 		& (1+tauC)*Cons(40,ai,4,3,3) + Aprime(40,ai,4,3,3) - YGRID(ai,4) -Y_h(Hours(40,ai,4,3,3),40,3,3,wage)
+	end do 
+	print*, ' '
 
 END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
