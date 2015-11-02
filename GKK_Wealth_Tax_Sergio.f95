@@ -98,10 +98,11 @@ MODULE parameters
 		REAL(DP), PARAMETER  :: tauWmin_at=0.015_DP, tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
 		REAL(DP), PARAMETER  :: Threshold_Factor = 3.00_dp 
 		! Consumption tax
-		REAL(DP), PARAMETER  :: tauC=0.075_DP
+		REAL(DP), PARAMETER  :: tauC=0.085_DP !tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
 			! 1-psi controls the level of tax, and tauPL controls progressivity
-		REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi_PL=0.77_DP  
+		!REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi_PL=0.77_DP  
+		REAL(DP), PARAMETER  :: tauPL=1.0_DP, psi_PL=0.70_DP  
 
 END MODULE parameters
 
@@ -687,7 +688,7 @@ PROGRAM main
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
-		Result_Folder = './NSU_Results/Factor_'//trim(Result_Folder)//'/'
+		Result_Folder = './NSU_LT_Results/Factor_'//trim(Result_Folder)//'/'
 		! call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
 		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
@@ -732,6 +733,15 @@ PROGRAM main
 
 		sigma            = 4.0_dp
 		theta            = 1.0_dp/(1.0_dp+phi)
+
+		! Parameters for comparisson with Burhan's linear taxes
+		beta        = 0.945_dp
+		rho_z       = 0.50_dp
+		sigma_z     = 0.60_dp
+		sigma_lamba = 0.35_dp
+		theta       = 0.377_dp
+		sigma       = 4.0_dp
+
 
 	! Start timining of  the process
 		call cpu_time(start_time) 
@@ -857,7 +867,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 1
+	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
