@@ -216,6 +216,7 @@ MODULE global
     	! Other stats
 	    REAL(DP) :: pop_25_60 , tothours_25_60, pop_pos_earn_25_60, tot_log_earnings_25_60, mean_log_earnings_25_60 
 	    REAL(DP) :: meanhours_25_60, Var_Log_Earnings_25_60, Std_Log_Earnings_25_60, MeanWealth, Wealth_Output
+	    REAL(DP) :: MeanReturn, StdReturn, VarReturn, MeanReturn_by_z(nz), size_by_z(nz)
 	    REAL(DP) :: prct1_wealth, prct10_wealth, SSE_Moments, Min_SSE_Moments
 	    ! Welfare measures
 	    REAL(DP) :: Welfare_Gain_Pop_bench, Welfare_Gain_Pop_exp, Welfare_Gain_NB_bench, Welfare_Gain_NB_exp
@@ -735,7 +736,7 @@ PROGRAM main
 		theta            = 1.0_dp/(1.0_dp+phi)
 
 		! Parameters for comparisson with Burhan's linear taxes
-		beta        = 0.945_dp
+		beta        = 0.944_dp
 		rho_z       = 0.50_dp
 		sigma_z_eps = 0.60_dp
 		sigma_lambda_eps = 0.35_dp
@@ -935,7 +936,6 @@ PROGRAM main
 			tauW_at = tauWmin_at + tauWindx * tauWinc_at
 			! Solve the model
 			CALL FIND_DBN_EQ
-			CALL COMPUTE_STATS
 			CALL GOVNT_BUDGET
 
 			! Get new G
@@ -962,7 +962,6 @@ PROGRAM main
 
 		! Solve (again) experimental economy
 			CALL FIND_DBN_EQ
-			CALL COMPUTE_STATS
 			CALL GOVNT_BUDGET
 
 		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
@@ -982,7 +981,6 @@ PROGRAM main
 			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
 			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
 			    CALL FIND_DBN_EQ
-			    CALL COMPUTE_STATS
 			    CALL GOVNT_BUDGET
 			    GBAR_exp = GBAR
 			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
@@ -1006,6 +1004,7 @@ PROGRAM main
 		tauw_at_exp = tauW_at
 		Y_a_threshold_exp = Y_a_threshold
 
+	CALL Write_Experimental_Results()
 	CALL COMPUTE_STATS
 	CALL WRITE_VARIABLES(0)
 	! Compute welfare gain between economies
@@ -1013,17 +1012,16 @@ PROGRAM main
 
 	! Write in files some stats
 		OPEN (UNIT=19, FILE=trim(Result_Folder)//'Stats_Resuls', STATUS='replace') 
-			WRITE(UNIT=19, FMT=*) "Threshold_Factor="     	, Threshold_Factor
-			WRITE(UNIT=19, FMT=*) "Wealth_Factor="		  	, Wealth_Factor
-			WRITE(UNIT=19, FMT=*) "Threshold="			  	, Y_a_Threshold
-			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Below="	  	, TauW_bt
-			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above="	    , TauW_at
+			WRITE(UNIT=19, FMT=*) "Threshold_Factor"     	, Threshold_Factor
+			WRITE(UNIT=19, FMT=*) "Wealth_Factor"		  	, Wealth_Factor
+			WRITE(UNIT=19, FMT=*) "Threshold"			  	, Y_a_Threshold
+			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above"	    , TauW_at
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(bench)" , Welfare_Gain_Pop_bench
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(exp)"   , Welfare_Gain_Pop_exp
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
 			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
-			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)="	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
-			WRITE(UNIT=19, FMT=*) "W/GDP="				  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)"	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
+			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
 			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
@@ -1031,13 +1029,13 @@ PROGRAM main
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
 			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
 			WRITE(UNIT=19, FMT=*) ' '
-			WRITE(UNIT=19, FMT=*) 'GBAR_bench='				, GBAR_bench                   , 'GBAR_exp=' , GBAR_exp
-			WRITE(UNIT=19, FMT=*) 'QBAR_bench='				, QBAR_bench                   , 'QBAR_exp=' , QBAR_exp
-			WRITE(UNIT=19, FMT=*) 'NBAR_bench='				, NBAR_bench                   , 'NBAR_exp=' , NBAR_exp
-			WRITE(UNIT=19, FMT=*) 'YBAR_bench='				, Y_bench                  	   , 'YBAR_exp=' , Y_exp
-			WRITE(UNIT=19, FMT=*) 'EBAR_bench='				, EBAR_bench                   , 'EBAR_exp=' , EBAR_exp
-			WRITE(UNIT=19, FMT=*) 'rr_bench='				, rr_bench                     , 'rr_exp='   , rr_exp
-			WRITE(UNIT=19, FMT=*) 'wage_bench='				, wage_bench                   , 'wage_exp=' , wage_exp
+			WRITE(UNIT=19, FMT=*) 'GBAR_bench'				, GBAR_bench                   , 'GBAR_exp=' , GBAR_exp
+			WRITE(UNIT=19, FMT=*) 'QBAR_bench'				, QBAR_bench                   , 'QBAR_exp=' , QBAR_exp
+			WRITE(UNIT=19, FMT=*) 'NBAR_bench'				, NBAR_bench                   , 'NBAR_exp=' , NBAR_exp
+			WRITE(UNIT=19, FMT=*) 'YBAR_bench'				, Y_bench                  	   , 'YBAR_exp=' , Y_exp
+			WRITE(UNIT=19, FMT=*) 'EBAR_bench'				, EBAR_bench                   , 'EBAR_exp=' , EBAR_exp
+			WRITE(UNIT=19, FMT=*) 'rr_bench'				, rr_bench                     , 'rr_exp='   , rr_exp
+			WRITE(UNIT=19, FMT=*) 'wage_bench'				, wage_bench                   , 'wage_exp=' , wage_exp
 		CLOSE(Unit=19)
 	
 	print*,'---------------------------'
@@ -1067,7 +1065,7 @@ END PROGRAM main
 !========================================================================================
 
 
-SUBROUTINE COMPUTE_WELFARE_GAIN
+SUBROUTINE COMPUTE_WELFARE_GAIN()
 	use GLOBAL 
 	use programfunctions
 	IMPLICIT NONE
@@ -1976,15 +1974,13 @@ END SUBROUTINE FIND_DBN_EQ
 !========================================================================================
 
 
-SUBROUTINE COMPUTE_STATS
+SUBROUTINE COMPUTE_STATS()
 	use global
 	use programfunctions
 	use Toolbox
 	IMPLICIT NONE
 	INTEGER :: prctile
-	REAL(DP):: MeanReturn, StdReturn, VarReturn 
 	REAL(DP), DIMENSION(nz) :: cdf_Gz_DBN 
-	REAL(DP), DIMENSION(nz):: MeanReturn_by_z, size_by_z
 	REAL(dp), DIMENSION(na,nz) :: DBN_az, wealth
 
 	DO zi=1,nz
@@ -2143,8 +2139,34 @@ SUBROUTINE COMPUTE_STATS
 	!print*,'beta',beta,'rho_z',rho_z,'sigma_z',sigma_z_eps,'sigma_lam',sigma_lambda_eps,'phi',phi
 	print*,"Statistics"
 	print*,'W/GDP',Wealth_Output,'Top 1%',prct1_wealth,'Top 10%',prct10_wealth
-	print*,'STD Labor Earnings',Std_Log_Earnings_25_60,'Mean Labor Earnings',meanhours_25_60,'Moments',SSE_Moments 
+	print*,'STD Labor Earnings',Std_Log_Earnings_25_60,'Mean Labor (hours 25-60)',meanhours_25_60,'MeanReturn',MeanReturn
+	print*,'Moments',SSE_Moments 
 	!print*,''
+
+	! Write in files some stats
+	if (solving_bench.eq.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
+			WRITE(UNIT=19, FMT=*) ' '
+	else
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='replace', POSITION='append') 
+			WRITE(UNIT=19, FMT=*) "Results for experimental economy"
+			WRITE(UNIT=19, FMT=*) ' '
+	end if 
+			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) "Mean_Wealth"				, MeanWealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
+			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
+			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
+			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
+			WRITE(UNIT=19, FMT=*) ' '
+		CLOSE(Unit=19)
+	
 
 END SUBROUTINE COMPUTE_STATS
 
@@ -3128,11 +3150,11 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE()
 		
 			phi_lambda_e(lambdai,ei) = 0.9_DP*  lifetime_eff_unit_by_lambda_e(lambdai, ei)
 	    
-	    ELSEIF   (lifetime_eff_unit_by_lambda_e(lambdai, ei) .le. 2.0_DP) THEN
+	    ELSE IF   (lifetime_eff_unit_by_lambda_e(lambdai, ei) .le. 2.0_DP) THEN
         
             phi_lambda_e(lambdai,ei)  = 0.27_DP +  0.32_DP*  (lifetime_eff_unit_by_lambda_e(lambdai, ei)-0.3_DP) 
 		
-		ELSEIF (lifetime_eff_unit_by_lambda_e(lambdai, ei) .le. 4.1_DP) THEN
+		ELSE IF (lifetime_eff_unit_by_lambda_e(lambdai, ei) .le. 4.1_DP) THEN
             
             phi_lambda_e(lambdai,ei)  = 0.81_DP +  0.15_DP*  (lifetime_eff_unit_by_lambda_e(lambdai, ei)-2.0_DP)
 		
@@ -3241,6 +3263,54 @@ SUBROUTINE Write_Benchmark_Results(read_write)
 		print*, "Reading of benchmark results completed"
 	END IF 
 END SUBROUTINE Write_Benchmark_Results
+
+
+SUBROUTINE Write_Experimental_Results()
+	use global
+	IMPLICIT NONE
+
+	OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Exp_results_cons'  , STATUS='replace')
+	WRITE (UNIT=1,  FMT=*) cons
+	CLOSE (unit=1)
+	OPEN  (UNIT=2,  FILE=trim(Result_Folder)//'Exp_results_aprime', STATUS='replace')
+	WRITE (UNIT=2,  FMT=*) aprime
+	CLOSE (unit=2)
+	OPEN  (UNIT=3,  FILE=trim(Result_Folder)//'Exp_results_hours' , STATUS='replace')
+	WRITE (UNIT=3,  FMT=*) hours
+	CLOSE (unit=3)
+	OPEN  (UNIT=4,  FILE=trim(Result_Folder)//'Exp_results_value' , STATUS='replace')
+	WRITE (UNIT=4,  FMT=*) ValueFunction
+	CLOSE (unit=4)
+
+	OPEN  (UNIT=5,  FILE=trim(Result_Folder)//'Exp_results_DBN'   , STATUS='replace')
+	WRITE (UNIT=5,  FMT=*) DBN1 
+	CLOSE (UNIT=5)
+	OPEN  (UNIT=60,  FILE=trim(Result_Folder)//'Exp_results_GBAR'  , STATUS='replace')
+	WRITE (UNIT=60,  FMT=*) GBAR
+	CLOSE (UNIT=60)
+	OPEN  (UNIT=7,  FILE=trim(Result_Folder)//'Exp_results_EBAR'  , STATUS='replace')
+	WRITE (UNIT=7,  FMT=*) EBAR
+	CLOSE (UNIT=7)
+	OPEN  (UNIT=8,  FILE=trim(Result_Folder)//'Exp_results_NBAR'  , STATUS='replace')
+	WRITE (UNIT=8,  FMT=*) NBAR
+	CLOSE (UNIT=8)
+	OPEN  (UNIT=9,  FILE=trim(Result_Folder)//'Exp_results_QBAR'  , STATUS='replace')
+	WRITE (UNIT=9,  FMT=*) QBAR
+	CLOSE (UNIT=9)
+	OPEN  (UNIT=10, FILE=trim(Result_Folder)//'Exp_results_rr'    , STATUS='replace')
+	WRITE (UNIT=10, FMT=*) rr
+	CLOSE (UNIT=10)
+	OPEN  (UNIT=11, FILE=trim(Result_Folder)//'Exp_results_wage'  , STATUS='replace')
+	WRITE (UNIT=11, FMT=*) wage 
+	CLOSE (UNIT=11)
+	OPEN  (UNIT=12, FILE=trim(Result_Folder)//'Exp_results_YBAR'  , STATUS='replace')
+	WRITE (UNIT=12, FMT=*) YBAR
+	CLOSE (UNIT=12)
+
+	print*, "Writing of experimental results completed"
+
+END SUBROUTINE Write_Experimental_Results
+
 
 !========================================================================================
 !========================================================================================
