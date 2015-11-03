@@ -2665,14 +2665,14 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		STOP 
 	end if 
 
-	print*, 'Policy Functions'
-	print*, ' YGRID ',' Cons ',' Hours ',' Aprime ',' A '
-	do ai=1,na
-		! print*, YGRID(ai,4), Cons(40,ai,4,3,3), Hours(40,ai,4,3,3), Aprime(40,ai,4,3,3), agrid(ai),&
-		! 		& Y_h(Hours(40,ai,4,3,3),40,3,3,wage),&
-		! 		& (1+tauC)*Cons(40,ai,4,3,3) + Aprime(40,ai,4,3,3) - YGRID(ai,4) -Y_h(Hours(40,ai,4,3,3),40,3,3,wage)
-	end do 
-	print*, ' '
+! 	print*, 'Policy Functions'
+! 	print*, ' YGRID ',' Cons ',' Hours ',' Aprime ',' A '
+! 	do ai=1,na
+! 		! print*, YGRID(ai,4), Cons(40,ai,4,3,3), Hours(40,ai,4,3,3), Aprime(40,ai,4,3,3), agrid(ai),&
+! 		! 		& Y_h(Hours(40,ai,4,3,3),40,3,3,wage),&
+! 		! 		& (1+tauC)*Cons(40,ai,4,3,3) + Aprime(40,ai,4,3,3) - YGRID(ai,4) -Y_h(Hours(40,ai,4,3,3),40,3,3,wage)
+! 	end do 
+! 	print*, ' '
 
 END SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD
 
