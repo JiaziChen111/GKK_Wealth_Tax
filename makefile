@@ -34,5 +34,5 @@ Sergio.a: GKK_Wealth_Tax_Sergio.f95 NRTYPE.o NRUTIL.o Toolbox.o
 	./Sergio.a
 
 Sergio_V2.a: GKK_Wealth_Tax_Sergio_V2.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
-	gfortran GKK_Wealth_Tax_Sergio_V2.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o Sergio.a
+	gfortran GKK_Wealth_Tax_Sergio_V2.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o Sergio_V2.a
 	./Sergio_V2.a
