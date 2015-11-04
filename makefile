@@ -18,6 +18,9 @@ parameters.o: parameters.f90 NRTYPE.o
 global.o: global.f90 parameters.o
 	gfortran -c global.f90 parameters.o
 
+programfunctions.o: programfunctions.f90 parameters.o global.o Toolbox.o
+	gfortran -c programfunctions.f90 parameters.o global.o Toolbox.o
+
 Sergio_Simple_2.a: GKK_simple_V2.f95 NRTYPE.o NRUTIL.o
 	gfortran GKK_simple_V2.f95 NRUTIL.o NRTYPE.o -o Sergio_Simple_2.a
 	./Sergio_Simple_2.a
@@ -29,3 +32,7 @@ Sergio_Simple.a: GKK_simple.f95 NRTYPE.o NRUTIL.o
 Sergio.a: GKK_Wealth_Tax_Sergio.f95 NRTYPE.o NRUTIL.o Toolbox.o
 	gfortran GKK_Wealth_Tax_Sergio.f95 NRUTIL.o NRTYPE.o Toolbox.o -o Sergio.a
 	./Sergio.a
+
+Sergio_V2.a: GKK_Wealth_Tax_Sergio_V2.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
+	gfortran GKK_Wealth_Tax_Sergio_V2.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o Sergio.a
+	./Sergio_V2.a
