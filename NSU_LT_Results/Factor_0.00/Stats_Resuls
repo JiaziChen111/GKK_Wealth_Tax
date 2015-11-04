@@ -1,24 +1,24 @@
  Threshold_Factor   0.0000000000000000     
  Wealth_Factor   0.0000000000000000     
  Threshold   0.0000000000000000     
- Wealth_Tax_Above   1.5798513638112403E-002
- Welfare_Gain_Pop(bench)   2.8306531759946845     
- Welfare_Gain_Pop(exp)   2.8711418145505521     
- Welfare_Gain_NB(bench)   5.5884567408488257     
- Welfare_Gain_NB(exp)   5.5776469650887623     
- Output_Gain(prct)   8.0836015158241015     
- W/GDP   3.1409012196246500     
- Wealth_held_by_Top_1%  0.43149093270005312     
- Wealth_held_by_Top_10%  0.74360509788727724     
- STD_Labor_Earnings  0.80814086328586610     
- Mean_Labor_Earnings  0.33248982381812375     
- Moments   3.1158718120216873E-002
- Share_Above_Threshold  0.99999999999999822     
+ Wealth_Tax_Above   1.7051166809381676E-002
+ Welfare_Gain_Pop(bench)   2.9360797372572454     
+ Welfare_Gain_Pop(exp)   2.9868860652279858     
+ Welfare_Gain_NB(bench)   5.6846493837130359     
+ Welfare_Gain_NB(exp)   5.6895952035996551     
+ Output_Gain(prct)   8.0750313002281295     
+ W/GDP   3.1541078837432499     
+ Wealth_held_by_Top_1%  0.47381252007957964     
+ Wealth_held_by_Top_10%  0.76420408753286340     
+ STD_Labor_Earnings  0.79033302767794111     
+ Mean_Labor_Earnings  0.41098628993605418     
+ Moments   3.9494684983355087E-002
+ Share_Above_Threshold  0.99999999999999989     
   
- GBAR_bench  0.26773804888004560      GBAR_exp=  0.26767321130875876     
- QBAR_bench   7.8522774372855668      QBAR_exp=   9.6847582920157063     
- NBAR_bench  0.46507043061263842      NBAR_exp=  0.47102040842820020     
- YBAR_bench   1.1819146270263869      YBAR_exp=   1.2774558957324387     
- EBAR_bench   1.0879699111396088      EBAR_exp=   1.1759170633681999     
- rr_bench   6.1038517240196474E-002 rr_exp=   5.4623553222018693E-002
- wage_bench   1.7027158640563969      wage_exp=   1.8171090569023651     
+ GBAR_bench  0.28261461731536208      GBAR_exp=  0.28254354622416744     
+ QBAR_bench   14.291930698696824      QBAR_exp=   17.580983647964672     
+ NBAR_bench  0.56705762726033238      NBAR_exp=  0.57498792029719714     
+ YBAR_bench   1.6447890993516632      YBAR_exp=   1.7776063339470505     
+ EBAR_bench   1.5140527152686423      EBAR_exp=   1.6363129459285393     
+ rr_bench   4.9549850385439027E-002 rr_exp=   4.4443747950358811E-002
+ wage_bench   1.9433804318792618      wage_exp=   2.0713413303168644     
