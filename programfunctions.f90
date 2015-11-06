@@ -6,6 +6,20 @@ Module programfunctions
 	    
 	Contains
 		! Asset_Grid_Threshold
+		
+		! Y_h
+		! MB_h
+		! Y_a
+		! MB_a
+		! MB_a_bt
+		! MB_a_at
+		
+		! FOC_R
+		! FOC_WH
+		! FOC_WH_NSU
+		! FOC_H
+		! FOC_H_NSU
+		! FOC_HA
 
 !========================================================================================
 !========================================================================================
@@ -626,7 +640,12 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		OPEN (UNIT=80, FILE=trim(Result_Folder)//'CE_by_age_z', STATUS='replace')  
 
 		DO age=1,MaxAge
-		    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+		    if (Utility_Type.eq.1) then 
+		    	Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+		    else 
+		    	Cons_Eq_Welfare(age,:,:,:,:)=(ValueFunction_exp(age,:,:,:,:)/ValueFunction_Bench(age,:,:,:,:)) &
+                                				&  ** ( 1.0_DP / ( gamma* (1.0_DP-sigma)) )-1.0_DP
+		    end if 
 		    WRITE  (UNIT=70, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
 		    DO zi=1,nz
 		         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
@@ -781,8 +800,10 @@ END SUBROUTINE  COMPUTE_WELFARE_GAIN
 !========================================================================================
 !========================================================================================
 
-
 SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
+	use global 
+	use programfunctions
+	use Toolbox
 	IMPLICIT NONE
 	INTEGER :: tklo, tkhi
 	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: PrAprimelo, PrAprimehi
@@ -799,7 +820,12 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	                  ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	              	if (Utility_Type.eq.1) then
+	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	                else 
+	                	ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                   		& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) 
+	                end if 
 	                  ! print*,Cons(age, ai, zi, lambdai, ei),  ValueFunction(age, ai, zi, lambdai, ei) 
 	                  ! pause
 	              ENDDO ! ei          
@@ -812,16 +838,26 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne            
-	          
+	          		if (Utility_Type.eq.1) then
 	                    CALL spline( agrid, ValueFunction(age+1, :, zi, lambdai, ei) , na , &
 	                    & 1.0_DP/Cons(age+1, 1, zi, lambdai,ei) , 1.0_DP/Cons(age+1, na, zi, lambdai,ei) , ValueP2)  
+	                else 
+	                	CALL spline( agrid, ValueFunction(age+1, :, zi, lambdai, ei) , na , &
+                  			& gamma*MBGRID(1,zi) *Cons(age+1, 1, zi, lambdai, ei) **((1.0_DP-sigma)*gamma-1.0_DP)/(1_DP+tauC), &
+                    		& gamma*MBGRID(na,zi)*Cons(age+1, na, zi, lambdai, ei)**((1.0_DP-sigma)*gamma-1.0_DP)/(1_DP+tauC), ValueP2)  
+                  	end if 
 	                  
 	                    DO ai=1,na    
-	                         call splint( agrid, ValueFunction(age+1, :, zi, lambdai, ei), &
+	                        call splint( agrid, ValueFunction(age+1, :, zi, lambdai, ei), &
 	                                & ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
-	    
-	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-	                              & + beta*survP(age)* ValueP(ai)
+	    					if (Utility_Type.eq.1) then
+	                        ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
+	                            & + beta*survP(age)* ValueP(ai)
+	                        else 
+	                        ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                           		& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+                           		& + beta*survP(age)* ValueP(ai)
+                           	end if
 	                    ENDDO ! ai
 	              
 	            ENDDO ! ei          
@@ -839,13 +875,31 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                          ExpValueP(ai) = sum(ValueFunction(age+1, ai, zi, lambdai, :) * pr_e(ei,:))
 	                    ENDDO
 
+	                    if (Utility_Type.eq.1) then 
 	                    CALL spline( agrid, ExpValueP , na , &
 	                    & sum(pr_e(ei,:)/Cons(age+1, 1, zi, lambdai,:)) , sum(pr_e(ei,:)/Cons(age+1, na, zi, lambdai,:)) , ValueP2)  
-	                    
-	                    DO ai=1,na                        
+	                    else 
+	                    CALL spline( agrid, ExpValueP , na , &
+		                    & (gamma*MBGRID(1,zi)/(1.0_DP+tauC)) * sum(pr_e(ei,:)* &
+		                    & Cons(age+1, 1, zi, lambdai, :)**((1.0_DP-sigma)*gamma-1.0_DP) * &
+		                    & (1.0_DP-Hours(age+1,1,zi,lambdai,:))**((1.0_DP-gamma)*(1.0_DP-sigma))),&                    
+		                    & (gamma*MBGRID(na,zi)/(1.0_DP+tauC)) * sum(pr_e(ei,:)* &
+		                    & Cons(age+1, na, zi, lambdai, :)**((1.0_DP-sigma)*gamma-1.0_DP) * &
+		                    & (1.0_DP-Hours(age+1,na,zi,lambdai,:))**((1.0_DP-gamma)*(1.0_DP-sigma))),&
+		                    & ValueP2)  
+	                    end if 
+
+	                    DO ai=1,na 
+	                    	if (Utility_Type.eq.1)then 
 	                         call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
 	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
 	                               & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)* ValueP(ai)
+	                        else 
+	                          call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
+		                         ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+		                           & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+		                           & + beta*survP(age)* ValueP(ai)
+	                        end if 
 	                    ENDDO ! ai
 	               ENDDO ! ei          
 	        ENDDO ! lambdai
@@ -861,6 +915,9 @@ END SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE
 
 
 SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
+	use global
+	use  programfunctions
+	use Toolbox
 	IMPLICIT NONE
 	INTEGER :: tklo, tkhi
 	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: PrAprimelo, PrAprimehi
@@ -872,7 +929,12 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	                  ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	              	if (Utility_Type.eq.1) then
+	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	                else 
+	              		ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                   			& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma)  
+	                end if 
 	!                  print*,Cons(age, ai, zi, lambdai, ei),  ValueFunction(age, ai, zi, lambdai, ei) 
 	!                  pause
 	              ENDDO ! ei          
@@ -888,11 +950,11 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	DO ei=1,ne
 		if ( Aprime(age,ai,zi,lambdai, ei) .ge. amax) then
 		    tklo =na-1
-		    elseif (Aprime(age,ai,zi,lambdai, ei) .lt. amin) then
-		         tklo = 1
-		        else
-		            tklo = ((Aprime(age,ai,zi,lambdai, ei) - amin)/(amax-amin))**(1.0_DP/a_theta)*(na-1)+1          
-		endif            
+		else if (Aprime(age,ai,zi,lambdai, ei) .lt. amin) then
+		    tklo = 1
+		else
+		    tklo = ((Aprime(age,ai,zi,lambdai, ei) - amin)/(amax-amin))**(1.0_DP/a_theta)*(na-1)+1          
+		end if            
 		tkhi = tklo + 1        
 		PrAprimelo(age,ai,zi,lambdai, ei) = ( agrid(tkhi) - Aprime(age,ai,zi,lambdai, ei) ) / ( agrid(tkhi) -agrid(tklo) )
 		PrAprimehi(age,ai,zi,lambdai, ei) = ( Aprime(age,ai,zi,lambdai, ei) - agrid(tklo) ) / ( agrid(tkhi) -agrid(tklo) )        
@@ -901,9 +963,16 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
-		ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-		  & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
-		  & +                             PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		if (Utility_Type.eq.1) then 
+			ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
+			  & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
+			  & +  PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		else 
+			ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+	          & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+	          & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
+	          & +                   PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		end if 
 	ENDDO ! ei          
     ENDDO ! lambdai
     ENDDO ! zi
@@ -934,10 +1003,17 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
+		if (Utility_Type.eq.1) then 
 		ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
 		   & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei))  &
 		   & + beta*survP(age)* sum( ( PrAprimelo(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tklo, zi, lambdai,:)  &
 		   & + PrAprimehi(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tkhi, zi, lambdai,:)) * pr_e(ei,:) )
+		else 
+		ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+           & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+           & + beta*survP(age)* sum( ( PrAprimelo(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tklo, zi, lambdai,:)  &
+           & + PrAprimehi(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tkhi, zi, lambdai,:)) * pr_e(ei,:) )
+		end if 
 		if ( ValueFunction(age, ai, zi, lambdai, ei) .lt. (-100.0_DP) ) then
 		   print*,'ValueFunction(age, ai, zi, lambdai, ei)=',ValueFunction(age, ai, zi, lambdai, ei)
 		endif
@@ -948,7 +1024,6 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	ENDDO ! age
 
 END SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR 
-
 
 !========================================================================================
 !========================================================================================
@@ -1355,7 +1430,8 @@ SUBROUTINE COMPUTE_STATS()
 	    DO while (cdf_a_dbn(ai) .lt. (REAL(prctile,8)/100.0_DP-0.000000000000001))
 	        ai=ai+1
 	    ENDDO
-	    prctile_ai(prctile) = ai
+	    prctile_ai_ind(prctile) = ai
+	    prctile_ai(prctile)     = agrid(ai)
 	    ! print*,prctile, REAL(prctile,8)/100.0_DP,  ai
 	    IF (ai .gt. 1) THEN
 	        cdf_tot_a_by_prctile(prctile)  = cdf_tot_a_by_grid(ai-1) + (REAL(prctile,8)/100.0_DP - cdf_a_dbn(ai-1))*agrid(ai) 
@@ -1502,6 +1578,7 @@ SUBROUTINE COMPUTE_STATS()
 			WRITE(UNIT=19, FMT=*) "Mean_Wealth"				, MeanWealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
@@ -1510,6 +1587,15 @@ SUBROUTINE COMPUTE_STATS()
 			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
 			WRITE(UNIT=19, FMT=*) ' '
+		CLOSE(Unit=19)
+
+	if (solving_bench.eq.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_bench', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) prctile_ai
+	else
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_exp', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) prctile_ai
+	end if 
 		CLOSE(Unit=19)
 	
 

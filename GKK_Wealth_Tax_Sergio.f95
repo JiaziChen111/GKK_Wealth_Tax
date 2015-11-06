@@ -9,10 +9,10 @@
 	! Non-Separable utility
 
 ! When utility is separable it is:
-	! U(c,h) = log(c) + phi*log(1-h)
+	! U(c,h) = log(c) + ((1-gamma)/gamma)*log(1-h)
 
 ! When utility is non-separable it is:
-	! U(c,h) = (c^(gamma)(1-l)^(1-gamma))^(1-sigma) / (1-sigma)
+	! U(c,h) = ( c^(gamma) * (1-l)^(1-gamma) )^(1-sigma) / (1-sigma)
 
 !========================================================================================
 !========================================================================================
@@ -30,10 +30,6 @@ MODULE parameters
     ! Switch for computing social security with benchmark earnings
     	! If KeepSSatBench=1 then E_bar is kept at E_bar_bench for experiments
     INTEGER(I4B),  PARAMETER :: KeepSSatBench=1
-
-    ! Switch for seprable vs non-separable utiltiy
-    	! If Utility_Type=1 then use separable utility
-    INTEGER(I4B),  PARAMETER :: Utility_Type=0
 
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
@@ -55,8 +51,8 @@ MODULE parameters
 
  
 
-    ! Utility: Discount factor (beta) and Disutility from labor (phi) 
-	REAL(DP)                 :: beta, phi, sigma, gamma 
+    ! Utility: Discount factor (beta) utility parameters sigma and gamma
+	REAL(DP)                 :: beta, sigma, gamma 
     
 	! Production 
 		! Final good producer
@@ -95,14 +91,14 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: tauWmin_at=0.017_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
 		REAL(DP), PARAMETER  :: Threshold_Factor = 0.00_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
 			! 1-psi controls the level of tax, and tauPL controls progressivity
-		REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi_PL=0.77_DP  
-		!REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi_PL=0.776_DP  
+		!REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi=0.77_DP  
+		REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi=0.776_DP  
 
 END MODULE parameters
 
@@ -188,11 +184,11 @@ MODULE global
 	    INTEGER                      :: na_t
 	
 	! Values for taxes in benchmark and experiment
-    REAL(DP) :: tauk_bench, tauL_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
-    REAL(DP) :: tauk_exp,   tauL_exp,   tauw_bt_exp,   tauw_at_exp,   Y_a_threshold_exp
+    REAL(DP) :: tauk_bench, tauPL_bench, psi_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
+    REAL(DP) :: tauk_exp,   tauPL_exp,   psi_exp,   tauw_bt_exp,   tauw_at_exp,   Y_a_threshold_exp
 
     ! Values for taxes (when solving an economy)
-    REAL(DP) :: tauK, tauL
+    REAL(DP) :: tauK
     REAL(DP) :: tauW_bt, tauW_at ! Wealth taxes below threshold and above threshold
     REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
@@ -211,7 +207,7 @@ MODULE global
 	    ! Mass of assets by a_grid (defined as a_grid(i)sum(DBN(:,i,:,:,:)))
 	    REAL(DP), DIMENSION(na)  :: tot_a_by_grid, cdf_tot_a_by_grid
 	    ! Percentiles of the asset distribution and mass of total assets by them
-	    INTEGER , DIMENSION(100) ::  prctile_ai
+	    INTEGER , DIMENSION(100) ::  prctile_ai_ind, prctile_ai
 	    REAL(DP), DIMENSION(100) ::  cdf_tot_a_by_prctile
     	! Other stats
 	    REAL(DP) :: pop_25_60 , tothours_25_60, pop_pos_earn_25_60, tot_log_earnings_25_60, mean_log_earnings_25_60 
@@ -223,9 +219,6 @@ MODULE global
 	
 	! Auxiliary variables for evaluating FOC: Consumption and assets and marginal benefit of assets
     	REAL(DP) :: consin, ain, MB_a_in
-
-    ! Auxiliary variable for labor earnings (it is set to psi=psi_PL)
-    	REAL(DP) :: psi
 
     ! Objective moments (not currently in use)	
     	REAL(DP), DIMENSION(5)  ::  Min_Moments
@@ -470,12 +463,12 @@ end Subroutine Asset_Grid_Threshold
 		cprime =   Linear_Int(Ygrid_t(:,zi), Cons_t(age+1,:,zi,lambdai,ei),na_t, yprime)    
 
 		! Evaluate square residual of Euler equation at current state (given by (ai,zi,lambdai,ei)) and savings given by a'
-		if (Utility_Type.eq.1) then
+		if (sigma.eq.1.0_dp) then
 			FOC_R   = (1.0_DP / (YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
 			           & - beta *  survP(age) *  MBaprime /cprime ) **2.0_DP
 		else
 			FOC_R	= ( (YGRID_t(ai,zi)+RetY_lambda_e(lambdai,ei)-aprimet)    &
-			           & - (beta * survP(age) *  MBaprime)**(1/((1.0_dp-sigma)*gamma-1.0_dp))  * cprime  ) ** 2.0_DP
+			           & - (beta * survP(age) *  MBaprime)**(1.0_dp/((1.0_dp-sigma)*gamma-1.0_dp))  * cprime  ) ** 2.0_DP
 		end if
 
 	END  FUNCTION FOC_R
@@ -549,7 +542,7 @@ end Subroutine Asset_Grid_Threshold
 		! Set auxiliary variable for FOC_HA
 		ain=aprimet
 		! Solve for hours choice by solving the FOC for labor
-		brentvaluet = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, ntemp) 
+		brentvaluet = brent(H_min, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, ntemp) 
 		! Current consumption
 		ctemp   = YGRID_t(ai,zi)+  Y_h(ntemp,age,lambdai,ei,wage) - aprimet          
 		
@@ -607,8 +600,8 @@ end Subroutine Asset_Grid_Threshold
 		real(DP), intent(in) 	:: hoursin
 		real(DP)             	:: FOC_H
 
-		if (Utility_Type.eq.1) then 
-			FOC_H = ( MB_h(hoursin,age,lambdai,ei,wage) * (1.0_DP-hoursin) - phi*consin )**2.0_DP	
+		if (sigma.eq.1.0_dp) then 
+			FOC_H = ( MB_h(hoursin,age,lambdai,ei,wage) * (1.0_DP-hoursin) - ((1.0_dp-gamma)/gamma)*consin )**2.0_DP	
 		else 
 			FOC_H = ( consin - (gamma/(1.0_dp-gamma))*(1.0_dp-hoursin)*MB_h(hoursin,age,lambdai,ei,wage) )**2.0_DP 
 		end if 
@@ -660,9 +653,9 @@ end Subroutine Asset_Grid_Threshold
 		real(DP), intent(in) :: hoursin
 		real(DP)   			 :: FOC_HA, cons
 
-		if (Utility_Type.eq.1) then 
+		if (sigma.eq.1.0_dp) then 
 			FOC_HA = ( (psi*(1.0_DP-tauPL)*yh(age, lambdai,ei)**(1.0_DP-tauPL) )* (1.0_DP-hoursin)*(hoursin**(-tauPL)) &
-			        &  - phi*  ( YGRID_t(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain  )   )**2.0_DP
+			    &  - ((1.0_dp-gamma)/gamma)*( YGRID_t(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain ) )**2.0_DP
 		else 
 			cons   = YGRID_t(ai,zi)+  Y_h(hoursin,age,lambdai,ei,wage) - ain
 			FOC_HA = ( cons - (gamma/(1.0_dp-gamma))*(1.0_dp-hoursin)*MB_h(hoursin,age,lambdai,ei,wage) )**2.0_DP 
@@ -700,7 +693,7 @@ PROGRAM main
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
-		Result_Folder = './NSU_Results/Factor_'//trim(Result_Folder)//'/'
+		Result_Folder = './NSU_LT_Results/Factor_'//trim(Result_Folder)//'/'
 		! call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
 		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
@@ -877,13 +870,12 @@ PROGRAM main
 
 	! Set taxes for benchmark economy
 		tauK = 0.25_DP
-		tauL = 0.30_DP
 		tauW_bt = 0.00_DP
 		tauW_at = 0.00_DP
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 0
+	read_write_bench = 1
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
@@ -913,7 +905,8 @@ PROGRAM main
 		wage_bench  = wage
 		Y_bench     = YBAR
 		tauK_bench  = tauK
-		tauL_bench  = tauL
+		tauPL_bench = tauPL
+		psi_bench   = psi_bench
 		DBN_bench   = DBN1
 		tauw_bt_bench = tauW_bt
 		tauw_at_bench = tauW_at
@@ -938,73 +931,79 @@ PROGRAM main
 		Y_a_threshold = Threshold_Factor*Ebar_bench !0.75_dp
 		Wealth_factor = Y_a_threshold/W_bench
 
-	! Find wealth taxes that balances budget
-	print*, "	Computing Wealth Tax to balance the budget"
-		! Set initial value for G in experimental economy and for wealth taxes
-		GBAR_exp = 0.0_DP
-		tauW_bt  = tauWmin_bt
-		tauW_at  = tauWmin_at
-		tauWindx = 0.0_DP
-		! Solve for the model increasing wealth taxes until revenue is enough to finance G_benchamark
-		DO WHILE (GBAR_exp .lt. GBAR_bench)
-			! Set old G and new value of tauW
-			GBAR_exp_old = GBAR_exp
-			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
-			tauW_at = tauWmin_at + tauWindx * tauWinc_at
-			! Solve the model
-			CALL FIND_DBN_EQ
-			CALL GOVNT_BUDGET
+! 	! Find wealth taxes that balances budget
+! 	print*, "	Computing Wealth Tax to balance the budget"
+! 		! Set initial value for G in experimental economy and for wealth taxes
+! 		GBAR_exp = 0.0_DP
+! 		tauW_bt  = tauWmin_bt
+! 		tauW_at  = tauWmin_at
+! 		tauWindx = 0.0_DP
+! 		! Solve for the model increasing wealth taxes until revenue is enough to finance G_benchamark
+! 		DO WHILE (GBAR_exp .lt. GBAR_bench)
+! 			! Set old G and new value of tauW
+! 			GBAR_exp_old = GBAR_exp
+! 			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
+! 			tauW_at = tauWmin_at + tauWindx * tauWinc_at
+! 			! Solve the model
+! 			CALL FIND_DBN_EQ
+! 			CALL GOVNT_BUDGET
 
-			! Get new G
-			GBAR_exp = GBAR 
-			! Iteratioins  
-			tauWindx = tauWindx + 1.0_DP   
-			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
-			print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
-			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-		ENDDO
+! 			! Get new G
+! 			GBAR_exp = GBAR 
+! 			! Iteratioins  
+! 			tauWindx = tauWindx + 1.0_DP   
+! 			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
+! 			print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
+! 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+! 		ENDDO
 
-		! Set tauW as weighted average of point in  the grid to balance budget more precisely
-			tauW_up_bt  = tauW_bt
-			tauW_low_bt = tauW_bt  -  tauWinc_bt
-			tauW_bt     = tauW_low_bt + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
-			tauW_up_at  = tauW_at
-			tauW_low_at = tauW_at  -  tauWinc_at  
-			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
-			print*,''
-			print*,'GBAR bracketed by taxes:'
-			print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
-			print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
-			print*,''
+! 		! Set tauW as weighted average of point in  the grid to balance budget more precisely
+! 			tauW_up_bt  = tauW_bt
+! 			tauW_low_bt = tauW_bt  -  tauWinc_bt
+! 			tauW_bt     = tauW_low_bt + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+! 			tauW_up_at  = tauW_at
+! 			tauW_low_at = tauW_at  -  tauWinc_at  
+! 			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+! 			print*,''
+! 			print*,'GBAR bracketed by taxes:'
+! 			print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
+! 			print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
+! 			print*,''
 
-		! Solve (again) experimental economy
-			CALL FIND_DBN_EQ
-			CALL GOVNT_BUDGET
+! 		! Solve (again) experimental economy
+! 			CALL FIND_DBN_EQ
+! 			CALL GOVNT_BUDGET
 
-		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
-			GBAR_exp = GBAR
-			print*,"Gbar at midpoint of bracket and GBAR at benchmark"
-			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-			print*,''
-			print*,'Bisection for TauW:'
-			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
-			    if (GBAR_exp .gt. GBAR_bench ) then
-			        tauW_up_bt  = tauW_bt 
-			        tauW_up_at  = tauW_at 
-			    else
-			        tauW_low_bt = tauW_bt
-			        tauW_low_at = tauW_at
-			    endif
-			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
-			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
-			    CALL FIND_DBN_EQ
-			    CALL GOVNT_BUDGET
-			    GBAR_exp = GBAR
-			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
-				print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
-				print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
-				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-			ENDDO
+! 		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
+! 			GBAR_exp = GBAR
+! 			print*,"Gbar at midpoint of bracket and GBAR at benchmark"
+! 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+! 			print*,''
+! 			print*,'Bisection for TauW:'
+! 			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
+! 			    if (GBAR_exp .gt. GBAR_bench ) then
+! 			        tauW_up_bt  = tauW_bt 
+! 			        tauW_up_at  = tauW_at 
+! 			    else
+! 			        tauW_low_bt = tauW_bt
+! 			        tauW_low_at = tauW_at
+! 			    endif
+! 			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
+! 			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
+! 			    CALL FIND_DBN_EQ
+! 			    CALL GOVNT_BUDGET
+! 			    GBAR_exp = GBAR
+! 			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
+! 				print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
+! 				print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
+! 				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+! 			ENDDO
+
+	tauW_at = 0.01719379006132605_dp
+	Y_a_threshold = 0.0_dp
+	! Solve (again) experimental economy
+	CALL FIND_DBN_EQ
+	CALL GOVNT_BUDGET
 
 	! AGgregate variable in experimental economy
 		GBAR_exp  = GBAR
@@ -1015,7 +1014,8 @@ PROGRAM main
 		rr_exp    = rr
 		wage_exp  = wage
 		tauK_exp  = tauK
-		tauL_exp  = tauL
+		tauPL_exp = tauPL
+		psi_exp   = psi
 		DBN_exp   = DBN1
 		tauw_bt_exp = tauW_bt
 		tauw_at_exp = tauW_at
@@ -1043,8 +1043,11 @@ PROGRAM main
 			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'p90_p10_Assets'			, prctile_ai(90)-prctile_ai(10)
 			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
+			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
 			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
 			WRITE(UNIT=19, FMT=*) ' '
@@ -1115,7 +1118,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	! Solve for the benchmark economy 
 		solving_bench = 1
 		tauK  = tauK_bench
-		tauL  = tauL_bench
 		rr    = rr_bench
 		wage  = wage_bench
 		Ebar  = Ebar_bench
@@ -1215,7 +1217,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	! Solve the experimental economy  
 		solving_bench = 0  
 		tauK  = tauK_exp
-		tauL  = tauL_exp
 		rr    = rr_exp
 		wage  = wage_exp
 		Ebar  = Ebar_exp
@@ -1283,7 +1284,12 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		OPEN (UNIT=80, FILE=trim(Result_Folder)//'CE_by_age_z', STATUS='replace')  
 
 		DO age=1,MaxAge
-		    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+			if (sigma.eq.1.0_dp) then 
+		    	Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
+		    else 
+		    	Cons_Eq_Welfare(age,:,:,:,:)=(ValueFunction_exp(age,:,:,:,:)/ValueFunction_Bench(age,:,:,:,:)) &
+                                				&  ** ( 1.0_DP / ( gamma* (1.0_DP-sigma)) )-1.0_DP
+		    end if 
 		    WRITE  (UNIT=70, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
 		    DO zi=1,nz
 		         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
@@ -1459,7 +1465,12 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	                  ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	              	if (sigma.eq.1.0_dp) then
+	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	                else 
+	                	ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                   		& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) 
+	                end if 
 	                  ! print*,Cons(age, ai, zi, lambdai, ei),  ValueFunction(age, ai, zi, lambdai, ei) 
 	                  ! pause
 	              ENDDO ! ei          
@@ -1472,16 +1483,26 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne            
-	          
+	          		if (sigma.eq.1.0_dp) then
 	                    CALL spline( agrid, ValueFunction(age+1, :, zi, lambdai, ei) , na , &
 	                    & 1.0_DP/Cons(age+1, 1, zi, lambdai,ei) , 1.0_DP/Cons(age+1, na, zi, lambdai,ei) , ValueP2)  
+	                else 
+	                	CALL spline( agrid, ValueFunction(age+1, :, zi, lambdai, ei) , na , &
+                  			& gamma*MBGRID(1,zi) *Cons(age+1, 1, zi, lambdai, ei) **((1.0_DP-sigma)*gamma-1.0_DP)/(1_DP+tauC), &
+                    		& gamma*MBGRID(na,zi)*Cons(age+1, na, zi, lambdai, ei)**((1.0_DP-sigma)*gamma-1.0_DP)/(1_DP+tauC), ValueP2)  
+                  	end if 
 	                  
 	                    DO ai=1,na    
-	                         call splint( agrid, ValueFunction(age+1, :, zi, lambdai, ei), &
+	                        call splint( agrid, ValueFunction(age+1, :, zi, lambdai, ei), &
 	                                & ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
-	    
-	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-	                              & + beta*survP(age)* ValueP(ai)
+	    					if (sigma.eq.1.0_dp) then
+	                        ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
+	                            & + beta*survP(age)* ValueP(ai)
+	                        else 
+	                        ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                           		& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+                           		& + beta*survP(age)* ValueP(ai)
+                           	end if
 	                    ENDDO ! ai
 	              
 	            ENDDO ! ei          
@@ -1499,13 +1520,31 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                          ExpValueP(ai) = sum(ValueFunction(age+1, ai, zi, lambdai, :) * pr_e(ei,:))
 	                    ENDDO
 
+	                    if (sigma.eq.1.0_dp) then 
 	                    CALL spline( agrid, ExpValueP , na , &
 	                    & sum(pr_e(ei,:)/Cons(age+1, 1, zi, lambdai,:)) , sum(pr_e(ei,:)/Cons(age+1, na, zi, lambdai,:)) , ValueP2)  
-	                    
-	                    DO ai=1,na                        
+	                    else 
+	                    CALL spline( agrid, ExpValueP , na , &
+		                    & (gamma*MBGRID(1,zi)/(1.0_DP+tauC)) * sum(pr_e(ei,:)* &
+		                    & Cons(age+1, 1, zi, lambdai, :)**((1.0_DP-sigma)*gamma-1.0_DP) * &
+		                    & (1.0_DP-Hours(age+1,1,zi,lambdai,:))**((1.0_DP-gamma)*(1.0_DP-sigma))),&                    
+		                    & (gamma*MBGRID(na,zi)/(1.0_DP+tauC)) * sum(pr_e(ei,:)* &
+		                    & Cons(age+1, na, zi, lambdai, :)**((1.0_DP-sigma)*gamma-1.0_DP) * &
+		                    & (1.0_DP-Hours(age+1,na,zi,lambdai,:))**((1.0_DP-gamma)*(1.0_DP-sigma))),&
+		                    & ValueP2)  
+	                    end if 
+
+	                    DO ai=1,na 
+	                    	if (sigma.eq.1.0_dp)then 
 	                         call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
 	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-	                               & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)* ValueP(ai)
+	                            & + ((1.0_dp-gamma)/gamma) * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)*ValueP(ai)
+	                        else 
+	                          call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
+		                         ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+		                           & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+		                           & + beta*survP(age)* ValueP(ai)
+	                        end if 
 	                    ENDDO ! ai
 	               ENDDO ! ei          
 	        ENDDO ! lambdai
@@ -1535,7 +1574,12 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	                  ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	              	if (sigma.eq.1.0_dp) then
+	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
+	                else 
+	              		ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+                   			& * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma)  
+	                end if 
 	!                  print*,Cons(age, ai, zi, lambdai, ei),  ValueFunction(age, ai, zi, lambdai, ei) 
 	!                  pause
 	              ENDDO ! ei          
@@ -1551,11 +1595,11 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	DO ei=1,ne
 		if ( Aprime(age,ai,zi,lambdai, ei) .ge. amax) then
 		    tklo =na-1
-		    elseif (Aprime(age,ai,zi,lambdai, ei) .lt. amin) then
-		         tklo = 1
-		        else
-		            tklo = ((Aprime(age,ai,zi,lambdai, ei) - amin)/(amax-amin))**(1.0_DP/a_theta)*(na-1)+1          
-		endif            
+		else if (Aprime(age,ai,zi,lambdai, ei) .lt. amin) then
+		    tklo = 1
+		else
+		    tklo = ((Aprime(age,ai,zi,lambdai, ei) - amin)/(amax-amin))**(1.0_DP/a_theta)*(na-1)+1          
+		end if            
 		tkhi = tklo + 1        
 		PrAprimelo(age,ai,zi,lambdai, ei) = ( agrid(tkhi) - Aprime(age,ai,zi,lambdai, ei) ) / ( agrid(tkhi) -agrid(tklo) )
 		PrAprimehi(age,ai,zi,lambdai, ei) = ( Aprime(age,ai,zi,lambdai, ei) - agrid(tklo) ) / ( agrid(tkhi) -agrid(tklo) )        
@@ -1564,9 +1608,16 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
-		ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-		  & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
-		  & +                             PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		if (sigma.eq.1.0_dp) then 
+			ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
+			  & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
+			  & +  PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		else 
+			ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+	          & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+	          & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
+	          & +                   PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
+		end if 
 	ENDDO ! ei          
     ENDDO ! lambdai
     ENDDO ! zi
@@ -1597,10 +1648,17 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
+		if (sigma.eq.1.0_dp) then 
 		ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-		   & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei))  &
+		   & + ((1.0_dp-gamma)/gamma) * log(1.0_DP-Hours(age, ai, zi, lambdai, ei))  &
 		   & + beta*survP(age)* sum( ( PrAprimelo(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tklo, zi, lambdai,:)  &
 		   & + PrAprimehi(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tkhi, zi, lambdai,:)) * pr_e(ei,:) )
+		else 
+		ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
+           & * (1.0_DP-Hours(age,ai,zi,lambdai,ei))**(1.0_DP-gamma))**(1.0_DP-sigma)/(1.0_DP-sigma) &
+           & + beta*survP(age)* sum( ( PrAprimelo(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tklo, zi, lambdai,:)  &
+           & + PrAprimehi(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tkhi, zi, lambdai,:)) * pr_e(ei,:) )
+		end if 
 		if ( ValueFunction(age, ai, zi, lambdai, ei) .lt. (-100.0_DP) ) then
 		   print*,'ValueFunction(age, ai, zi, lambdai, ei)=',ValueFunction(age, ai, zi, lambdai, ei)
 		endif
@@ -2029,7 +2087,8 @@ SUBROUTINE COMPUTE_STATS()
 	    DO while (cdf_a_dbn(ai) .lt. (REAL(prctile,8)/100.0_DP-0.000000000000001))
 	        ai=ai+1
 	    ENDDO
-	    prctile_ai(prctile) = ai
+	    prctile_ai_ind(prctile) = ai
+	    prctile_ai(prctile)     = agrid(ai)
 	    ! print*,prctile, REAL(prctile,8)/100.0_DP,  ai
 	    IF (ai .gt. 1) THEN
 	        cdf_tot_a_by_prctile(prctile)  = cdf_tot_a_by_grid(ai-1) + (REAL(prctile,8)/100.0_DP - cdf_a_dbn(ai-1))*agrid(ai) 
@@ -2176,6 +2235,7 @@ SUBROUTINE COMPUTE_STATS()
 			WRITE(UNIT=19, FMT=*) "Mean_Wealth"				, MeanWealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
 			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
 			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
@@ -2185,6 +2245,17 @@ SUBROUTINE COMPUTE_STATS()
 			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
 			WRITE(UNIT=19, FMT=*) ' '
 		CLOSE(Unit=19)
+
+	if (solving_bench.eq.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_bench', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) prctile_ai
+	else
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_exp', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) prctile_ai
+	end if 
+		CLOSE(Unit=19)
+
+
 	
 
 END SUBROUTINE COMPUTE_STATS
@@ -2261,17 +2332,6 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	INTEGER  :: sw 
 	REAL(DP) :: Wealth, C_euler, C_foc, H_min
 
-	! These lines are note being used!!!!!!!!
-		! Set auxiliary value ofr psi 
-			psi = psi_PL * Ebar ** tauPL
-		! If solving experimental economy use Ebar_bench
-			if (solving_bench .eq. 0) then
-	            psi = psi_PL * Ebar_bench ** tauPL
-			endif          
-	! These lines are note being used!!!!!!!!      
-	
-	! Set psi to psi_PL
-		psi = psi_PL
 
 	! Set a minimum value for labor to check in the FOC
 		H_min = 0.000001_dp
@@ -2309,7 +2369,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
     	Wealth = agrid_t(ai)+(rr*(zgrid(zi)*agrid_t(ai))**mu-DepRate*agrid_t(ai))*(1.0_DP-tauK)
 		if (abs(Wealth-Y_a_threshold).lt.1e-8) then 
     		! Consumption on endogenous grid and implied asset income under tauW_bt
-    		if (Utility_Type.eq.1) then
+    		if (sigma.eq.1.0_dp) then
 	        	EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MB_a_bt(agrid_t(ai),zgrid(zi)))    
         	else 
         		EndoCons(ai) = Cons_t(age+1,ai,zi,lambdai,ei)*    &
@@ -2317,7 +2377,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
         	end if
 	        EndoYgrid(ai) = agrid_t(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
 	        ! Consumption on endogenous grid and implied asset income under tauW_at
-	        if (Utility_Type.eq.1) then
+	        if (sigma.eq.1.0_dp) then
 	    		EndoCons(na_t+1) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi)) )
 	    	else 
 	    		EndoCons(na_t+1) = Cons_t(age+1, ai, zi, lambdai,ei)* &
@@ -2328,7 +2388,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	    	sw                = 1 
 	    else 
 	    	! Consumption on endogenous grid and implied asset income
-	    	if (Utility_Type.eq.1) then
+	    	if (sigma.eq.1.0_dp) then
 	        	EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID_t(ai,zi))    
 	        else 
         		EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)*( beta*survP(age)*MBGRID_t(ai,zi))**(1/((1.0_dp-sigma)*gamma-1.0_dp))
@@ -2410,7 +2470,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		if (abs(Wealth-Y_a_threshold).lt.1e-8) then 
 	    	
 			! Below threshold
-				if (Utility_Type.eq.1) then
+				if (sigma.eq.1.0_dp) then
 			    	! Consumption on endogenous grid and implied asset income under tauW_bt
 					EndoCons(ai) = 1.0_DP/( beta*survP(age)*MB_a_bt(agrid_t(ai),zgrid(zi))*SUM(pr_e(ei,:)/Cons_t(age+1,ai,zi,lambdai,:)))    
 					! Auxiliary consumption variable for FOC_H        
@@ -2436,7 +2496,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				! Endogenous grid for asset income
 				EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - Y_h(EndoHours(ai),age,lambdai,ei,wage)
 			! Above threshold
-				if (Utility_Type.eq.1) then 
+				if (sigma.eq.1.0_dp) then 
 			    	! Consumption, hours and asset income in endogenous grid with above threshold tax
 			    	EndoCons(na_t+1) = 1.0_DP/( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi))*SUM(pr_e(ei,:)/Cons_t(age+1,ai,zi,lambdai,:)))   
 			    	! Auxiliary consumption variable for FOC_H        
@@ -2464,7 +2524,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 			! Set the flag!
 	    	sw                = 1 
 	    else 
-	    	if (Utility_Type.eq.1) then 
+	    	if (sigma.eq.1.0_dp) then 
 		    	! Consumption, hours and asset income in endogenous grid
 				EndoCons(ai) =   1.0_DP /( beta*survP(age)*MBGRID_t(ai,zi)*SUM(pr_e(ei,:) /Cons_t(age+1,ai,zi,lambdai,:)))    
 				! Auxiliary consumption variable for FOC_H        
@@ -2524,7 +2584,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	                
 		! decision rules are obtained taking care of extrapolations
 		DO ai=tempai,na_t 
-			if (Utility_Type.eq.1) then               
+			if (sigma.eq.1.0_dp) then               
 			    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))  
 			     
 			    consin = Cons_t(age, ai, zi, lambdai,ei)
@@ -2575,7 +2635,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
         	! print*, ' Extrapolation between YGRID and EndoYgrid!!!!'
 	        ! Solve for the Euler equation directly
-	        if (Utility_Type.eq.1) then          
+	        if (sigma.eq.1.0_dp) then          
 			brentvalue = brent( min(amin,YGRID_t(ai,zi))   ,  (amin+YGRID_t(ai,zi))/2.0_DP  ,  &
                              	& YGRID_t(ai,zi)  + psi * ( yh(age, lambdai,ei)*0.95_DP )**(1.0_DP-tauPL)  ,  &
 	                             & FOC_WH, brent_tol, Aprime_t(age, ai, zi, lambdai,ei) )
@@ -2717,7 +2777,7 @@ Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_out)
 			! 		    DO while (cdf_a_dbn(a_ind) .lt. (REAL(prctile,8)/100.0_DP-0.000000000000001))
 			! 		        a_ind=a_ind+1
 			! 		    ENDDO
-			! 		    prctile_ai(prctile) = a_ind
+			! 		    prctile_ai_ind(prctile) = a_ind
 			! 		ENDDO
 
 			! 	! Set threshold for wealth tax as:
@@ -2726,7 +2786,7 @@ Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_out)
 			! 			Y_a_threshold_out = 0.0_dp
 			! 		else 
 			! 			! Threshold at some percentile
-			! 			Y_a_threshold_out = agrid( prctile_ai(tauW_threshold_in) )
+			! 			Y_a_threshold_out = agrid( prctile_ai_ind(tauW_threshold_in) )
 			! 		end if 
 
 end Subroutine Find_TauW_Threshold
