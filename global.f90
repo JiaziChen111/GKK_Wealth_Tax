@@ -74,11 +74,11 @@ MODULE global
 	    INTEGER                      :: na_t
 	
 	! Values for taxes in benchmark and experiment
-    REAL(DP) :: tauk_bench, tauL_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
-    REAL(DP) :: tauk_exp,   tauL_exp,   tauw_bt_exp,   tauw_at_exp,   Y_a_threshold_exp
+    REAL(DP) :: tauk_bench, tauPL_bench, psi_bench, tauw_bt_bench, tauw_at_bench, Y_a_threshold_bench 
+    REAL(DP) :: tauk_exp,   tauPL_exp,   psi_exp,   tauw_bt_exp,   tauw_at_exp,   Y_a_threshold_exp
 
     ! Values for taxes (when solving an economy)
-    REAL(DP) :: tauK, tauL
+    REAL(DP) :: tauK
     REAL(DP) :: tauW_bt, tauW_at ! Wealth taxes below threshold and above threshold
     REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
@@ -97,7 +97,7 @@ MODULE global
 	    ! Mass of assets by a_grid (defined as a_grid(i)sum(DBN(:,i,:,:,:)))
 	    REAL(DP), DIMENSION(na)  :: tot_a_by_grid, cdf_tot_a_by_grid
 	    ! Percentiles of the asset distribution and mass of total assets by them
-	    INTEGER , DIMENSION(100) ::  prctile_ai, prctile_ai_ind
+	    INTEGER , DIMENSION(100) ::  prctile_ai_ind, prctile_ai
 	    REAL(DP), DIMENSION(100) ::  cdf_tot_a_by_prctile
     	! Other stats
 	    REAL(DP) :: pop_25_60 , tothours_25_60, pop_pos_earn_25_60, tot_log_earnings_25_60, mean_log_earnings_25_60 
@@ -109,9 +109,6 @@ MODULE global
 	
 	! Auxiliary variables for evaluating FOC: Consumption and assets and marginal benefit of assets
     	REAL(DP) :: consin, ain, MB_a_in
-
-    ! Auxiliary variable for labor earnings (it is set to psi=psi_PL)
-    	REAL(DP) :: psi
 
     ! Objective moments (not currently in use)	
     	REAL(DP), DIMENSION(5)  ::  Min_Moments

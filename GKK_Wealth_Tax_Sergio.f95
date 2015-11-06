@@ -697,44 +697,7 @@ PROGRAM main
 		! call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
 		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
-	
-	! Unused values of parameters
-		! the following solves equilibrium of capital tax economy
-! 		params=[  0.9500,    0.7000,    0.2996,    0.5673,    1.2280]
-! 		params=[  0.9510,    0.5000,    0.4060,    0.5680,    1.2250]
-! 		params=[  0.9503,    0.6500,    0.3288,    0.5667,    1.2280]
-! 		params=[  0.9510,    0.5250,    0.3942,    0.5680,    1.2247]
-! 		params=[  0.9511,    0.4200,    0.4400,    0.5680,    1.2250]
-! 		params=[  0.9522,    0.3400,    0.4740,    0.5690,    1.2240]
-! 		params=[  0.9506,    0.6000,    0.3564,    0.5667,    1.2280]
-
-! 		! NEW PARAMETERS
-
-! 		params=[ 0.947  ,  0.4 , 0.490 , 0.340 , 1.01 ]
-! 		params=[ 0.9455 ,  0.6 , 0.381 , 0.335 , 1.00 ]
-! 		params=[ 0.9455 ,  0.8 , 0.255 , 0.34  , 1.00 ]
-! 		params=[ 0.948  ,  0.2 , 0.56  , 0.34  , 1.02 ]
-
-! 		! Latests parameters
-! 		params=[0.9489479959, 0.40, 0.514595031738281, 0.34, 1.01]
-
-
-	!print*,'---------------------------       PSI    NOT  ADJUSTED   ---------------------------'
-	!print*,'------------------------- RETIREMENT BENEFITS ADJUSTED - DBN ADJUSTED ------------------------'
-	!print*,'------------------------- CONS TAX SIMPLE ------------------------'
-	print*,'na=',na,'update_period=',update_period
-
-
-		
-! 		beta             = params(1)
-! 		rho_z            = params(2)
-! 		sigma_z_eps      = params(3)
-! 		sigma_lambda_eps = params(4)
-! 		phi              = params(5)
-! 		!print*,  beta, rho_z, sigma_z_eps, sigma_lambda_eps,  phi
-
-! 		sigma            = 4.0_dp
-! 		gamma            = 1.0_dp/(1.0_dp+phi)
+		print*,'na=',na,'update_period=',update_period
 
 
 		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
@@ -747,20 +710,17 @@ PROGRAM main
 		sigma  = 4.0_dp
 
 	! Set parameters to be used in all simulations economy
-		OPEN   (UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
+		OPEN(UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
 		WRITE(unit=3, FMT=*) params
-		CLOSE (unit=3)
-
+		CLOSE(unit=3)
 
 	! Start timining of  the process
 		call cpu_time(start_time) 
 
-		
 	! Set initia lvalues of R, Wage, Ebar to find equilibrium
 		! ------- DO NOT REMOVE THE LINES BELOW
 
 		rr    =  4.906133597851297E-002 
-		!! rr    =  0.10_dp
 		wage  =  1.97429920063330 
 		Ebar  =  1.82928004963637  
 		Ebar_bench = Ebar
@@ -768,98 +728,7 @@ PROGRAM main
 
 		! ------- DO NOT REMOVE THE LINES ABOVE
 
-	!--------------------------------------------------------------------------------------------------------------------------
-
-		!call cpu_time(start_time) 
-		! 
-		!
-		!
-		!betaL =0.947
-		!betaH=0.948
-		!rhozL = 0.4
-		!rhozH = 0.4
-		!sigmazL = 0.48
-		!sigmazH = 0.49
-		!sigmalambL = 0.34
-		!sigmalambH =0.35
-		!phiL    = 0.99
-		!phiH   = 1.01
-		!
-		!
-		!!betaL =0.9455
-		!!betaH=0.946
-		!!rhozL = 0.6
-		!!rhozH = 0.6
-		!!sigmazL = 0.381
-		!!sigmazH = 0.385
-		!!sigmalambL = 0.335
-		!!sigmalambH =0.34
-		!!phiL    = 0.99
-		!!phiH   = 1.00
-		!
-		!
-		!betaL =0.9455
-		!betaH=0.946
-		!rhozL = 0.8
-		!rhozH = 0.8
-		!sigmazL = 0.253
-		!sigmazH = 0.255
-		!sigmalambL = 0.335
-		!sigmalambH =0.34
-		!phiL    = 1.00
-		!phiH   = 1.02
-		!
-		!betaL =0.948
-		!betaH=0.949
-		!rhozL = 0.2
-		!rhozH = 0.2
-		!sigmazL = 0.56
-		!sigmazH = 0.57
-		!sigmalambL = 0.34
-		!sigmalambH =0.35
-		!phiL    = 1.02
-		!phiH   = 1.04
-		!
-		!
-		!nbeta =2
-		!nrhoz=1
-		!nsigmaz=2
-		!nsigmalambda=2
-		!nphi=2
-		!
-		!Min_SSE_Moments=1000.0_DP
-		!
-		!DO parindx3=1,nsigmalambda
-		!DO parindx2=1,nphi
-		!DO parindx1=1,nbeta
-		!DO parindx4=1,nrhoz
-		!DO parindx5=1,nsigmaz
-		!
-		!    beta = betaL + real(parindx1-1,8) *(betaH-betaL)/max(real(nbeta-1,8),1.0_DP)
-		!    phi   = phiL   + real(parindx2-1,8) *(phiH-phiL)/max(real(nphi-1,8),1.0_DP)
-		!    sigma_lambda_eps = sigmalambL + real(parindx3-1,8)*(sigmalambH -sigmalambL) / max(real(nsigmalambda-1,8),1.0_DP)
-		!    rho_z= rhozL   +  real(parindx4-1,8)*(rhozH-rhozL) / max(real(nrhoz-1,8),1.0_DP)
-		!    sigma_z_eps = sigmazL +  real(parindx5-1,8)*(sigmazH-sigmazL) / max(real(nsigmaz-1,8),1.0_DP)
-		!
-		!    CALL  INITIALIZE
-		!    CALL FIND_DBN_EQ
-		!    CALL COMPUTE_STATS
-		!    IF (SSE_Moments .lt. Min_SSE_Moments ) THEN
-		!        Min_SSE_Moments =SSE_Moments
-		!        params= [ beta, rho_z, sigma_z_eps, sigma_lambda_eps, phi ]
-		!        Min_Moments = [  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60  ]
-		!    ENDIF
-		!    !CALL WRITE_TO_FILE
-		!
-		!ENDDO
-		!ENDDO
-		!ENDDO
-		!ENDDO
-		!ENDDO
-		!print*, params
-		!print*, Min_Moments
-	!
-
+	!====================================================================================================
 	PRINT*,''
 	Print*,'--------------- SOLVING BENCHMARK WITH BEST PARAMETERS -----------------'
 	PRINT*,''
@@ -881,12 +750,8 @@ PROGRAM main
 	if (read_write_bench.eq.0) then
 		print*,"	Computing equilibrium distribution"
 		CALL FIND_DBN_EQ
-		print*,"	Computing satitics"
-		CALL COMPUTE_STATS
 		print*,"	Computing government spending"
 		CALL GOVNT_BUDGET
-		print*,"	Writing variables"
-		CALL WRITE_VARIABLES(1)
 		print*,"	Computing Value Function"
 		CALL COMPUTE_VALUE_FUNCTION_SPLINE 
 		print*,"	Saving results in text files to be read later"
@@ -895,6 +760,11 @@ PROGRAM main
 		print*,"	Reading benchmark results from files"
 		CALL Write_Benchmark_Results(read_write_bench)
 	end if 
+
+		print*,"	Computing satitics"
+		CALL COMPUTE_STATS
+		print*,"	Writing variables"
+		CALL WRITE_VARIABLES(1)
 
 	! Aggregate variables in benchmark economy
 		GBAR_bench  = GBAR
@@ -915,6 +785,7 @@ PROGRAM main
 		write(*,*) "Benchmark variables"
 		write(*,*) "GBAR=",GBAR,"EBAR=",EBAR,"NBAR=",NBAR,"QBAR=",QBAR,"rr=",rr,"wage=",wage
 
+	!====================================================================================================
 	PRINT*,''
 	Print*,'--------------- SOLVING EXPERIMENT WITH BEST PARAMETERS -----------------'
 	PRINT*,''
@@ -931,79 +802,74 @@ PROGRAM main
 		Y_a_threshold = Threshold_Factor*Ebar_bench !0.75_dp
 		Wealth_factor = Y_a_threshold/W_bench
 
-! 	! Find wealth taxes that balances budget
-! 	print*, "	Computing Wealth Tax to balance the budget"
-! 		! Set initial value for G in experimental economy and for wealth taxes
-! 		GBAR_exp = 0.0_DP
-! 		tauW_bt  = tauWmin_bt
-! 		tauW_at  = tauWmin_at
-! 		tauWindx = 0.0_DP
-! 		! Solve for the model increasing wealth taxes until revenue is enough to finance G_benchamark
-! 		DO WHILE (GBAR_exp .lt. GBAR_bench)
-! 			! Set old G and new value of tauW
-! 			GBAR_exp_old = GBAR_exp
-! 			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
-! 			tauW_at = tauWmin_at + tauWindx * tauWinc_at
-! 			! Solve the model
-! 			CALL FIND_DBN_EQ
-! 			CALL GOVNT_BUDGET
+	! Find wealth taxes that balances budget
+	print*, "	Computing Wealth Tax to balance the budget"
+		! Set initial value for G in experimental economy and for wealth taxes
+		GBAR_exp = 0.0_DP
+		tauW_bt  = tauWmin_bt
+		tauW_at  = tauWmin_at
+		tauWindx = 0.0_DP
+		! Solve for the model increasing wealth taxes until revenue is enough to finance G_benchamark
+		DO WHILE (GBAR_exp .lt. GBAR_bench)
+			! Set old G and new value of tauW
+			GBAR_exp_old = GBAR_exp
+			tauW_bt = tauWmin_bt + tauWindx * tauWinc_bt
+			tauW_at = tauWmin_at + tauWindx * tauWinc_at
+			! Solve the model
+			CALL FIND_DBN_EQ
+			CALL GOVNT_BUDGET
 
-! 			! Get new G
-! 			GBAR_exp = GBAR 
-! 			! Iteratioins  
-! 			tauWindx = tauWindx + 1.0_DP   
-! 			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
-! 			print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
-! 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-! 		ENDDO
+			! Get new G
+			GBAR_exp = GBAR 
+			! Iteratioins  
+			tauWindx = tauWindx + 1.0_DP   
+			write(*,*) "Bracketing GBAR: tauW_bt=", tauW_bt*100, "And tauW_at=", tauW_at*100
+			print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
+			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+		ENDDO
 
-! 		! Set tauW as weighted average of point in  the grid to balance budget more precisely
-! 			tauW_up_bt  = tauW_bt
-! 			tauW_low_bt = tauW_bt  -  tauWinc_bt
-! 			tauW_bt     = tauW_low_bt + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
-! 			tauW_up_at  = tauW_at
-! 			tauW_low_at = tauW_at  -  tauWinc_at  
-! 			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
-! 			print*,''
-! 			print*,'GBAR bracketed by taxes:'
-! 			print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
-! 			print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
-! 			print*,''
+		! Set tauW as weighted average of point in  the grid to balance budget more precisely
+			tauW_up_bt  = tauW_bt
+			tauW_low_bt = tauW_bt  -  tauWinc_bt
+			tauW_bt     = tauW_low_bt + tauWinc_bt * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			tauW_up_at  = tauW_at
+			tauW_low_at = tauW_at  -  tauWinc_at  
+			tauW_at     = tauW_low_at + tauWinc_at * (GBAR_bench - GBAR_exp_old )/(GBAR_exp - GBAR_exp_old)
+			print*,''
+			print*,'GBAR bracketed by taxes:'
+			print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
+			print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
+			print*,''
 
-! 		! Solve (again) experimental economy
-! 			CALL FIND_DBN_EQ
-! 			CALL GOVNT_BUDGET
+		! Solve (again) experimental economy
+			CALL FIND_DBN_EQ
+			CALL GOVNT_BUDGET
 
-! 		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
-! 			GBAR_exp = GBAR
-! 			print*,"Gbar at midpoint of bracket and GBAR at benchmark"
-! 			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-! 			print*,''
-! 			print*,'Bisection for TauW:'
-! 			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
-! 			    if (GBAR_exp .gt. GBAR_bench ) then
-! 			        tauW_up_bt  = tauW_bt 
-! 			        tauW_up_at  = tauW_at 
-! 			    else
-! 			        tauW_low_bt = tauW_bt
-! 			        tauW_low_at = tauW_at
-! 			    endif
-! 			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
-! 			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
-! 			    CALL FIND_DBN_EQ
-! 			    CALL GOVNT_BUDGET
-! 			    GBAR_exp = GBAR
-! 			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
-! 				print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
-! 				print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
-! 				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
-! 			ENDDO
+		! Find tauW that exactly balances the budget (up to precisioin 0.1) using bisection
+			GBAR_exp = GBAR
+			print*,"Gbar at midpoint of bracket and GBAR at benchmark"
+			print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			print*,''
+			print*,'Bisection for TauW:'
+			DO WHILE (  abs(100.0_DP*(1.0_DP-GBAR_exp/GBAR_bench)) .gt. 0.1 ) ! as long as the difference is greater than 0.1% continue
+			    if (GBAR_exp .gt. GBAR_bench ) then
+			        tauW_up_bt  = tauW_bt 
+			        tauW_up_at  = tauW_at 
+			    else
+			        tauW_low_bt = tauW_bt
+			        tauW_low_at = tauW_at
+			    endif
+			    tauW_bt = (tauW_low_bt + tauW_up_bt)/2.0_DP
+			    tauW_at = (tauW_low_at + tauW_up_at)/2.0_DP
+			    CALL FIND_DBN_EQ
+			    CALL GOVNT_BUDGET
+			    GBAR_exp = GBAR
+			    print*,'tauW_low_bt =', tauW_low_bt*100, '% tauW_up_bt=', tauW_up_bt*100, '% tauW_bt=', tauW_bt*100, "%"
+				print*,'tauW_low_at =', tauW_low_at*100, '% tauW_up_at=', tauW_up_at*100, '% tauW_at=', tauW_at*100, "%"
+				print*, "Current Threshold for wealth taxes", Y_a_threshold, "Share above threshold=", Threshold_Share
+				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
+			ENDDO
 
-	tauW_at = 0.01719379006132605_dp
-	Y_a_threshold = 0.0_dp
-	! Solve (again) experimental economy
-	CALL FIND_DBN_EQ
-	CALL GOVNT_BUDGET
 
 	! AGgregate variable in experimental economy
 		GBAR_exp  = GBAR
@@ -1021,45 +887,20 @@ PROGRAM main
 		tauw_at_exp = tauW_at
 		Y_a_threshold_exp = Y_a_threshold
 
+	! Compute value function and store policy functions, value function and distribution in file
+	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
+	CALL Write_Experimental_Results()
 
-	!!!	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
-	!!! CALL Write_Experimental_Results()
+	! Compute moments
 	CALL COMPUTE_STATS
-	CALL WRITE_VARIABLES(0)
-	! Compute welfare gain between economies
-		CALL COMPUTE_WELFARE_GAIN
-
-	! Write in files some stats
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'Stats_Resuls', STATUS='replace') 
-			WRITE(UNIT=19, FMT=*) "Threshold_Factor"     	, Threshold_Factor
-			WRITE(UNIT=19, FMT=*) "Wealth_Factor"		  	, Wealth_Factor
-			WRITE(UNIT=19, FMT=*) "Threshold"			  	, Y_a_Threshold
-			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above"	    , TauW_at
-			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(bench)" , Welfare_Gain_Pop_bench
-			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(exp)"   , Welfare_Gain_Pop_exp
-			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
-			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
-			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)"	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
-			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
-			WRITE(UNIT=19, FMT=*) 'p90_p10_Assets'			, prctile_ai(90)-prctile_ai(10)
-			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'   	, meanhours_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
-			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
-			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
-			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
-			WRITE(UNIT=19, FMT=*) ' '
-			WRITE(UNIT=19, FMT=*) 'GBAR_bench'				, GBAR_bench                   , 'GBAR_exp=' , GBAR_exp
-			WRITE(UNIT=19, FMT=*) 'QBAR_bench'				, QBAR_bench                   , 'QBAR_exp=' , QBAR_exp
-			WRITE(UNIT=19, FMT=*) 'NBAR_bench'				, NBAR_bench                   , 'NBAR_exp=' , NBAR_exp
-			WRITE(UNIT=19, FMT=*) 'YBAR_bench'				, Y_bench                  	   , 'YBAR_exp=' , Y_exp
-			WRITE(UNIT=19, FMT=*) 'EBAR_bench'				, EBAR_bench                   , 'EBAR_exp=' , EBAR_exp
-			WRITE(UNIT=19, FMT=*) 'rr_bench'				, rr_bench                     , 'rr_exp='   , rr_exp
-			WRITE(UNIT=19, FMT=*) 'wage_bench'				, wage_bench                   , 'wage_exp=' , wage_exp
-		CLOSE(Unit=19)
 	
+	! Compute welfare gain between economies
+	CALL COMPUTE_WELFARE_GAIN
+
+	! Write experimental results in output.txt
+	CALL WRITE_VARIABLES(0)
+
+
 	print*,'---------------------------'
 	print*,''
 	print*,'Output Gain Prct=', 100.0_DP*(Y_exp/Y_bench-1.0) 
@@ -1073,11 +914,6 @@ PROGRAM main
 	call cpu_time(finish_time)
 	print*,'Total time =',finish_time-start_time
 
-! 	print*, " "
-! 	print*, "Asset Function"
-! 	do ai=1,na 
-! 		print*,agrid(ai), Aprime(20,ai,:,3,3)
-! 	end do 
 
 END PROGRAM main
 
@@ -1409,33 +1245,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	print*,'---------------------------'
 
 
-		! The following lines come from an older version of reporting Consumption Equivalent Welfare
-			! 	! Compute consumption equivalent - Average consumption equivalents are stored
-			! 	OPEN (UNIT=10, FILE='CE', STATUS='replace')  
-			! 	OPEN (UNIT=11, FILE='CE_by_age', STATUS='replace')  
-			! 	OPEN (UNIT=12, FILE='CE_by_age_z', STATUS='replace')  
-
-			! 	WRITE  (UNIT=10, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
-			! 	DO age=MaxAge,1,-1
-			! 	    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
-			! 	    WRITE  (UNIT=11, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
-			! 	    DO zi=1,nz
-			! 	         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
-			! 	    ENDDO
-			! 	    WRITE  (UNIT=12, FMT=*) temp_ce_by_z
-			! 	ENDDO
-
-			! 	close (unit=10)
-			! 	close (unit=11)
-			! 	close (unit=12)
-
-			! 	print*,'---------------------------'
-			! 	print*,''
-			! 	print*,'Average Welfare Gain Whole Population (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
-			! 	print*,''
-			! 	print*,'---------------------------'
-
-	
 
 END SUBROUTINE  COMPUTE_WELFARE_GAIN
 
@@ -2223,30 +2032,6 @@ SUBROUTINE COMPUTE_STATS()
 
 	! Write in files some stats
 	if (solving_bench.eq.1) then
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='replace') 
-			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
-			WRITE(UNIT=19, FMT=*) ' '
-	else
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
-			WRITE(UNIT=19, FMT=*) "Results for experimental economy"
-			WRITE(UNIT=19, FMT=*) ' '
-	end if 
-			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
-			WRITE(UNIT=19, FMT=*) "Mean_Wealth"				, MeanWealth
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
-			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
-			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
-			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
-			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
-			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
-			WRITE(UNIT=19, FMT=*) ' '
-		CLOSE(Unit=19)
-
-	if (solving_bench.eq.1) then
 		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_bench', STATUS='replace') 
 			WRITE(UNIT=19, FMT=*) prctile_ai
 	else
@@ -2259,57 +2044,6 @@ SUBROUTINE COMPUTE_STATS()
 	
 
 END SUBROUTINE COMPUTE_STATS
-
-
-!========================================================================================
-!========================================================================================
-!========================================================================================
-
-
-SUBROUTINE WRITE_VARIABLES(bench_indx)
-	USE GLOBAL
-	IMPLICIT NONE
-	integer :: bench_indx,  prctile
-
-	! If benchmark economy then write as follows
-	IF (bench_indx .gt. 0) then 
-		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_bench.txt', STATUS='replace')
-
-		WRITE  (UNIT=2, FMT=*)  'Params=[', params,']'
-		WRITE  (UNIT=2, FMT=*)  'GBAR_bench=', GBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'QBAR_bench=',QBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'NBAR_bench=',NBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'EBAR_bench=',EBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'rr_bench=',rr_bench
-		WRITE  (UNIT=2, FMT=*)  'wage_bench=',wage_bench
-		WRITE  (UNIT=2, FMT=*)  'Y_bench=',Y_bench
-		WRITE  (UNIT=2, FMT=*)  'MOMENTS'
-		WRITE  (UNIT=2, FMT=*)  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60
-	! If experimental economy then write as follows
-	else
-
-		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_exp.txt', STATUS='replace')
-
-		WRITE  (UNIT=2, FMT=*)  'GBAR_exp=', GBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'QBAR_exp=',QBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'NBAR_exp=',NBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'EBAR_exp=',EBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'rr_exp=',rr_exp
-		WRITE  (UNIT=2, FMT=*)  'wage_exp=',wage_exp
-		WRITE  (UNIT=2, FMT=*)  'Y_exp=',Y_exp
-		WRITE  (UNIT=2, FMT=*)  ''
-		WRITE  (UNIT=2, FMT=*)  'Y_exp_Y_bench=',Y_exp/Y_bench
-		WRITE  (UNIT=2, FMT=*)  'tauW_bt =',tauW_bt_exp
-		WRITE  (UNIT=2, FMT=*)  'tauW_at =',tauW_at_exp
-		WRITE  (UNIT=2, FMT=*)  'Y_a_threshold =',Y_a_threshold_exp
-		WRITE  (UNIT=2, FMT=*)  ''
-		WRITE  (UNIT=2, FMT=*)  'MOMENTS'
-		WRITE  (UNIT=2, FMT=*)  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60
-	ENDIF
-
-	close (unit=2)
-
-END SUBROUTINE WRITE_VARIABLES
 
 
 !========================================================================================
@@ -2874,26 +2608,6 @@ SUBROUTINE  INITIALIZE()
 	REAL(DP) :: m, Rh, start_timet, finish_timet
 	INTEGER  :: ee0, ee1, ee2, zindx1, zindx2, lambdaindx1, lambdaindx2, diff_array, eindx1, eindx2
 	INTEGER, DIMENSION(RetAge) :: agevec
-	!INTEGER :: ageij, ageii, eij, eii, zij, zii, lambdaij, lambdaii
-	!integer, dimension(ne,ne,nz,nz,nlambda,nlambda,MaxAge,MaxAge) :: globaltransition
-	!
-	!DO eij=1,ne
-	!DO eii=1,ne
-	!DO zij=1,nz
-	!DO zii=1,nz
-	!DO lambdaij=1,nlambda
-	!DO lambdaii=1,nlambda
-	!DO ageij=1,MaxAge
-	!DO ageii=1,MaxAge    
-	!    globaltransition(ei,eii,zi,zii,lambdai,lambdaii,agei,ageii) = 1
-	!ENDDO    
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
 	
 	! Initiliaze grids for z, lamda and e	
 		CALL tauchen(mtauchen,rho_z,sigma_z_eps,nz,zgrid,pr_z,Gz)
@@ -3173,33 +2887,6 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE()
 	lifetime_eff_unit_by_lambda_e = lifetime_eff_unit_by_lambda_e/mean_panel_lifetime_eff_unit 
 
 
-	!------------------OLD RETIREMENT SCHEME  '
-	!lambdaBAR= sum(lambdagrid*Glambda)
-	!DO lambdai=1,nlambda
-	!DO ei=1,ne
-	!                lifetime_eff_unit_by_lambda_e(lambdai, ei) = lambdagrid(lambdai)/ lambdaBAR
-	!ENDDO
-	!ENDDO
-	!print*,''
-	!print*,'  OLD RETIREMENT SCHEME  '
-	!print*,''
-
-	!print*,'LIFETIME AVERAGE Y RELATIVE TO THE MEAN LIFETIME AVERAGE Y'
-	!DO lambdai=1,nlambda
-	!                print*, lifetime_eff_unit_by_lambda_e(lambdai, :)
-	!ENDDO
-	!PRINT*,''
-	!DO lambdai=1,nlambda
-	!                print*, size_by_lambda_e(lambdai, :)
-	!ENDDO
-	!
-	!PRINT*,''
-	!print*,'egrid=',egrid
-	!
-	!PRINT*,''
-	!print*,'lambdagrid=',lambdagrid
-
-
 	! compute retirement income replacement rate for each lambda type
 	!print*,'phi_lambda_e='
 	DO lambdai=1,nlambda
@@ -3228,6 +2915,82 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE()
 
 END SUBROUTINE LIFETIME_Y_ESTIMATE
 
+
+!========================================================================================
+!========================================================================================
+!========================================================================================
+
+
+SUBROUTINE WRITE_VARIABLES(bench_indx)
+	USE GLOBAL
+	IMPLICIT NONE
+	integer :: bench_indx,  prctile
+
+	if (bench_indx.eq.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) "Parameters"
+			WRITE(UNIT=19, FMT=*) params
+			WRITE(UNIT=19, FMT=*) "sigma",sigma,'gamma',gamma,'beta',beta
+			WRITE(UNIT=19, FMT=*) 'TauC',TauC,'TauK',TauK,'TauPL',TauPL,'psi',psi
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
+			WRITE(UNIT=19, FMT=*) ' '
+	else
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'Wealth Taxes'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Threshold_Factor"     	, Threshold_Factor
+			WRITE(UNIT=19, FMT=*) "Wealth_Factor"		  	, Wealth_Factor
+			WRITE(UNIT=19, FMT=*) "Threshold"			  	, Y_a_Threshold
+			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above"	    , TauW_at
+			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Results for experimental economy"
+			WRITE(UNIT=19, FMT=*) ' '
+
+	end if 
+			WRITE(UNIT=19, FMT=*) 'Aggregate Variables'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'GBAR'	, GBAR
+			WRITE(UNIT=19, FMT=*) 'QBAR'	, QBAR
+			WRITE(UNIT=19, FMT=*) 'NBAR'	, NBAR
+			WRITE(UNIT=19, FMT=*) 'EBAR'	, EBAR
+			WRITE(UNIT=19, FMT=*) 'Y'		, YBAR
+			WRITE(UNIT=19, FMT=*) 'rr'		, rr
+			WRITE(UNIT=19, FMT=*) 'wage'	, wage
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Moments:"
+			WRITE(UNIT=19, FMT=*) " "
+			WRITE(UNIT=19, FMT=*) "Wealth_Output"		  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) "Mean_Assets"				, MeanWealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
+			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
+			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
+			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
+			WRITE(UNIT=19, FMT=*) ' '
+		CLOSE(Unit=19)
+	if (bench_indx.ne.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'Welfare and output gain'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(bench)" , Welfare_Gain_Pop_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(exp)"   , Welfare_Gain_Pop_exp
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
+			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)"	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
+		CLOSE(Unit=19)
+	end if 
+
+			
+END SUBROUTINE WRITE_VARIABLES
 
 !========================================================================================
 !========================================================================================

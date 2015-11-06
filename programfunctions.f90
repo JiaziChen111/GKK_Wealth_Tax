@@ -242,12 +242,12 @@ end Subroutine Asset_Grid_Threshold
 		cprime =   Linear_Int(Ygrid_t(:,zi), Cons_t(age+1,:,zi,lambdai,ei),na_t, yprime)    
 
 		! Evaluate square residual of Euler equation at current state (given by (ai,zi,lambdai,ei)) and savings given by a'
-		if (Utility_Type.eq.1) then
+		if (sigma.eq.1.0_dp) then
 			FOC_R   = (1.0_DP / (YGRID_t(ai,zi)  + RetY_lambda_e(lambdai,ei) - aprimet )  &
 			           & - beta *  survP(age) *  MBaprime /cprime ) **2.0_DP
 		else
 			FOC_R	= ( (YGRID_t(ai,zi)+RetY_lambda_e(lambdai,ei)-aprimet)    &
-			           & - (beta * survP(age) *  MBaprime)**(1/((1.0_dp-sigma)*gamma-1.0_dp))  * cprime  ) ** 2.0_DP
+			           & - (beta * survP(age) *  MBaprime)**(1.0_dp/((1.0_dp-sigma)*gamma-1.0_dp))  * cprime  ) ** 2.0_DP
 		end if
 
 	END  FUNCTION FOC_R
@@ -321,7 +321,7 @@ end Subroutine Asset_Grid_Threshold
 		! Set auxiliary variable for FOC_HA
 		ain=aprimet
 		! Solve for hours choice by solving the FOC for labor
-		brentvaluet = brent(0.000001_DP, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, ntemp) 
+		brentvaluet = brent(H_min, 0.4_DP, 0.99_DP, FOC_HA, brent_tol, ntemp) 
 		! Current consumption
 		ctemp   = YGRID_t(ai,zi)+  Y_h(ntemp,age,lambdai,ei,wage) - aprimet          
 		
@@ -379,8 +379,8 @@ end Subroutine Asset_Grid_Threshold
 		real(DP), intent(in) 	:: hoursin
 		real(DP)             	:: FOC_H
 
-		if (Utility_Type.eq.1) then 
-			FOC_H = ( MB_h(hoursin,age,lambdai,ei,wage) * (1.0_DP-hoursin) - phi*consin )**2.0_DP	
+		if (sigma.eq.1.0_dp) then 
+			FOC_H = ( MB_h(hoursin,age,lambdai,ei,wage) * (1.0_DP-hoursin) - ((1.0_dp-gamma)/gamma)*consin )**2.0_DP	
 		else 
 			FOC_H = ( consin - (gamma/(1.0_dp-gamma))*(1.0_dp-hoursin)*MB_h(hoursin,age,lambdai,ei,wage) )**2.0_DP 
 		end if 
@@ -408,6 +408,7 @@ end Subroutine Asset_Grid_Threshold
 
 !========================================================================================
 !========================================================================================
+!========================================================================================
 ! FOC_HA: Evaluate square residual of FOC for hours at current state and candidate hours h
 !	      This function takes as given the saving decision a'
 !
@@ -431,9 +432,9 @@ end Subroutine Asset_Grid_Threshold
 		real(DP), intent(in) :: hoursin
 		real(DP)   			 :: FOC_HA, cons
 
-		if (Utility_Type.eq.1) then 
+		if (sigma.eq.1.0_dp) then 
 			FOC_HA = ( (psi*(1.0_DP-tauPL)*yh(age, lambdai,ei)**(1.0_DP-tauPL) )* (1.0_DP-hoursin)*(hoursin**(-tauPL)) &
-			        &  - phi*  ( YGRID_t(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain  )   )**2.0_DP
+			    &  - ((1.0_dp-gamma)/gamma)*( YGRID_t(ai,zi) + psi*(yh(age, lambdai,ei)*hoursin)**(1.0_DP-tauPL) - ain ) )**2.0_DP
 		else 
 			cons   = YGRID_t(ai,zi)+  Y_h(hoursin,age,lambdai,ei,wage) - ain
 			FOC_HA = ( cons - (gamma/(1.0_dp-gamma))*(1.0_dp-hoursin)*MB_h(hoursin,age,lambdai,ei,wage) )**2.0_DP 
@@ -443,6 +444,9 @@ end Subroutine Asset_Grid_Threshold
 
 !========================================================================================
 !========================================================================================
+!========================================================================================
+
+
 SUBROUTINE COMPUTE_WELFARE_GAIN()
 	IMPLICIT NONE
 	real(DP), dimension(MaxAge):: CumDiscountF
@@ -472,7 +476,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	! Solve for the benchmark economy 
 		solving_bench = 1
 		tauK  = tauK_bench
-		tauL  = tauL_bench
 		rr    = rr_bench
 		wage  = wage_bench
 		Ebar  = Ebar_bench
@@ -572,7 +575,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	! Solve the experimental economy  
 		solving_bench = 0  
 		tauK  = tauK_exp
-		tauL  = tauL_exp
 		rr    = rr_exp
 		wage  = wage_exp
 		Ebar  = Ebar_exp
@@ -640,7 +642,7 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		OPEN (UNIT=80, FILE=trim(Result_Folder)//'CE_by_age_z', STATUS='replace')  
 
 		DO age=1,MaxAge
-		    if (Utility_Type.eq.1) then 
+			if (sigma.eq.1.0_dp) then 
 		    	Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
 		    else 
 		    	Cons_Eq_Welfare(age,:,:,:,:)=(ValueFunction_exp(age,:,:,:,:)/ValueFunction_Bench(age,:,:,:,:)) &
@@ -765,33 +767,6 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 	print*,'---------------------------'
 
 
-		! The following lines come from an older version of reporting Consumption Equivalent Welfare
-			! 	! Compute consumption equivalent - Average consumption equivalents are stored
-			! 	OPEN (UNIT=10, FILE='CE', STATUS='replace')  
-			! 	OPEN (UNIT=11, FILE='CE_by_age', STATUS='replace')  
-			! 	OPEN (UNIT=12, FILE='CE_by_age_z', STATUS='replace')  
-
-			! 	WRITE  (UNIT=10, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
-			! 	DO age=MaxAge,1,-1
-			! 	    Cons_Eq_Welfare(age,:,:,:,:)=exp((ValueFunction_exp(age,:,:,:,:)-ValueFunction_Bench(age,:,:,:,:))/CumDiscountF(age))-1.0_DP
-			! 	    WRITE  (UNIT=11, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
-			! 	    DO zi=1,nz
-			! 	         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
-			! 	    ENDDO
-			! 	    WRITE  (UNIT=12, FMT=*) temp_ce_by_z
-			! 	ENDDO
-
-			! 	close (unit=10)
-			! 	close (unit=11)
-			! 	close (unit=12)
-
-			! 	print*,'---------------------------'
-			! 	print*,''
-			! 	print*,'Average Welfare Gain Whole Population (prct)=',100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
-			! 	print*,''
-			! 	print*,'---------------------------'
-
-	
 
 END SUBROUTINE  COMPUTE_WELFARE_GAIN
 
@@ -800,10 +775,8 @@ END SUBROUTINE  COMPUTE_WELFARE_GAIN
 !========================================================================================
 !========================================================================================
 
+
 SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
-	use global 
-	use programfunctions
-	use Toolbox
 	IMPLICIT NONE
 	INTEGER :: tklo, tkhi
 	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: PrAprimelo, PrAprimehi
@@ -820,7 +793,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	              	if (Utility_Type.eq.1) then
+	              	if (sigma.eq.1.0_dp) then
 	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
 	                else 
 	                	ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
@@ -838,7 +811,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne            
-	          		if (Utility_Type.eq.1) then
+	          		if (sigma.eq.1.0_dp) then
 	                    CALL spline( agrid, ValueFunction(age+1, :, zi, lambdai, ei) , na , &
 	                    & 1.0_DP/Cons(age+1, 1, zi, lambdai,ei) , 1.0_DP/Cons(age+1, na, zi, lambdai,ei) , ValueP2)  
 	                else 
@@ -850,7 +823,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                    DO ai=1,na    
 	                        call splint( agrid, ValueFunction(age+1, :, zi, lambdai, ei), &
 	                                & ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
-	    					if (Utility_Type.eq.1) then
+	    					if (sigma.eq.1.0_dp) then
 	                        ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
 	                            & + beta*survP(age)* ValueP(ai)
 	                        else 
@@ -875,7 +848,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                          ExpValueP(ai) = sum(ValueFunction(age+1, ai, zi, lambdai, :) * pr_e(ei,:))
 	                    ENDDO
 
-	                    if (Utility_Type.eq.1) then 
+	                    if (sigma.eq.1.0_dp) then 
 	                    CALL spline( agrid, ExpValueP , na , &
 	                    & sum(pr_e(ei,:)/Cons(age+1, 1, zi, lambdai,:)) , sum(pr_e(ei,:)/Cons(age+1, na, zi, lambdai,:)) , ValueP2)  
 	                    else 
@@ -890,10 +863,10 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE()
 	                    end if 
 
 	                    DO ai=1,na 
-	                    	if (Utility_Type.eq.1)then 
+	                    	if (sigma.eq.1.0_dp)then 
 	                         call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
 	                         ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-	                               & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)* ValueP(ai)
+	                            & + ((1.0_dp-gamma)/gamma) * log(1.0_DP-Hours(age, ai, zi, lambdai, ei)) + beta*survP(age)*ValueP(ai)
 	                        else 
 	                          call splint( agrid, ExpValueP, ValueP2, na, Aprime(age,ai,zi,lambdai, ei), ValueP(ai))   
 		                         ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
@@ -915,9 +888,6 @@ END SUBROUTINE COMPUTE_VALUE_FUNCTION_SPLINE
 
 
 SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
-	use global
-	use  programfunctions
-	use Toolbox
 	IMPLICIT NONE
 	INTEGER :: tklo, tkhi
 	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: PrAprimelo, PrAprimehi
@@ -929,7 +899,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	    DO zi=1,nz
 	        DO lambdai=1,nlambda          
 	              DO ei=1,ne
-	              	if (Utility_Type.eq.1) then
+	              	if (sigma.eq.1.0_dp) then
 	                  	ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) 
 	                else 
 	              		ValueFunction(age, ai, zi, lambdai, ei) = ((Cons(age,ai,zi,lambdai,ei)**gamma) &
@@ -963,7 +933,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
-		if (Utility_Type.eq.1) then 
+		if (sigma.eq.1.0_dp) then 
 			ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
 			  & + beta*survP(age)* (PrAprimelo(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tklo, zi, lambdai, ei)&
 			  & +  PrAprimehi(age,ai,zi,lambdai, ei)*ValueFunction(age+1, tkhi, zi, lambdai, ei))
@@ -1003,9 +973,9 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 		PrAprimehi(age,ai,zi,lambdai, ei) = min (PrAprimehi(age,ai,zi,lambdai, ei), 1.0_DP)
 		PrAprimehi(age,ai,zi,lambdai, ei) = max(PrAprimehi(age,ai,zi,lambdai, ei), 0.0_DP)    
 
-		if (Utility_Type.eq.1) then 
+		if (sigma.eq.1.0_dp) then 
 		ValueFunction(age, ai, zi, lambdai, ei) = log(Cons(age, ai, zi, lambdai, ei)) &
-		   & + phi * log(1.0_DP-Hours(age, ai, zi, lambdai, ei))  &
+		   & + ((1.0_dp-gamma)/gamma) * log(1.0_DP-Hours(age, ai, zi, lambdai, ei))  &
 		   & + beta*survP(age)* sum( ( PrAprimelo(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tklo, zi, lambdai,:)  &
 		   & + PrAprimehi(age,ai,zi,lambdai, ei) * ValueFunction(age+1, tkhi, zi, lambdai,:)) * pr_e(ei,:) )
 		else 
@@ -1024,6 +994,7 @@ SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR()
 	ENDDO ! age
 
 END SUBROUTINE COMPUTE_VALUE_FUNCTION_LINEAR 
+
 
 !========================================================================================
 !========================================================================================
@@ -1566,30 +1537,6 @@ SUBROUTINE COMPUTE_STATS()
 
 	! Write in files some stats
 	if (solving_bench.eq.1) then
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='replace') 
-			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
-			WRITE(UNIT=19, FMT=*) ' '
-	else
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
-			WRITE(UNIT=19, FMT=*) "Results for experimental economy"
-			WRITE(UNIT=19, FMT=*) ' '
-	end if 
-			WRITE(UNIT=19, FMT=*) "W/GDP"				  	, Wealth_Output
-			WRITE(UNIT=19, FMT=*) "Mean_Wealth"				, MeanWealth
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
-			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
-			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
-			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
-			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
-			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
-			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
-			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
-			WRITE(UNIT=19, FMT=*) ' '
-		CLOSE(Unit=19)
-
-	if (solving_bench.eq.1) then
 		OPEN (UNIT=19, FILE=trim(Result_Folder)//'a_prctile_bench', STATUS='replace') 
 			WRITE(UNIT=19, FMT=*) prctile_ai
 	else
@@ -1597,60 +1544,11 @@ SUBROUTINE COMPUTE_STATS()
 			WRITE(UNIT=19, FMT=*) prctile_ai
 	end if 
 		CLOSE(Unit=19)
+
+
 	
 
 END SUBROUTINE COMPUTE_STATS
-
-
-!========================================================================================
-!========================================================================================
-!========================================================================================
-
-
-SUBROUTINE WRITE_VARIABLES(bench_indx)
-	USE GLOBAL
-	IMPLICIT NONE
-	integer :: bench_indx,  prctile
-
-	! If benchmark economy then write as follows
-	IF (bench_indx .gt. 0) then 
-		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_bench.txt', STATUS='replace')
-
-		WRITE  (UNIT=2, FMT=*)  'Params=[', params,']'
-		WRITE  (UNIT=2, FMT=*)  'GBAR_bench=', GBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'QBAR_bench=',QBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'NBAR_bench=',NBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'EBAR_bench=',EBAR_bench
-		WRITE  (UNIT=2, FMT=*)  'rr_bench=',rr_bench
-		WRITE  (UNIT=2, FMT=*)  'wage_bench=',wage_bench
-		WRITE  (UNIT=2, FMT=*)  'Y_bench=',Y_bench
-		WRITE  (UNIT=2, FMT=*)  'MOMENTS'
-		WRITE  (UNIT=2, FMT=*)  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60
-	! If experimental economy then write as follows
-	else
-
-		OPEN   (UNIT=2, FILE=trim(Result_Folder)//'output_exp.txt', STATUS='replace')
-
-		WRITE  (UNIT=2, FMT=*)  'GBAR_exp=', GBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'QBAR_exp=',QBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'NBAR_exp=',NBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'EBAR_exp=',EBAR_exp
-		WRITE  (UNIT=2, FMT=*)  'rr_exp=',rr_exp
-		WRITE  (UNIT=2, FMT=*)  'wage_exp=',wage_exp
-		WRITE  (UNIT=2, FMT=*)  'Y_exp=',Y_exp
-		WRITE  (UNIT=2, FMT=*)  ''
-		WRITE  (UNIT=2, FMT=*)  'Y_exp_Y_bench=',Y_exp/Y_bench
-		WRITE  (UNIT=2, FMT=*)  'tauW_bt =',tauW_bt_exp
-		WRITE  (UNIT=2, FMT=*)  'tauW_at =',tauW_at_exp
-		WRITE  (UNIT=2, FMT=*)  'Y_a_threshold =',Y_a_threshold_exp
-		WRITE  (UNIT=2, FMT=*)  ''
-		WRITE  (UNIT=2, FMT=*)  'MOMENTS'
-		WRITE  (UNIT=2, FMT=*)  Wealth_Output, prct1_wealth , prct10_wealth, Std_Log_Earnings_25_60, meanhours_25_60
-	ENDIF
-
-	close (unit=2)
-
-END SUBROUTINE WRITE_VARIABLES
 
 
 !========================================================================================
@@ -1670,17 +1568,6 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	INTEGER  :: sw 
 	REAL(DP) :: Wealth, C_euler, C_foc, H_min
 
-	! These lines are note being used!!!!!!!!
-		! Set auxiliary value ofr psi 
-			psi = psi_PL * Ebar ** tauPL
-		! If solving experimental economy use Ebar_bench
-			if (solving_bench .eq. 0) then
-	            psi = psi_PL * Ebar_bench ** tauPL
-			endif          
-	! These lines are note being used!!!!!!!!      
-	
-	! Set psi to psi_PL
-		psi = psi_PL
 
 	! Set a minimum value for labor to check in the FOC
 		H_min = 0.000001_dp
@@ -1718,7 +1605,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
     	Wealth = agrid_t(ai)+(rr*(zgrid(zi)*agrid_t(ai))**mu-DepRate*agrid_t(ai))*(1.0_DP-tauK)
 		if (abs(Wealth-Y_a_threshold).lt.1e-8) then 
     		! Consumption on endogenous grid and implied asset income under tauW_bt
-    		if (Utility_Type.eq.1) then
+    		if (sigma.eq.1.0_dp) then
 	        	EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MB_a_bt(agrid_t(ai),zgrid(zi)))    
         	else 
         		EndoCons(ai) = Cons_t(age+1,ai,zi,lambdai,ei)*    &
@@ -1726,7 +1613,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
         	end if
 	        EndoYgrid(ai) = agrid_t(ai) +  EndoCons(ai)   - RetY_lambda_e(lambdai,ei)
 	        ! Consumption on endogenous grid and implied asset income under tauW_at
-	        if (Utility_Type.eq.1) then
+	        if (sigma.eq.1.0_dp) then
 	    		EndoCons(na_t+1) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi)) )
 	    	else 
 	    		EndoCons(na_t+1) = Cons_t(age+1, ai, zi, lambdai,ei)* &
@@ -1737,7 +1624,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	    	sw                = 1 
 	    else 
 	    	! Consumption on endogenous grid and implied asset income
-	    	if (Utility_Type.eq.1) then
+	    	if (sigma.eq.1.0_dp) then
 	        	EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)/( beta*survP(age)*MBGRID_t(ai,zi))    
 	        else 
         		EndoCons(ai) = Cons_t(age+1, ai, zi, lambdai,ei)*( beta*survP(age)*MBGRID_t(ai,zi))**(1/((1.0_dp-sigma)*gamma-1.0_dp))
@@ -1819,7 +1706,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 		if (abs(Wealth-Y_a_threshold).lt.1e-8) then 
 	    	
 			! Below threshold
-				if (Utility_Type.eq.1) then
+				if (sigma.eq.1.0_dp) then
 			    	! Consumption on endogenous grid and implied asset income under tauW_bt
 					EndoCons(ai) = 1.0_DP/( beta*survP(age)*MB_a_bt(agrid_t(ai),zgrid(zi))*SUM(pr_e(ei,:)/Cons_t(age+1,ai,zi,lambdai,:)))    
 					! Auxiliary consumption variable for FOC_H        
@@ -1845,7 +1732,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 				! Endogenous grid for asset income
 				EndoYgrid(ai) = agrid_t(ai) + EndoCons(ai) - Y_h(EndoHours(ai),age,lambdai,ei,wage)
 			! Above threshold
-				if (Utility_Type.eq.1) then 
+				if (sigma.eq.1.0_dp) then 
 			    	! Consumption, hours and asset income in endogenous grid with above threshold tax
 			    	EndoCons(na_t+1) = 1.0_DP/( beta*survP(age)*MB_a_at(agrid_t(ai),zgrid(zi))*SUM(pr_e(ei,:)/Cons_t(age+1,ai,zi,lambdai,:)))   
 			    	! Auxiliary consumption variable for FOC_H        
@@ -1873,7 +1760,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 			! Set the flag!
 	    	sw                = 1 
 	    else 
-	    	if (Utility_Type.eq.1) then 
+	    	if (sigma.eq.1.0_dp) then 
 		    	! Consumption, hours and asset income in endogenous grid
 				EndoCons(ai) =   1.0_DP /( beta*survP(age)*MBGRID_t(ai,zi)*SUM(pr_e(ei,:) /Cons_t(age+1,ai,zi,lambdai,:)))    
 				! Auxiliary consumption variable for FOC_H        
@@ -1933,7 +1820,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
 	                
 		! decision rules are obtained taking care of extrapolations
 		DO ai=tempai,na_t 
-			if (Utility_Type.eq.1) then               
+			if (sigma.eq.1.0_dp) then               
 			    Cons_t(age, ai, zi, lambdai,ei)= Linear_Int(EndoYgrid(1:na_t+sw), EndoCons(1:na_t+sw),na_t+sw, YGRID_t(ai,zi))  
 			     
 			    consin = Cons_t(age, ai, zi, lambdai,ei)
@@ -1984,7 +1871,7 @@ SUBROUTINE EGM_RETIREMENT_WORKING_PERIOD()
         DO WHILE ( YGRID_t(ai,zi) .lt. EndoYgrid(1) )
         	! print*, ' Extrapolation between YGRID and EndoYgrid!!!!'
 	        ! Solve for the Euler equation directly
-	        if (Utility_Type.eq.1) then          
+	        if (sigma.eq.1.0_dp) then          
 			brentvalue = brent( min(amin,YGRID_t(ai,zi))   ,  (amin+YGRID_t(ai,zi))/2.0_DP  ,  &
                              	& YGRID_t(ai,zi)  + psi * ( yh(age, lambdai,ei)*0.95_DP )**(1.0_DP-tauPL)  ,  &
 	                             & FOC_WH, brent_tol, Aprime_t(age, ai, zi, lambdai,ei) )
@@ -2122,7 +2009,7 @@ Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_out)
 			! 		    DO while (cdf_a_dbn(a_ind) .lt. (REAL(prctile,8)/100.0_DP-0.000000000000001))
 			! 		        a_ind=a_ind+1
 			! 		    ENDDO
-			! 		    prctile_ai(prctile) = a_ind
+			! 		    prctile_ai_ind(prctile) = a_ind
 			! 		ENDDO
 
 			! 	! Set threshold for wealth tax as:
@@ -2131,7 +2018,7 @@ Subroutine Find_TauW_Threshold(DBN_in,Y_a_threshold_out)
 			! 			Y_a_threshold_out = 0.0_dp
 			! 		else 
 			! 			! Threshold at some percentile
-			! 			Y_a_threshold_out = agrid( prctile_ai(tauW_threshold_in) )
+			! 			Y_a_threshold_out = agrid( prctile_ai_ind(tauW_threshold_in) )
 			! 		end if 
 
 end Subroutine Find_TauW_Threshold
@@ -2212,26 +2099,6 @@ SUBROUTINE  INITIALIZE()
 	REAL(DP) :: m, Rh, start_timet, finish_timet
 	INTEGER  :: ee0, ee1, ee2, zindx1, zindx2, lambdaindx1, lambdaindx2, diff_array, eindx1, eindx2
 	INTEGER, DIMENSION(RetAge) :: agevec
-	!INTEGER :: ageij, ageii, eij, eii, zij, zii, lambdaij, lambdaii
-	!integer, dimension(ne,ne,nz,nz,nlambda,nlambda,MaxAge,MaxAge) :: globaltransition
-	!
-	!DO eij=1,ne
-	!DO eii=1,ne
-	!DO zij=1,nz
-	!DO zii=1,nz
-	!DO lambdaij=1,nlambda
-	!DO lambdaii=1,nlambda
-	!DO ageij=1,MaxAge
-	!DO ageii=1,MaxAge    
-	!    globaltransition(ei,eii,zi,zii,lambdai,lambdaii,agei,ageii) = 1
-	!ENDDO    
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
-	!ENDDO   
 	
 	! Initiliaze grids for z, lamda and e	
 		CALL tauchen(mtauchen,rho_z,sigma_z_eps,nz,zgrid,pr_z,Gz)
@@ -2507,33 +2374,6 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE()
 	lifetime_eff_unit_by_lambda_e = lifetime_eff_unit_by_lambda_e/mean_panel_lifetime_eff_unit 
 
 
-	!------------------OLD RETIREMENT SCHEME  '
-	!lambdaBAR= sum(lambdagrid*Glambda)
-	!DO lambdai=1,nlambda
-	!DO ei=1,ne
-	!                lifetime_eff_unit_by_lambda_e(lambdai, ei) = lambdagrid(lambdai)/ lambdaBAR
-	!ENDDO
-	!ENDDO
-	!print*,''
-	!print*,'  OLD RETIREMENT SCHEME  '
-	!print*,''
-
-	!print*,'LIFETIME AVERAGE Y RELATIVE TO THE MEAN LIFETIME AVERAGE Y'
-	!DO lambdai=1,nlambda
-	!                print*, lifetime_eff_unit_by_lambda_e(lambdai, :)
-	!ENDDO
-	!PRINT*,''
-	!DO lambdai=1,nlambda
-	!                print*, size_by_lambda_e(lambdai, :)
-	!ENDDO
-	!
-	!PRINT*,''
-	!print*,'egrid=',egrid
-	!
-	!PRINT*,''
-	!print*,'lambdagrid=',lambdagrid
-
-
 	! compute retirement income replacement rate for each lambda type
 	!print*,'phi_lambda_e='
 	DO lambdai=1,nlambda
@@ -2562,6 +2402,81 @@ SUBROUTINE  LIFETIME_Y_ESTIMATE()
 
 END SUBROUTINE LIFETIME_Y_ESTIMATE
 
+
+!========================================================================================
+!========================================================================================
+!========================================================================================
+
+
+SUBROUTINE WRITE_VARIABLES(bench_indx)
+	IMPLICIT NONE
+	integer :: bench_indx,  prctile
+
+	if (bench_indx.eq.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='replace') 
+			WRITE(UNIT=19, FMT=*) "Parameters"
+			WRITE(UNIT=19, FMT=*) params
+			WRITE(UNIT=19, FMT=*) "sigma",sigma,'gamma',gamma,'beta',beta
+			WRITE(UNIT=19, FMT=*) 'TauC',TauC,'TauK',TauK,'TauPL',TauPL,'psi',psi
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
+			WRITE(UNIT=19, FMT=*) ' '
+	else
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'Wealth Taxes'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Threshold_Factor"     	, Threshold_Factor
+			WRITE(UNIT=19, FMT=*) "Wealth_Factor"		  	, Wealth_Factor
+			WRITE(UNIT=19, FMT=*) "Threshold"			  	, Y_a_Threshold
+			WRITE(UNIT=19, FMT=*) "Wealth_Tax_Above"	    , TauW_at
+			WRITE(UNIT=19, FMT=*) 'Share_Above_Threshold'	, Threshold_Share
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Results for experimental economy"
+			WRITE(UNIT=19, FMT=*) ' '
+
+	end if 
+			WRITE(UNIT=19, FMT=*) 'Aggregate Variables'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'GBAR'	, GBAR
+			WRITE(UNIT=19, FMT=*) 'QBAR'	, QBAR
+			WRITE(UNIT=19, FMT=*) 'NBAR'	, NBAR
+			WRITE(UNIT=19, FMT=*) 'EBAR'	, EBAR
+			WRITE(UNIT=19, FMT=*) 'Y'		, YBAR
+			WRITE(UNIT=19, FMT=*) 'rr'		, rr
+			WRITE(UNIT=19, FMT=*) 'wage'	, wage
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Moments:"
+			WRITE(UNIT=19, FMT=*) " "
+			WRITE(UNIT=19, FMT=*) "Wealth_Output"		  	, Wealth_Output
+			WRITE(UNIT=19, FMT=*) "Mean_Assets"				, MeanWealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_1%' 	, prct1_wealth
+			WRITE(UNIT=19, FMT=*) 'Wealth_held_by_Top_10%'	, prct10_wealth
+			WRITE(UNIT=19, FMT=*) 'p90-p10_Assets'			, prctile_ai(90)-prctile_ai(10)
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_Earnings'	  	, mean_log_earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'STD_Labor_Earnings'	  	, Std_Log_Earnings_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Labor_25_60'	   	, meanhours_25_60
+			WRITE(UNIT=19, FMT=*) 'Mean_Return'				, MeanReturn
+			WRITE(UNIT=19, FMT=*) 'Std_Return'				, StdReturn
+			WRITE(UNIT=19, FMT=*) 'Mean_Return_by_z'		, MeanReturn_by_z
+			WRITE(UNIT=19, FMT=*) 'Moments'				  	, SSE_Moments 
+			WRITE(UNIT=19, FMT=*) ' '
+		CLOSE(Unit=19)
+	if (bench_indx.ne.1) then
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) 'Welfare and output gain'
+			WRITE(UNIT=19, FMT=*) ' '
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(bench)" , Welfare_Gain_Pop_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_Pop(exp)"   , Welfare_Gain_Pop_exp
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(bench)"  , Welfare_Gain_NB_bench
+			WRITE(UNIT=19, FMT=*) "Welfare_Gain_NB(exp)"    , Welfare_Gain_NB_exp
+			WRITE(UNIT=19, FMT=*) "Output_Gain(prct)"	  	, 100.0_DP*(Y_exp/Y_bench-1.0) 
+		CLOSE(Unit=19)
+	end if 
+
+			
+END SUBROUTINE WRITE_VARIABLES
 
 !========================================================================================
 !========================================================================================
@@ -2702,11 +2617,9 @@ SUBROUTINE Write_Experimental_Results()
 END SUBROUTINE Write_Experimental_Results
 
 
-
 !========================================================================================
 !========================================================================================
 !========================================================================================
-
 
 end module programfunctions
 

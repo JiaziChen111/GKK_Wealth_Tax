@@ -1,5 +1,7 @@
 MODULE parameters
+
     use nrtype
+    use nrutil
 
     ! Huge number
     real(dp), parameter         ::  big_p   = HUGE(1.0_dp)
@@ -7,10 +9,6 @@ MODULE parameters
     ! Switch for computing social security with benchmark earnings
     	! If KeepSSatBench=1 then E_bar is kept at E_bar_bench for experiments
     INTEGER(I4B),  PARAMETER :: KeepSSatBench=1
-
-    ! Switch for seprable vs non-separable utiltiy
-    	! If Utility_Type=1 then use separable utility
-    INTEGER(I4B),  PARAMETER :: Utility_Type=0
 
 	! Labor efficiency shocks
 		! log(y)=  lambda + kappa + e 
@@ -32,8 +30,8 @@ MODULE parameters
 
  
 
-    ! Utility: Discount factor (beta) and Disutility from labor (phi) 
-	REAL(DP)                 :: beta, phi, sigma, gamma 
+    ! Utility: Discount factor (beta) utility parameters sigma and gamma
+	REAL(DP)                 :: beta, sigma, gamma 
     
 	! Production 
 		! Final good producer
@@ -72,13 +70,13 @@ MODULE parameters
 	! Taxes
 		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
 		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.01_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
+		REAL(DP), PARAMETER  :: tauWmin_at=0.017_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
 		REAL(DP), PARAMETER  :: Threshold_Factor = 0.00_dp 
 		! Consumption tax
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
 			! 1-psi controls the level of tax, and tauPL controls progressivity
-		REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi_PL=0.77_DP  
-		!REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi_PL=0.776_DP  
+		!REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi=0.77_DP  
+		REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi=0.776_DP  
 
 END MODULE parameters
