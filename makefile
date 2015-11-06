@@ -1,5 +1,6 @@
 
 GKK_Main: GKK_Main.a
+GKK_Main_Server: GKK_Main_Server.a
 GKK_Wealth_Tax: Sergio.a
 simple: Sergio_Simple.a
 simple_2: Sergio_Simple_2.a
@@ -38,4 +39,6 @@ GKK_Main.a: GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o progr
 	gfortran GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o GKK_Main.a
 	./GKK_Main.a
 
-	
+GKK_Main_Server.a: GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
+	gfortran GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o GKK_Main_Server.a
+

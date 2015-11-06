@@ -39,7 +39,17 @@ PROGRAM main
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
-		Result_Folder = './NSU_LT_Results/Factor_'//trim(Result_Folder)//'/'
+
+		if ((TauPL.eq.0.0_dp).and.(sigma.ne.1.0_dp)) then 
+			Result_Folder = './NSU_LT_Results/Factor_'//trim(Result_Folder)//'/'
+		else if ((TauPL.ne.0.0_dp).and.(sigma.ne.1.0_dp)) then 
+			Result_Folder = './NSU_PT_Results/Factor_'//trim(Result_Folder)//'/'
+		else if ((TauPL.eq.0.0_dp).and.(sigma.eq.1.0_dp)) then 
+			Result_Folder = './SU_LT_Results/Factor_'//trim(Result_Folder)//'/'
+		else if ((TauPL.ne.0.0_dp).and.(sigma.eq.1.0_dp)) then 
+			Result_Folder = './SU_PT_Results/Factor_'//trim(Result_Folder)//'/'
+		end if 
+
 		! call execute_command_line( 'mkdir -p ' // trim(Result_Folder) )
 		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
@@ -90,7 +100,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 1
+	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then

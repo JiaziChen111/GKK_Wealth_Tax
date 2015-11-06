@@ -2485,60 +2485,72 @@ END SUBROUTINE WRITE_VARIABLES
 SUBROUTINE Write_Benchmark_Results(read_write)
 	IMPLICIT NONE
 	integer :: read_write
+	character(20) :: bench_folder
+
+	if ((TauPL.eq.0.0_dp).and.(sigma.ne.1.0_dp)) then 
+		bench_folder = './NSU_LT_Results/Bench_Files/'
+	else if ((TauPL.ne.0.0_dp).and.(sigma.ne.1.0_dp)) then 
+		bench_folder = './NSU_PT_Results/Bench_Files/'
+	else if ((TauPL.eq.0.0_dp).and.(sigma.eq.1.0_dp)) then 
+		bench_folder = './SU_LT_Results/Bench_Files/'
+	else if ((TauPL.ne.0.0_dp).and.(sigma.eq.1.0_dp)) then 
+		bench_folder = './SU_PT_Results/Bench_Files/'
+	end if 
+		call system( 'mkdir -p ' // trim(bench_folder) )
 	
 	IF (read_write .eq. 0) then 
-		OPEN  (UNIT=1,  FILE='Bench_Results/bench_results_cons'  , STATUS='replace')
+		OPEN  (UNIT=1,  FILE=trim(bench_folder)//'cons'  , STATUS='replace')
 		WRITE (UNIT=1,  FMT=*) cons
 		CLOSE (unit=1)
-		OPEN  (UNIT=2,  FILE='Bench_Results/bench_results_aprime', STATUS='replace')
+		OPEN  (UNIT=2,  FILE=trim(bench_folder)//'aprime', STATUS='replace')
 		WRITE (UNIT=2,  FMT=*) aprime
 		CLOSE (unit=2)
-		OPEN  (UNIT=3,  FILE='Bench_Results/bench_results_hours' , STATUS='replace')
+		OPEN  (UNIT=3,  FILE=trim(bench_folder)//'hours' , STATUS='replace')
 		WRITE (UNIT=3,  FMT=*) hours
 		CLOSE (unit=3)
-		OPEN  (UNIT=4,  FILE='Bench_Results/bench_results_value' , STATUS='replace')
+		OPEN  (UNIT=4,  FILE=trim(bench_folder)//'value' , STATUS='replace')
 		WRITE (UNIT=4,  FMT=*) ValueFunction
 		CLOSE (unit=4)
 
-		OPEN  (UNIT=5,  FILE='Bench_Results/bench_results_DBN'   , STATUS='replace')
+		OPEN  (UNIT=5,  FILE=trim(bench_folder)//'DBN'   , STATUS='replace')
 		WRITE (UNIT=5,  FMT=*) DBN1 
 		CLOSE (UNIT=5)
-		OPEN  (UNIT=60,  FILE='Bench_Results/bench_results_GBAR'  , STATUS='replace')
+		OPEN  (UNIT=60,  FILE=trim(bench_folder)//'GBAR'  , STATUS='replace')
 		WRITE (UNIT=60,  FMT=*) GBAR
 		CLOSE (UNIT=60)
-		OPEN  (UNIT=7,  FILE='Bench_Results/bench_results_EBAR'  , STATUS='replace')
+		OPEN  (UNIT=7,  FILE=trim(bench_folder)//'EBAR'  , STATUS='replace')
 		WRITE (UNIT=7,  FMT=*) EBAR
 		CLOSE (UNIT=7)
-		OPEN  (UNIT=8,  FILE='Bench_Results/bench_results_NBAR'  , STATUS='replace')
+		OPEN  (UNIT=8,  FILE=trim(bench_folder)//'NBAR'  , STATUS='replace')
 		WRITE (UNIT=8,  FMT=*) NBAR
 		CLOSE (UNIT=8)
-		OPEN  (UNIT=9,  FILE='Bench_Results/bench_results_QBAR'  , STATUS='replace')
+		OPEN  (UNIT=9,  FILE=trim(bench_folder)//'QBAR'  , STATUS='replace')
 		WRITE (UNIT=9,  FMT=*) QBAR
 		CLOSE (UNIT=9)
-		OPEN  (UNIT=10, FILE='Bench_Results/bench_results_rr'    , STATUS='replace')
+		OPEN  (UNIT=10, FILE=trim(bench_folder)//'rr'    , STATUS='replace')
 		WRITE (UNIT=10, FMT=*) rr
 		CLOSE (UNIT=10)
-		OPEN  (UNIT=11, FILE='Bench_Results/bench_results_wage'  , STATUS='replace')
+		OPEN  (UNIT=11, FILE=trim(bench_folder)//'wage'  , STATUS='replace')
 		WRITE (UNIT=11, FMT=*) wage 
 		CLOSE (UNIT=11)
-		OPEN  (UNIT=12, FILE='Bench_Results/bench_results_YBAR'  , STATUS='replace')
+		OPEN  (UNIT=12, FILE=trim(bench_folder)//'YBAR'  , STATUS='replace')
 		WRITE (UNIT=12, FMT=*) YBAR
 		CLOSE (UNIT=12)
 
 		print*, "Writing of benchmark results completed"
 	ELSE 
-		OPEN (UNIT=1,  FILE='Bench_Results/bench_results_cons'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=2,  FILE='Bench_Results/bench_results_aprime', STATUS='old', ACTION='read')
-		OPEN (UNIT=3,  FILE='Bench_Results/bench_results_hours' , STATUS='old', ACTION='read')
-		OPEN (UNIT=4,  FILE='Bench_Results/bench_results_value' , STATUS='old', ACTION='read')
-		OPEN (UNIT=5,  FILE='Bench_Results/bench_results_DBN'   , STATUS='old', ACTION='read')
-		OPEN (UNIT=60, FILE='Bench_Results/bench_results_GBAR'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=7,  FILE='Bench_Results/bench_results_EBAR'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=8,  FILE='Bench_Results/bench_results_NBAR'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=9,  FILE='Bench_Results/bench_results_QBAR'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=10, FILE='Bench_Results/bench_results_rr'    , STATUS='old', ACTION='read')
-		OPEN (UNIT=11, FILE='Bench_Results/bench_results_wage'  , STATUS='old', ACTION='read')
-		OPEN (UNIT=12, FILE='Bench_Results/bench_results_YBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=1,  FILE=trim(bench_folder)//'cons'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=2,  FILE=trim(bench_folder)//'aprime', STATUS='old', ACTION='read')
+		OPEN (UNIT=3,  FILE=trim(bench_folder)//'hours' , STATUS='old', ACTION='read')
+		OPEN (UNIT=4,  FILE=trim(bench_folder)//'value' , STATUS='old', ACTION='read')
+		OPEN (UNIT=5,  FILE=trim(bench_folder)//'DBN'   , STATUS='old', ACTION='read')
+		OPEN (UNIT=60, FILE=trim(bench_folder)//'GBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=7,  FILE=trim(bench_folder)//'EBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=8,  FILE=trim(bench_folder)//'NBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=9,  FILE=trim(bench_folder)//'QBAR'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=10, FILE=trim(bench_folder)//'rr'    , STATUS='old', ACTION='read')
+		OPEN (UNIT=11, FILE=trim(bench_folder)//'wage'  , STATUS='old', ACTION='read')
+		OPEN (UNIT=12, FILE=trim(bench_folder)//'YBAR'  , STATUS='old', ACTION='read')
 
 		READ (UNIT=1,  FMT=*), cons
 		READ (UNIT=2,  FMT=*), aprime
