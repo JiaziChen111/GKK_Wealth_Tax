@@ -82,6 +82,11 @@ MODULE global
     REAL(DP) :: tauW_bt, tauW_at ! Wealth taxes below threshold and above threshold
     REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
+    ! Labor income tax: This is a progresive tax.
+	! 1-psi controls the level of tax, and tauPL controls progressivity
+		REAL(DP) :: tauPL, psi
+
+
     ! Auxiliary variables to find wealth tax that balances the budget in experiment economy
     REAL(DP) :: tauWindx, tauW_low_bt, tauW_up_bt, tauW_low_at, tauW_up_at
 

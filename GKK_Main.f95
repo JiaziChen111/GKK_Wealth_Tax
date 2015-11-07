@@ -31,6 +31,27 @@ PROGRAM main
 	! Compute benchmark or load results
 		INTEGER  :: read_write_bench
 
+	! Set Parameters 
+		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
+		beta   = params(1)
+		mu_z   = params(2) ! this is just shifting the z grids. it is zero now.
+		rho_z  = params(3) 
+		sigma_z_eps      =params(4)
+		sigma_lambda_eps = params(5)
+		gamma  = params(6)
+		sigma  = 4.0_dp
+
+	! Set parameters to be used in all simulations economy
+		OPEN(UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
+		WRITE(unit=3, FMT=*) params
+		CLOSE(unit=3)
+
+	! Set Labor Tax Regime
+		tauPL=0.185_DP
+		psi=0.77_DP  
+! 		tauPL=0.0_DP
+! 		psi=0.776_DP  	
+
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
 
@@ -49,20 +70,6 @@ PROGRAM main
 		print*, "Results are stored in directory: ", Result_Folder
 		print*,'na=',na,'update_period=',update_period
 
-
-		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
-		beta   = params(1)
-		mu_z   = params(2) ! this is just shifting the z grids. it is zero now.
-		rho_z  = params(3) 
-		sigma_z_eps      =params(4)
-		sigma_lambda_eps = params(5)
-		gamma  = params(6)
-		sigma  = 4.0_dp
-
-	! Set parameters to be used in all simulations economy
-		OPEN(UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
-		WRITE(unit=3, FMT=*) params
-		CLOSE(unit=3)
 
 	! Start timining of  the process
 		call cpu_time(start_time) 
