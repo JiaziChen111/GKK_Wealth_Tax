@@ -28,12 +28,6 @@ PROGRAM main
 	IMPLICIT NONE
 	! Variables to measure running time
 		REAL(DP) :: start_time, finish_time
-	! Values of parameters for different parametrizations (Low and High)
-		REAL(DP) :: betaL, betaH, phiL, phiH, sigmalambL,sigmalambH, sigmazL, sigmazH, rhozL, rhozH
-	! Number of different values to be considered for each parameter 
-		INTEGER  ::nbeta, nphi, nsigmalambda, nrhoz, nsigmaz
-	! Counters for runs of the model
-		INTEGER  :: parindx1,  parindx2, parindx3, parindx4, parindx5
 	! Compute benchmark or load results
 		INTEGER  :: read_write_bench
 

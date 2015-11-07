@@ -76,7 +76,7 @@ MODULE parameters
 		REAL(DP), PARAMETER  :: tauC=0.075_DP
 		! Labor income tax: This is a progresive tax.
 			! 1-psi controls the level of tax, and tauPL controls progressivity
-		!REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi=0.77_DP  
-		REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi=0.776_DP  
+		REAL(DP), PARAMETER  :: tauPL=0.185_DP, psi=0.77_DP  
+		!REAL(DP), PARAMETER  :: tauPL=0.0_DP, psi=0.776_DP  
 
 END MODULE parameters
