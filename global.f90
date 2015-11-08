@@ -82,6 +82,13 @@ MODULE global
     REAL(DP) :: tauW_bt, tauW_at ! Wealth taxes below threshold and above threshold
     REAL(DP) :: Y_a_threshold = 0.0_dp ! Value of the threshold for change in tauW
 
+	! Taxes
+	! Wealth tax: minimum wealth tax to consider and increments for balancing budget
+		REAL(DP) :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
+		REAL(DP) :: tauWmin_at=0.012_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
+		REAL(DP) :: Threshold_Factor = 0.00_dp 
+	! Consumption tax
+		REAL(DP) :: tauC=0.075_DP
     ! Labor income tax: This is a progresive tax.
 	! 1-psi controls the level of tax, and tauPL controls progressivity
 		REAL(DP) :: tauPL, psi
@@ -111,6 +118,7 @@ MODULE global
 	    REAL(DP) :: prct1_wealth, prct10_wealth, SSE_Moments, Min_SSE_Moments
 	    ! Welfare measures
 	    REAL(DP) :: Welfare_Gain_Pop_bench, Welfare_Gain_Pop_exp, Welfare_Gain_NB_bench, Welfare_Gain_NB_exp
+	    REAL(DP) :: CE_NEWBORN
 	
 	! Auxiliary variables for evaluating FOC: Consumption and assets and marginal benefit of assets
     	REAL(DP) :: consin, ain, MB_a_in

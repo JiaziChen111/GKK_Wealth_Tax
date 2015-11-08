@@ -657,6 +657,8 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		        & 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
 		ENDDO
 
+		CE_NEWBORN = 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN_bench(1,:,:,:,:))/sum(DBN_bench(1,:,:,:,:))
+
 		WRITE  (UNIT=50, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN_bench(1,:,:,:,:))/sum(DBN_bench(1,:,:,:,:))
 		WRITE  (UNIT=50, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
 		WRITE  (UNIT=60, FMT=*) 100.0_DP*sum(Cons_Eq_Welfare*DBN_bench)
@@ -2422,7 +2424,7 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
 			WRITE(UNIT=19, FMT=*) ' '
 	else
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='old', POSITION='append') 
 			WRITE(UNIT=19, FMT=*) ' '
 			WRITE(UNIT=19, FMT=*) 'Wealth Taxes'
 			WRITE(UNIT=19, FMT=*) ' '
@@ -2463,7 +2465,7 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 			WRITE(UNIT=19, FMT=*) ' '
 		CLOSE(Unit=19)
 	if (bench_indx.ne.1) then
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'STATS', STATUS='old', POSITION='append') 
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='old', POSITION='append') 
 			WRITE(UNIT=19, FMT=*) ' '
 			WRITE(UNIT=19, FMT=*) 'Welfare and output gain'
 			WRITE(UNIT=19, FMT=*) ' '
@@ -2485,7 +2487,7 @@ END SUBROUTINE WRITE_VARIABLES
 SUBROUTINE Write_Benchmark_Results(read_write)
 	IMPLICIT NONE
 	integer :: read_write
-	character(20) :: bench_folder
+	character(100) :: bench_folder
 
 	if ((TauPL.eq.0.0_dp).and.(sigma.ne.1.0_dp)) then 
 		bench_folder = './NSU_LT_Results/Bench_Files/'

@@ -65,15 +65,6 @@ MODULE parameters
 		REAL(DP), PARAMETER  :: mtauchen=3.0_DP
 		! Tolerance for brent algorithm
 		REAL(DP), PARAMETER  :: brent_tol=0.00000001_DP
-		
-
-	! Taxes
-		! Wealth tax: minimum wealth tax to consider and increments for balancing budget
-		REAL(DP), PARAMETER  :: tauWmin_bt=0.00_DP, tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
-		REAL(DP), PARAMETER  :: tauWmin_at=0.012_DP, tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
-		REAL(DP), PARAMETER  :: Threshold_Factor = 0.00_dp 
-		! Consumption tax
-		REAL(DP), PARAMETER  :: tauC=0.075_DP
 
 
 END MODULE parameters
