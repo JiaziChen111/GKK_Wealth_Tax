@@ -36,7 +36,7 @@ PROGRAM Optimal_Taxes
 		REAL(DP) :: Opt_TauK, Opt_TauW, maxbrentvaluet, brentvaluet, GBAR_K
 
 	! Set type of optimal taxe 1->TauK 0->TauW
-		opt_tax_switch = 1	
+		opt_tax_switch = 0	
 
 	! Set Parameters 
 		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
@@ -60,8 +60,8 @@ PROGRAM Optimal_Taxes
 	! Set Labor Tax Regime
 		tauPL=0.185_DP
 		psi=0.77_DP  
- 		! tauPL=0.0_DP
- 		! psi=0.776_DP  	
+ 		!tauPL=0.0_DP
+ 		!psi=0.776_DP  	
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
