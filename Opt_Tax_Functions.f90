@@ -6,6 +6,22 @@ Module Opt_Tax_Functions
 	Contains
 
 !================================================================================
+SUBROUTINE Find_Opt_Tau(switch,opt_Tau)
+	IMPLICIT NONE
+	integer , intent(in)  :: switch
+	real(dp), intent(out) :: opt_Tau
+	real(dp)              :: brentvaluet
+
+	if (switch.eq.1) then 
+		brentvaluet = brent(0.00_DP, 0.1_DP , 0.4_DP, EQ_WELFARE_GIVEN_TauK, brent_tol, Opt_Tau)  
+	else 
+		brentvaluet = brent(0.00_DP, 0.016_DP , 0.05_DP, EQ_WELFARE_GIVEN_TauW, brent_tol, Opt_Tau)
+	end if 
+
+
+END SUBROUTINE Find_Opt_Tau
+
+!================================================================================
 
 FUNCTION EQ_WELFARE_GIVEN_TauK(tauk_in)
 	IMPLICIT NONE 

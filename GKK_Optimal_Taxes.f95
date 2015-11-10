@@ -185,7 +185,8 @@ PROGRAM Optimal_Taxes
 		
 		OPEN (UNIT=77, FILE=trim(Result_Folder)//'stat_all_tau_k', STATUS='replace')
 	    
-	    brentvaluet = brent(0.00_DP, 0.1_DP , 0.4_DP, EQ_WELFARE_GIVEN_TauK, brent_tol, Opt_TauK)  
+	    !brentvaluet = brent(0.00_DP, 0.1_DP , 0.4_DP, EQ_WELFARE_GIVEN_TauK, brent_tol, Opt_TauK)  
+	    call Find_Opt_Tax(opt_tax_switch,Opt_TauK)
 	    tauK = Opt_TauK
 
 	    brentvaluet = - EQ_WELFARE_GIVEN_TauK(tauK)
@@ -225,7 +226,8 @@ PROGRAM Optimal_Taxes
 
 		OPEN (UNIT=77, FILE=trim(Result_Folder)//'stat_all_tau_w', STATUS='replace')
 
-	    brentvaluet = brent(0.00_DP, 0.016_DP , 0.05_DP, EQ_WELFARE_GIVEN_TauW, brent_tol, Opt_TauW)
+	    !brentvaluet = brent(0.00_DP, 0.016_DP , 0.05_DP, EQ_WELFARE_GIVEN_TauW, brent_tol, Opt_TauW)
+	    call Find_Opt_Tax(opt_tax_switch,Opt_TauW)
 	    tauW_at = Opt_TauW
 
 	    brentvaluet = -EQ_WELFARE_GIVEN_TauW(tauW_at)
