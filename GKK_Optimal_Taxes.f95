@@ -21,8 +21,7 @@
 !========================================================================================
 
 PROGRAM Optimal_Taxes
-	USE parameters
-	USE GLOBAL
+	use Opt_Tax_Parameters
 	use programfunctions
 	use Toolbox
 
@@ -31,9 +30,6 @@ PROGRAM Optimal_Taxes
 		REAL(DP) :: start_time, finish_time
 	! Compute benchmark or load results
 		INTEGER  :: read_write_bench
-	! Variables for optimal taxe 
-		INTEGER  :: opt_tax_switch, tauindx
-		REAL(DP) :: Opt_TauK, Opt_TauW, maxbrentvaluet, brentvaluet, GBAR_K
 
 	! Set type of optimal taxe 1->TauK 0->TauW
 		opt_tax_switch = 1	
@@ -322,8 +318,7 @@ END PROGRAM Optimal_Taxes
 !================================================================================
 
 FUNCTION EQ_WELFARE_GIVEN_TauK(tauk_in)
-	use parameters 
-	use global 
+	use Opt_Tax_Parameters
 	use programfunctions
 	IMPLICIT NONE 
 	real(DP), intent(in) :: tauk_in
@@ -367,8 +362,7 @@ END  FUNCTION EQ_WELFARE_GIVEN_TAUK
 !================================================================================
 
 FUNCTION EQ_WELFARE_GIVEN_TauW(tauW_in)
-	use parameters 
-	use global 
+	use Opt_Tax_Parameters
 	use programfunctions
 	IMPLICIT NONE 
 	real(DP), intent(in) :: tauW_in
@@ -413,8 +407,7 @@ END  FUNCTION EQ_WELFARE_GIVEN_TauW
 !====================================================================
 
 SUBROUTINE GOVNT_BUDGET_OPT()
-	use parameters 
-	use global 
+	use Opt_Tax_Parameters
 	use programfunctions
 	IMPLICIT NONE
 

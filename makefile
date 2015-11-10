@@ -21,6 +21,9 @@ parameters.o: parameters.f90 NRTYPE.o
 global.o: global.f90 parameters.o
 	gfortran -c global.f90 parameters.o
 
+Opt_Tax_Parameters.o: Opt_Tax_Parameters.f90 parameters.o global.o 
+	gfortran -c Opt_Tax_Parameters.f90 parameters.o global.o	
+
 programfunctions.o: programfunctions.f90 parameters.o global.o Toolbox.o
 	gfortran -c programfunctions.f90 parameters.o global.o Toolbox.o
 
@@ -43,6 +46,6 @@ GKK_Main.a: GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o progr
 GKK_Main_Server.a: GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
 	gfortran GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o GKK_Main_Server.a
 
-GKK_Opt_Taxes.a: GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
-	gfortran GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o GKK_Opt_Taxes.a
+GKK_Opt_Taxes.a: GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o Opt_Tax_Parameters.o programfunctions.o
+	gfortran GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o Opt_Tax_Parameters.o programfunctions.o -o GKK_Opt_Taxes.a
 	./GKK_Opt_Taxes.a
