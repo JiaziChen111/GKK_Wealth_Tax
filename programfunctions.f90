@@ -1088,7 +1088,7 @@ SUBROUTINE FIND_DBN_EQ()
 	REAL(DP), DIMENSION(MaxAge, na, nz, nlambda, ne) :: PrAprimelo, PrAprimehi, DBN2
 	INTEGER,  DIMENSION(MaxAge, na, nz, nlambda, ne) :: Aplo, Aphi
 
-	DBN_criteria = 1.0E-07_DP
+	DBN_criteria = 1.0E-08_DP
 
 	! Solve the model at current aggregate values
 		! Find the threshold for wealth taxes (a_bar)
@@ -1433,7 +1433,7 @@ SUBROUTINE COMPUTE_STATS()
 		pop_25_60      = pop_25_60 +  DBN1(age, ai, zi, lambdai, ei)
 		IF (Hours(age, ai, zi, lambdai, ei) .ge. 0.055) THEN
 		tot_log_earnings_25_60 = tot_log_earnings_25_60 + DBN1(age, ai, zi, lambdai, ei)  &
-		                 		& *  log( wage * yh(age, lambdai, ei) * Hours(age, ai, zi, lambdai, ei) )
+		                 		& *  log( Y_h(Hours(age, ai, zi, lambdai, ei),age,lambdai,ei,wage) )
 		pop_pos_earn_25_60     = pop_pos_earn_25_60 +  DBN1(age, ai, zi, lambdai, ei)
 		ENDIF
 	ENDDO
@@ -1451,7 +1451,7 @@ SUBROUTINE COMPUTE_STATS()
 	DO ei=1,ne
 		IF (Hours(age, ai, zi, lambdai, ei) .ge. 0.055) THEN
 		    Var_Log_Earnings_25_60 =  Var_Log_Earnings_25_60 + DBN1(age, ai, zi, lambdai, ei)  &
-		                 			& * ( log( wage * yh(age, lambdai, ei) * Hours(age, ai, zi, lambdai, ei) ) &
+		                 			& * ( log( Y_h(Hours(age, ai, zi, lambdai, ei),age,lambdai,ei,wage) ) &
 		                 			& -   mean_log_earnings_25_60 ) ** 2.0_DP
 		ENDIF
 	ENDDO
@@ -1470,7 +1470,7 @@ SUBROUTINE COMPUTE_STATS()
 	DO lambdai=1,nlambda
 	DO ei=1, ne
 	     MeanWealth = MeanWealth  +   DBN1(age, ai, zi, lambdai, ei) * agrid(ai)         
-	     MeanReturn = MeanReturn  +   DBN1(age, ai, zi, lambdai, ei) * (MBGRID(ai,zi)-1.0_DP)
+	     MeanReturn = MeanReturn  +   DBN1(age, ai, zi, lambdai, ei) * (MB_a(agrid(ai),zgrid(zi))-1.0_DP)
 	ENDDO
 	ENDDO
 	ENDDO    
@@ -1484,7 +1484,7 @@ SUBROUTINE COMPUTE_STATS()
 	DO ai=1,na
 	DO lambdai=1,nlambda
 	DO ei=1, ne      
-	     VarReturn = VarReturn  +   DBN1(age, ai, zi, lambdai, ei) * (MBGRID(ai,zi)-1.0_DP-MeanReturn)**2.0_DP 
+	     VarReturn = VarReturn  +   DBN1(age, ai, zi, lambdai, ei) * (MB_a(agrid(ai),zgrid(zi))-1.0_DP-MeanReturn)**2.0_DP 
 	ENDDO
 	ENDDO
 	ENDDO    
@@ -1499,7 +1499,7 @@ SUBROUTINE COMPUTE_STATS()
 	DO ai=1,na
 	DO lambdai=1,nlambda
 	DO ei=1, ne
-	     MeanReturn_by_z(zi) = MeanReturn_by_z(zi)  +   DBN1(age, ai, zi, lambdai, ei) * (MBGRID(ai,zi)-1.0_DP)
+	     MeanReturn_by_z(zi) = MeanReturn_by_z(zi)  +   DBN1(age, ai, zi, lambdai, ei) * (MB_a(agrid(ai),zgrid(zi))-1.0_DP)
 	     size_by_z(zi)       = size_by_z(zi) + DBN1(age, ai, zi, lambdai, ei) 
 	ENDDO
 	ENDDO
@@ -2190,6 +2190,18 @@ SUBROUTINE  INITIALIZE()
 		WRITE(unit=12, FMT=*) agrid
 		CLOSE (unit=12)
 
+		OPEN   (UNIT=12, FILE=trim(Result_Folder)//'zgrid', STATUS='replace')
+		WRITE(unit=12, FMT=*) zgrid
+		CLOSE (unit=12)
+
+		OPEN   (UNIT=12, FILE=trim(Result_Folder)//'lambdagrid', STATUS='replace')
+		WRITE(unit=12, FMT=*) lambdagrid
+		CLOSE (unit=12)
+
+		OPEN   (UNIT=12, FILE=trim(Result_Folder)//'egrid', STATUS='replace')
+		WRITE(unit=12, FMT=*) egrid
+		CLOSE (unit=12)
+
 		! Fine grid
 		m=(amax-amin)**(1.0_DP/a_theta)/REAL(fine_na-1,DP)
 		DO ai=1,fine_na
@@ -2412,7 +2424,7 @@ END SUBROUTINE LIFETIME_Y_ESTIMATE
 
 SUBROUTINE WRITE_VARIABLES(bench_indx)
 	IMPLICIT NONE
-	integer :: bench_indx,  prctile
+	integer :: bench_indx,  prctile, status
 
 	if (bench_indx.eq.1) then
 		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='replace') 
@@ -2424,7 +2436,10 @@ SUBROUTINE WRITE_VARIABLES(bench_indx)
 			WRITE(UNIT=19, FMT=*) "Results for benchmark economy"
 			WRITE(UNIT=19, FMT=*) ' '
 	else
-		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='old', POSITION='append') 
+		OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='old', POSITION='append', iostat=status) 
+			if (status.ne.0) then 
+			OPEN (UNIT=19, FILE=trim(Result_Folder)//'output.txt', STATUS='replace') 
+			end if 
 			WRITE(UNIT=19, FMT=*) ' '
 			WRITE(UNIT=19, FMT=*) 'Wealth Taxes'
 			WRITE(UNIT=19, FMT=*) ' '

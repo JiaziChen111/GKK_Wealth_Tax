@@ -56,7 +56,7 @@ MODULE parameters
 		! Every "update_period" iterations policy functions are updated
 	INTEGER(I4B), PARAMETER :: update_period=5
 		! The distribution is iterated until convergence or until "MaxSimuTime" iterations
-	INTEGER(I4B), PARAMETER :: MaxSimuTime=500 
+	INTEGER(I4B), PARAMETER :: MaxSimuTime=2000 
 		! Age categories are established
 	INTEGER(I4B), PARAMETER :: max_age_category=7
 

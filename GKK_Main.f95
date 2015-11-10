@@ -46,15 +46,15 @@ PROGRAM main
 		tauWmin_bt=0.00_DP
 		tauWinc_bt=0.000_DP ! Minimum tax below threshold and increments
 		tauWmin_at=0.012_DP
-		tauWinc_at=0.002_DP ! Minimum tax above threshold and increments
-		Threshold_Factor = 3.00_dp 
+		tauWinc_at=0.001_DP ! Minimum tax above threshold and increments
+		Threshold_Factor = 0.00_dp 
 	! Consumption tax
 		tauC=0.075_DP
 	! Set Labor Tax Regime
-		!tauPL=0.185_DP
-		!psi=0.77_DP  
- 		tauPL=0.0_DP
- 		psi=0.776_DP  	
+		tauPL=0.185_DP
+		psi=0.77_DP  
+ 		!tauPL=0.0_DP
+ 		!psi=0.776_DP  	
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
@@ -73,6 +73,7 @@ PROGRAM main
 		call system( 'mkdir -p ' // trim(Result_Folder) )
 		print*, "Results are stored in directory: ", Result_Folder
 		print*,'na=',na,'update_period=',update_period
+
 
 	! Set parameters to be used in all simulations economy
 		OPEN(UNIT=3, FILE=trim(Result_Folder)//'params', STATUS='replace')
