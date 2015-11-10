@@ -322,6 +322,9 @@ END PROGRAM Optimal_Taxes
 !================================================================================
 
 FUNCTION EQ_WELFARE_GIVEN_TauK(tauk_in)
+	use parameters 
+	use global 
+	use programfunctions
 	IMPLICIT NONE 
 	real(DP), intent(in) :: tauk_in
 	real(DP) ::EQ_WELFARE_GIVEN_TauK
@@ -364,6 +367,9 @@ END  FUNCTION EQ_WELFARE_GIVEN_TAUK
 !================================================================================
 
 FUNCTION EQ_WELFARE_GIVEN_TauW(tauW_in)
+	use parameters 
+	use global 
+	use programfunctions
 	IMPLICIT NONE 
 	real(DP), intent(in) :: tauW_in
 	real(DP) ::EQ_WELFARE_GIVEN_TauW
@@ -407,8 +413,8 @@ END  FUNCTION EQ_WELFARE_GIVEN_TauW
 !====================================================================
 
 SUBROUTINE GOVNT_BUDGET_OPT()
-	USE PARAMETERS
-	USE GLOBAL
+	use parameters 
+	use global 
 	use programfunctions
 	IMPLICIT NONE
 
