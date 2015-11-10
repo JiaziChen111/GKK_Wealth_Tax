@@ -22,7 +22,7 @@
 
 PROGRAM Optimal_Taxes
 	use Opt_Tax_Parameters
-	use programfunctions
+	use Opt_Tax_Functions
 	use Toolbox
 
 	IMPLICIT NONE
