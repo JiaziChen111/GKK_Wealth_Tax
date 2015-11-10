@@ -21,6 +21,8 @@
 !========================================================================================
 
 PROGRAM Optimal_Taxes
+	use parameters 
+	use global
 	use Opt_Tax_Parameters
 	use Opt_Tax_Functions
 	use Toolbox

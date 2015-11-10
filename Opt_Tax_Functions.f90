@@ -1,7 +1,10 @@
 
 Module Opt_Tax_Functions
+	use parameters 
+	use global
 	use Opt_Tax_Parameters
 	use programfunctions
+	use Toolbox
 	    
 	Contains
 
