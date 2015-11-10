@@ -22,7 +22,7 @@ SUBROUTINE Find_Opt_Tax(switch,opt_Tau)
 	end if 
 
 
-END SUBROUTINE Find_Opt_Tau
+END SUBROUTINE Find_Opt_Tax
 
 !================================================================================
 
