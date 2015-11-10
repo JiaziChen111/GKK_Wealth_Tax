@@ -9,7 +9,7 @@ Module Opt_Tax_Functions
 	Contains
 
 !================================================================================
-SUBROUTINE Find_Opt_Tau(switch,opt_Tau)
+SUBROUTINE Find_Opt_Tax(switch,opt_Tau)
 	IMPLICIT NONE
 	integer , intent(in)  :: switch
 	real(dp), intent(out) :: opt_Tau
