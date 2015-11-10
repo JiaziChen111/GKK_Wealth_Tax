@@ -1,0 +1,25 @@
+ Threshold_Factor=   3.2000000000000002     
+ Wealth_Factor=  0.88218867763844255     
+ Threshold=   4.0752510266520643     
+ Wealth_Tax_Below=   0.0000000000000000     
+ Wealth_Tax_Above=   2.5829198007109221E-002
+ Welfare_Gain_Pop(bench)   1.0835135741165962     
+ Welfare_Gain_Pop(exp)   1.2156195946268287     
+ Welfare_Gain_NB(bench)   1.9612562785781515     
+ Welfare_Gain_NB(exp)   2.0699887396671497     
+ Output_Gain(prct)=   1.9178861640740896     
+ W/GDP=   3.0547790426824015     
+ Wealth_held_by_Top_1%  0.37430843026540972     
+ Wealth_held_by_Top_10%  0.69575709510928430     
+ STD_Labor_Earnings  0.81388981787098647     
+ Mean_Labor_Earnings  0.40062561400485375     
+ Moments   4.5739906775750620E-003
+ Share_Above_Threshold  0.23349135428363660     
+  
+ GBAR_bench=  0.30417415268987963      GBAR_exp=  0.30409107990696510     
+ QBAR_bench=   8.4907023270955602      QBAR_exp=   9.0495190411743458     
+ NBAR_bench=  0.56606848946940680      NBAR_exp=  0.56435017135881527     
+ YBAR_bench=   1.3834823083937484      YBAR_exp=   1.4100159241688450     
+ EBAR_bench=   1.2735159458287699      EBAR_exp=   1.2979405319510975     
+ rr_bench=   6.6594489787766997E-002 rr_exp=   6.4087747692487373E-002
+ wage_bench=   1.6374929250922512      wage_exp=   1.6739795912854907     
