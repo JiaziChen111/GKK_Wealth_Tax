@@ -30,8 +30,6 @@ PROGRAM Optimal_Taxes
 		REAL(DP) :: start_time, finish_time
 	! Compute benchmark or load results
 		INTEGER  :: read_write_bench
-	! Allocate function output
-		REAL(DP) :: EQ_WELFARE_GIVEN_TauW, EQ_WELFARE_GIVEN_TauK
 
 	! Set type of optimal taxe 1->TauK 0->TauW
 		opt_tax_switch = 1	
