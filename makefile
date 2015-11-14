@@ -51,7 +51,6 @@ GKK_Main_Server.a: GKK_Main.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.
 
 GKK_Opt_Taxes.a: GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o Opt_Tax_Parameters.o Opt_Tax_Functions.o  parameters.o global.o programfunctions.o 
 	gfortran GKK_Optimal_Taxes.f95 NRUTIL.o NRTYPE.o Toolbox.o Opt_Tax_Parameters.o Opt_Tax_Functions.o parameters.o global.o programfunctions.o -o GKK_Opt_Taxes.a  
-	./GKK_Opt_Taxes.a
 
 CE_program.a: Consumption_Equivalent.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
 	gfortran Consumption_Equivalent.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o CE_program.a
