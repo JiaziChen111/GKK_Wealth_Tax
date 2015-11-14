@@ -2085,6 +2085,10 @@ SUBROUTINE ComputeLaborUnits(Ebart,Waget)
     	RetY_lambda_e = phi_lambda_e  * Ebar_bench
 	ENDIF
 
+	OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Ret_Y'  , STATUS='replace')
+	WRITE (UNIT=1,  FMT=*) RetY_lambda_e
+	CLOSE (unit=1)
+
 END SUBROUTINE ComputeLaborUnits
 
 
@@ -2135,6 +2139,10 @@ SUBROUTINE  INITIALIZE()
 			    ENDDO
 			ENDDO
 
+			OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'P_e'  , STATUS='replace')
+			WRITE (UNIT=1,  FMT=*) cdf_pr_e
+			CLOSE (unit=1)
+
 	! Distribution of "e" by age: Ge_byage(age,e)
 		! We assume that in the first period, everyone starts at median "e"
 		Ge_byage(:,:)      = 0.0_DP
@@ -2175,6 +2183,9 @@ SUBROUTINE  INITIALIZE()
 		!print*,'kappagrid='
 		!print*,kappagrid-exp(  (60.0_DP *(agevec-1.0_DP)-(agevec-1.0_DP)**2.0_DP)/1800.0_DP )
 		!PAUSE
+		OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'eff_un'  , STATUS='replace')
+		WRITE (UNIT=1,  FMT=*) eff_un
+		CLOSE (unit=1)
 
 	! Initialize asset grid
 		! Normal grid
@@ -2304,6 +2315,9 @@ SUBROUTINE  INITIALIZE()
 	! Survival probabilities: surv(i)=prob(alive in i+1|alive in i)
 		FORALL (age=1:maxAge-1) survP(age)= pop(age+1)/pop(age)
 		survP(maxAge)=0.0_DP
+		OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'survP'  , STATUS='replace')
+		WRITE (UNIT=1,  FMT=*) survP
+		CLOSE (unit=1)
 			
 
 

@@ -34,7 +34,7 @@ PROGRAM Optimal_Taxes
 		INTEGER  :: read_write_bench
 
 	! Set type of optimal taxe 1->TauK 0->TauW
-		opt_tax_switch = 1	
+		opt_tax_switch = 0	
 
 	! Set Parameters 
 		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
