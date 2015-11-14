@@ -51,10 +51,10 @@ PROGRAM main
 	! Consumption tax
 		tauC=0.075_DP
 	! Set Labor Tax Regime
-		tauPL=0.185_DP
-		psi=0.77_DP  
- 		!tauPL=0.0_DP
- 		!psi=0.776_DP  	
+		!tauPL=0.185_DP
+		!psi=0.77_DP  
+ 		tauPL=0.0_DP
+ 		psi=0.776_DP  	
 
 	! Resutls Folder
 		write(Result_Folder,'(f4.2)') Threshold_Factor
@@ -111,7 +111,7 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 1
+	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then

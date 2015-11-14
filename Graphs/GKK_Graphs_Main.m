@@ -42,6 +42,9 @@
     %%%    24, 34, 44, 54, 64, 74, 80
     n_age = numel(age) ;
     
+% Percentiles
+prctl = [10, 25, 50, 75, 90, 99, 99.9];
+    
 %% Result_Folders
 
     if ((tauPL==0.0)&&(sigma~=1.0))  
@@ -181,25 +184,7 @@
     CE_hd = reshape(CE_hd,[Max_Age,n_a,n_z,n_l,n_e]) ;
     
     
-%% Simulate the economy
-
-eval(['load ',Result_Folder,'Sim_age_ben'])
-eval(['load ',Result_Folder,'Sim_A_ben'])
-eval(['load ',Result_Folder,'Sim_C_ben'])
-eval(['load ',Result_Folder,'Sim_H_ben'])
-eval(['load ',Result_Folder,'Sim_R_ben'])
-eval(['load ',Result_Folder,'Sim_R_at_ben'])
-eval(['load ',Result_Folder,'Sim_Z_ben'])
-
-eval(['load ',Result_Folder,'Sim_age_exp'])
-eval(['load ',Result_Folder,'Sim_A_exp'])
-eval(['load ',Result_Folder,'Sim_C_exp'])
-eval(['load ',Result_Folder,'Sim_H_exp'])
-eval(['load ',Result_Folder,'Sim_R_exp'])
-eval(['load ',Result_Folder,'Sim_R_at_exp'])
-eval(['load ',Result_Folder,'Sim_Z_exp'])
-
-
+    
 %% Age - Z Tables
 
 % Weights 
@@ -658,6 +643,7 @@ figure;
        subplot(2,3,i); 
        hold on;
        plot(agrid(1:max_a)',[Ap_bench(age(i),1:max_a,z,3,3)' Ap_exp(age(i),1:max_a,z,3,3)'])
+       plot(agrid(1:max_a),agrid(1:max_a))
        title(strcat('Age=',int2str(19+age(i)),' z',int2str(z))); xlim([0,floor(agrid(max_a))]);
        hold off;
     end
@@ -699,13 +685,30 @@ figure;
     
 end 
 
+max_a = 20 ;
+for z=[2,3,4,5,6]
+figure;
+    for i=1:n_age
+       subplot(2,3,i); 
+       hold on;
+       plot(agrid(1:max_a)',[Ap_bench(age(i),1:max_a,z,3,3)' Ap_exp(age(i),1:max_a,z,3,3)'])
+       plot(agrid(1:max_a),agrid(1:max_a))
+       title(strcat('Age=',int2str(19+age(i)),' z',int2str(z))); xlim([0,floor(agrid(max_a))]);
+       hold off;
+    end
+    legend('bench','exp','45?','location','southeast'); 
+    print('-dpdf',strcat('PolFun_Ap_by_age_z',int2str(z),'.pdf') ) ;
+    
+end 
+
+
 %% Asset distribution
 % Asset distribution by grid point
     DBN_agrid_bench = sum(sum(sum(sum(DBN_bench(:,:,:,:,:),5),4),3),1) ;
-    result_agrid_1 = [101 agrid(101) sum(DBN_agrid_bench(101:end)) sum(agrid(101:end).*DBN_agrid_bench(101:end)) ...
-              sum(agrid(101:end).*DBN_agrid_bench(101:end))/sum(agrid.*DBN_agrid_bench) ] ;
-    result_agrid_2 = [151 agrid(151) sum(DBN_agrid_bench(151:end)) sum(agrid(151:end).*DBN_agrid_bench(151:end)) ...
-              sum(agrid(151:end).*DBN_agrid_bench(151:end))/sum(agrid.*DBN_agrid_bench) ] ;
+    result_agrid_1 = [114 agrid(114) sum(DBN_agrid_bench(114:end)) sum(agrid(114:end).*DBN_agrid_bench(114:end)) ...
+              sum(agrid(114:end).*DBN_agrid_bench(114:end))/sum(agrid.*DBN_agrid_bench) ] ;
+    result_agrid_2 = [170 agrid(170) sum(DBN_agrid_bench(170:end)) sum(agrid(170:end).*DBN_agrid_bench(170:end)) ...
+              sum(agrid(170:end).*DBN_agrid_bench(170:end))/sum(agrid.*DBN_agrid_bench) ] ;
 
     DBN_agrid_exp = sum(sum(sum(sum(DBN_exp(:,:,:,:,:),5),4),3),1) ;
     result_agrid_3 = [101 agrid(101) sum(DBN_agrid_exp(101:end)) sum(agrid(101:end).*DBN_agrid_exp(101:end)) ...
@@ -718,7 +721,7 @@ end
     DBN_NB_az_bench = squeeze(sum(sum(DBN_bench(1,:,:,:,:),5),4)/sum(sum(sum(sum(DBN_bench(1,:,:,:,:)))))) ;
     DBN_NB_az_vec_bench = DBN_NB_az_bench(:) ;
     
-% Assets by agrid-zgrid
+% Assets by age-agrid-zgrid
     A_az_bench = NaN(Max_Age,n_a,n_z) ;
     Q_az_bench = NaN(Max_Age,n_a,n_z) ;
     A_az_exp   = NaN(Max_Age,n_a,n_z) ;
