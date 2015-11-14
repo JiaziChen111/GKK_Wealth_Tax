@@ -481,6 +481,8 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		Ebar  = Ebar_bench
 		tauW_bt  = tauW_bt_bench
 		tauW_at  = tauW_at_bench
+		psi   = psi_bench
+		tauPL = tauPL_bench
 		Y_a_threshold = Y_a_threshold_bench
 		print*,'BENCH: rr=',rr,'wage=',wage,'Ebar=',Ebar
 		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
@@ -580,6 +582,8 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		Ebar  = Ebar_exp
 		tauW_bt  = tauW_bt_exp
 		tauW_at  = tauW_at_exp
+		psi   = psi_exp
+		tauPL = tauPL_exp
 		Y_a_threshold = Y_a_threshold_exp
 		print*,' EXP: rr=',rr,'wage=',wage,'Ebar=',Ebar
 		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
@@ -2653,6 +2657,10 @@ SUBROUTINE Write_Experimental_Results()
 	CLOSE (UNIT=11)
 	OPEN  (UNIT=12, FILE=trim(Result_Folder)//'Exp_results_YBAR'  , STATUS='replace')
 	WRITE (UNIT=12, FMT=*) YBAR
+	CLOSE (UNIT=12)
+
+	OPEN  (UNIT=12, FILE=trim(Result_Folder)//'Exp_results_psi'  , STATUS='replace')
+	WRITE (UNIT=12, FMT=*) psi
 	CLOSE (UNIT=12)
 
 	print*, "Writing of experimental results completed"

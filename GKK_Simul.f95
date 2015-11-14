@@ -984,25 +984,25 @@ Contains
     ! Save results
     print*, 'Saving Results'
     if (ben_switch.eq.1) then 
-      OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Sim_age_ben', STATUS='replace') 
-      OPEN  (UNIT=2,  FILE=trim(Result_Folder)//'Sim_A_ben'  , STATUS='replace')  
-      OPEN  (UNIT=3,  FILE=trim(Result_Folder)//'Sim_Z_ben'  , STATUS='replace')  
-      OPEN  (UNIT=4,  FILE=trim(Result_Folder)//'Sim_C_ben'  , STATUS='replace')  
-      OPEN  (UNIT=5,  FILE=trim(Result_Folder)//'Sim_H_ben'  , STATUS='replace') 
-      OPEN  (UNIT=6,  FILE=trim(Result_Folder)//'Sim_R_ben'  , STATUS='replace')  
-      OPEN  (UNIT=7,  FILE=trim(Result_Folder)//'Sim_R_at_ben'  , STATUS='replace') 
-      OPEN  (UNIT=8,  FILE=trim(Result_Folder)//'Sim_Ap_ben'  , STATUS='replace') 
-      OPEN  (UNIT=9,  FILE=trim(Result_Folder)//'Sim_Yh_ben'  , STATUS='replace') 
+      OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Simul/Sim_age_ben', STATUS='replace') 
+      OPEN  (UNIT=2,  FILE=trim(Result_Folder)//'Simul/Sim_A_ben'  , STATUS='replace')  
+      OPEN  (UNIT=3,  FILE=trim(Result_Folder)//'Simul/Sim_Z_ben'  , STATUS='replace')  
+      OPEN  (UNIT=4,  FILE=trim(Result_Folder)//'Simul/Sim_C_ben'  , STATUS='replace')  
+      OPEN  (UNIT=5,  FILE=trim(Result_Folder)//'Simul/Sim_H_ben'  , STATUS='replace') 
+      OPEN  (UNIT=6,  FILE=trim(Result_Folder)//'Simul/Sim_R_ben'  , STATUS='replace')  
+      OPEN  (UNIT=7,  FILE=trim(Result_Folder)//'Simul/Sim_R_at_ben'  , STATUS='replace') 
+      OPEN  (UNIT=8,  FILE=trim(Result_Folder)//'Simul/Sim_Ap_ben'  , STATUS='replace') 
+      OPEN  (UNIT=9,  FILE=trim(Result_Folder)//'Simul/Sim_Yh_ben'  , STATUS='replace') 
     else
-      OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Sim_age_exp', STATUS='replace') 
-      OPEN  (UNIT=2,  FILE=trim(Result_Folder)//'Sim_A_exp'  , STATUS='replace')  
-      OPEN  (UNIT=3,  FILE=trim(Result_Folder)//'Sim_Z_exp'  , STATUS='replace')  
-      OPEN  (UNIT=4,  FILE=trim(Result_Folder)//'Sim_C_exp'  , STATUS='replace')  
-      OPEN  (UNIT=5,  FILE=trim(Result_Folder)//'Sim_H_exp'  , STATUS='replace')
-      OPEN  (UNIT=6,  FILE=trim(Result_Folder)//'Sim_R_exp'  , STATUS='replace')  
-      OPEN  (UNIT=7,  FILE=trim(Result_Folder)//'Sim_R_at_exp'  , STATUS='replace') 
-      OPEN  (UNIT=8,  FILE=trim(Result_Folder)//'Sim_Ap_exp'  , STATUS='replace') 
-      OPEN  (UNIT=9,  FILE=trim(Result_Folder)//'Sim_Yh_exp'  , STATUS='replace')    
+      OPEN  (UNIT=1,  FILE=trim(Result_Folder)//'Simul/Sim_age_exp', STATUS='replace') 
+      OPEN  (UNIT=2,  FILE=trim(Result_Folder)//'Simul/Sim_A_exp'  , STATUS='replace')  
+      OPEN  (UNIT=3,  FILE=trim(Result_Folder)//'Simul/Sim_Z_exp'  , STATUS='replace')  
+      OPEN  (UNIT=4,  FILE=trim(Result_Folder)//'Simul/Sim_C_exp'  , STATUS='replace')  
+      OPEN  (UNIT=5,  FILE=trim(Result_Folder)//'Simul/Sim_H_exp'  , STATUS='replace')
+      OPEN  (UNIT=6,  FILE=trim(Result_Folder)//'Simul/Sim_R_exp'  , STATUS='replace')  
+      OPEN  (UNIT=7,  FILE=trim(Result_Folder)//'Simul/Sim_R_at_exp'  , STATUS='replace') 
+      OPEN  (UNIT=8,  FILE=trim(Result_Folder)//'Simul/Sim_Ap_exp'  , STATUS='replace') 
+      OPEN  (UNIT=9,  FILE=trim(Result_Folder)//'Simul/Sim_Yh_exp'  , STATUS='replace')    
     end if 
 
     WRITE (UNIT=1,  FMT=*) panelage

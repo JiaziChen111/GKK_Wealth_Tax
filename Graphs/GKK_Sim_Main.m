@@ -120,26 +120,26 @@ prctl = [10, 25, 50, 75, 90, 99, 99.9];
     
 %% Simulate the economy
 % Load simulation resutls 
-    eval(['load ',Result_Folder,'Sim_age_ben'])
-    eval(['load ',Result_Folder,'Sim_A_ben'])
-    eval(['load ',Result_Folder,'Sim_C_ben'])
-    eval(['load ',Result_Folder,'Sim_H_ben'])
-    eval(['load ',Result_Folder,'Sim_R_ben'])
-    eval(['load ',Result_Folder,'Sim_R_at_ben'])
-    eval(['load ',Result_Folder,'Sim_Z_ben'])
-    eval(['load ',Result_Folder,'Sim_Ap_ben'])
-    eval(['load ',Result_Folder,'Sim_Yh_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_age_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_A_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_C_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_H_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_R_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_R_at_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_Z_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_Ap_ben'])
+    eval(['load ',Result_Folder,'Simul/Sim_Yh_ben'])
     Sim_S_ben = 100*(Sim_Ap_ben./Sim_A_ben-1) ;
 
-    eval(['load ',Result_Folder,'Sim_age_exp'])
-    eval(['load ',Result_Folder,'Sim_A_exp'])
-    eval(['load ',Result_Folder,'Sim_C_exp'])
-    eval(['load ',Result_Folder,'Sim_H_exp'])
-    eval(['load ',Result_Folder,'Sim_R_exp'])
-    eval(['load ',Result_Folder,'Sim_R_at_exp'])
-    eval(['load ',Result_Folder,'Sim_Z_exp'])
-    eval(['load ',Result_Folder,'Sim_Ap_exp'])
-    eval(['load ',Result_Folder,'Sim_Yh_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_age_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_A_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_C_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_H_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_R_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_R_at_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_Z_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_Ap_exp'])
+    eval(['load ',Result_Folder,'Simul/Sim_Yh_exp'])
     Sim_S_exp = 100*(Sim_Ap_exp./Sim_A_exp-1) ;
     
 %%  Mean and std by age and age-z

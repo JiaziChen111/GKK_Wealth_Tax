@@ -18,7 +18,7 @@ SUBROUTINE Find_Opt_Tax(switch,opt_Tau)
 	if (switch.eq.1) then 
 		brentvaluet = brent(0.00_DP, 0.1_DP , 0.4_DP, EQ_WELFARE_GIVEN_TauK, brent_tol, Opt_Tau)  
 	else 
-		brentvaluet = brent(0.00_DP, 0.016_DP , 0.05_DP, EQ_WELFARE_GIVEN_TauW, brent_tol, Opt_Tau)
+		brentvaluet = brent(0.00_DP, 0.016_DP , 0.03_DP, EQ_WELFARE_GIVEN_TauW, brent_tol, Opt_Tau)
 	end if 
 
 
@@ -52,9 +52,10 @@ FUNCTION EQ_WELFARE_GIVEN_TauK(tauk_in)
 	tauK_exp    = tauK
 	tauPL_exp   = tauPL
 
-	CALL COMPUTE_WELFARE_GAIN
+	! CALL COMPUTE_WELFARE_GAIN
+	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
 	EQ_WELFARE_GIVEN_TAUK = - sum(ValueFunction(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
-	CALL COMPUTE_STATS
+	!CALL COMPUTE_STATS
 
 	!
 	!OPEN   (UNIT=3, FILE='psi', STATUS='replace')
@@ -94,9 +95,10 @@ FUNCTION EQ_WELFARE_GIVEN_TauW(tauW_in)
 	tauK_exp    = tauK
 	tauPL_exp   = tauPL
 
-	CALL COMPUTE_WELFARE_GAIN
+	!CALL COMPUTE_WELFARE_GAIN
+	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
 	EQ_WELFARE_GIVEN_TauW = - sum(ValueFunction(1,:,:,:,:)*DBN1(1,:,:,:,:))/sum(DBN1(1,:,:,:,:))
-	CALL COMPUTE_STATS
+	!CALL COMPUTE_STATS
 
 	!OPEN   (UNIT=3, FILE='psi', STATUS='replace')
 	!print*,'Budget balancing psi=',psi
