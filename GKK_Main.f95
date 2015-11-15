@@ -31,6 +31,11 @@ PROGRAM main
 	! Compute benchmark or load results
 		INTEGER  :: read_write_bench
 
+	! Switch for solving benchmark or just reading resutls
+	! If read_write_bench==1 then just read resutls
+	! If read_write_bench==0 then solve for benchmark and store results
+		read_write_bench = 1
+
 	! Set Parameters 
 		Params =[ 0.9436, 0.00, 0.50, 0.70444445, 0.34, 0.4494 ] ! tauL=0.224, tauC=0.075 calibration
 		beta   = params(1)
@@ -60,7 +65,7 @@ PROGRAM main
 		write(Result_Folder,'(f4.2)') Threshold_Factor
 
 		if ((TauPL.eq.0.0_dp).and.(sigma.ne.1.0_dp)) then 
-			Result_Folder = './NSU_LT_Results/Factor_'//trim(Result_Folder)//'/'
+			Result_Folder = './NSU_LT_Results/Factor_Test'//trim(Result_Folder)//'/'
 		else if ((TauPL.ne.0.0_dp).and.(sigma.ne.1.0_dp)) then 
 			Result_Folder = './NSU_PT_Results/Factor_'//trim(Result_Folder)//'/'
 		else if ((TauPL.eq.0.0_dp).and.(sigma.eq.1.0_dp)) then 
@@ -111,7 +116,6 @@ PROGRAM main
 		Y_a_threshold = 0.00_DP 
 
 	! Solve for the model and compute stats
-	read_write_bench = 0
 	print*,"	Initializing program"
 		CALL INITIALIZE
 	if (read_write_bench.eq.0) then
@@ -143,11 +147,17 @@ PROGRAM main
 		Y_bench     = YBAR
 		tauK_bench  = tauK
 		tauPL_bench = tauPL
-		psi_bench   = psi_bench
+		psi_bench   = psi
 		DBN_bench   = DBN1
 		tauw_bt_bench = tauW_bt
 		tauw_at_bench = tauW_at
 		Y_a_threshold_bench = Y_a_threshold
+
+		DBN_bench           = DBN1
+		ValueFunction_bench = ValueFunction
+		Cons_bench          = Cons           
+		Hours_bench         = Hours
+		Aprime_bench        = Aprime 
 
 		write(*,*) "Benchmark variables"
 		write(*,*) "GBAR=",GBAR,"EBAR=",EBAR,"NBAR=",NBAR,"QBAR=",QBAR,"rr=",rr,"wage=",wage
@@ -237,8 +247,11 @@ PROGRAM main
 				print*,'GBAR_exp =', GBAR_exp,'GBAR_bench=',GBAR_bench
 			ENDDO
 
+	! Compute value function and store policy functions, value function and distribution in file
+	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
+	CALL Write_Experimental_Results()
 
-	! AGgregate variable in experimental economy
+	! Aggregate variable in experimental economy
 		GBAR_exp  = GBAR
 		QBAR_exp  = QBAR 
 		NBAR_exp  = NBAR  
@@ -254,9 +267,10 @@ PROGRAM main
 		tauw_at_exp = tauW_at
 		Y_a_threshold_exp = Y_a_threshold
 
-	! Compute value function and store policy functions, value function and distribution in file
-	CALL COMPUTE_VALUE_FUNCTION_SPLINE 
-	CALL Write_Experimental_Results()
+		ValueFunction_exp = ValueFunction
+		Cons_exp          = Cons           
+		Hours_exp         = Hours
+		Aprime_exp        = Aprime 
 
 	! Compute moments
 	CALL COMPUTE_STATS

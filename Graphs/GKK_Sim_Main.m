@@ -587,42 +587,136 @@ N = numel(Sim_A_ben) ;
     Ratio_top10Wealth_Labor_income = (Wealth_top_10/10)/Av_labor_income_no_ret ;
     
 
+
+%% Read files - Benchmark Economy
+% A prime
+    eval(['load ',Bench_Folder,'aprime'])
+    Ap_bench = reshape(aprime,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear aprime
     
-%% Return by asset distribution 
+    % Savings rate
+    S_bench = 100*(Ap_bench./A_mat-1) ; 
 
-    for j=1:n_age
-            
-        for i=1:numel(prctl)
-            if j==1
-                ind = (Sim_age_ben<age(j))  ;
-            elseif j<n_age && j>1
-                ind = ((Sim_age_ben>=age(j-1)).*(Sim_age_ben<age(j)))==1  ;
-            else
-                ind = (Sim_age_ben>=age(j-1))  ;
-            end
-            Z_aux = Sim_Z_ben(ind) ;
-            prc_A_ben(j,i)    = prctile(Sim_A_ben(ind),prctl(i))  ;
-            a_ind             = find(Sim_A_ben(ind)==prc_A_ben(j,i),1) ;
-%             prc_Z_ben(j,i)    = Z_aux(a_ind) ;
-            %prc_R_ben(j,i)    = 1 + ( R_bench * (Z_aux(a_ind))^mu * prc_A_ben(j,i)^(mu-1)  - delta) ;
-            %prc_R_ben(j,i)    = 1 + ( R_bench * (Z_aux(a_ind))^mu * prc_A_ben(j,i)^(mu-1)  - delta)*(1-tauK) ;
-            
-            if j==1
-                ind = (Sim_age_exp<age(j))  ;
-            elseif j<n_age && j>1
-                ind = ((Sim_age_exp>=age(j-1)).*(Sim_age_exp<age(j)))==1  ;
-            else
-                ind = (Sim_age_exp>=age(j-1))  ;
-            end
-            Z_aux = Sim_Z_exp(ind) ;
-            prc_A_exp(j,i)    = prctile(Sim_A_ben(ind),prctl(i))  ;
-            a_ind             = find(Sim_A_ben(ind)==prc_A_ben(j,i),1) ;
-%             prc_Z_exp(j,i)    = Z_aux(a_ind) ;
-%             prc_R_exp(j,i)    = 1 + ( R_exp * (Z_aux(a_ind))^mu * prc_A_exp(j,i)^(mu-1)  - delta) ;
-%             prc_R_exp(j,i)    = (1 + ( R_exp * (Z_aux(a_ind))^mu * prc_A_exp(j,i)^(mu-1)  - delta))*(1-tauW) ;
-        end
-        
-    end 
+% Hours
+    eval(['load ',Bench_Folder,'hours'])
+    H_bench = reshape(hours,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear hours
 
+% Consumption
+    eval(['load ',Bench_Folder,'cons'])
+    C_bench = reshape(cons,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear cons
+    
+% Value
+    eval(['load ',Bench_Folder,'value'])
+    V_bench = reshape(value,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear value
+    
+% Distribution
+    eval(['load ',Bench_Folder,'DBN'])
+    DBN_bench = reshape(DBN,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear DBN
+    
+% Wage
+    eval(['load ',Bench_Folder,'wage'])
+    W_bench = wage ;
+    clear wage
+    
+% Interst Rate
+    eval(['load ',Bench_Folder,'rr'])
+    R_bench = rr ;
+    clear rr
+    
+% Interst Rate
+    eval(['load ',Bench_Folder,'EBAR'])
+    E_bench = EBAR ;
+    clear EBAR
+    
+    
+%% Read files - Experimental Economy
 
+% A prime
+    eval(['load ',Result_Folder,'Exp_results_aprime']) ;
+    Ap_exp = reshape(Exp_results_aprime,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear Exp_results_aprime
+    
+    % Savings rate
+    S_exp = 100*(Ap_exp./A_mat-1) ; 
+
+% Hours
+    eval(['load ',Result_Folder,'Exp_results_hours']) ;
+    H_exp = reshape(Exp_results_hours,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear Exp_results_hours
+
+% Consumption
+    eval(['load ',Result_Folder,'Exp_results_cons']) ;
+    C_exp = reshape(Exp_results_cons,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear Exp_results_cons
+    
+% Value
+    eval(['load ',Result_Folder,'Exp_results_value']) ;
+    V_exp = reshape(Exp_results_value,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear Exp_results_value
+    
+% Distribution
+    eval(['load ',Result_Folder,'Exp_results_DBN']) ;
+    DBN_exp = reshape(Exp_results_DBN,[Max_Age,n_a,n_z,n_l,n_e]) ;
+    clear Exp_results_DBN
+
+% Wage
+    eval(['load ',Result_Folder,'Exp_results_wage'])
+    W_exp = Exp_results_wage ;
+    clear Exp_results_wage
+    
+% Interst Rate
+    eval(['load ',Result_Folder,'Exp_results_rr'])
+    R_exp = Exp_results_rr ;
+    clear Exp_results_rr
+    
+% Wealth Taxes
+    Threshold = Threshold_Factor*E_bench ; 
+    
+% Return
+    Return_mat =  1 + mu * R_bench * Z_mat.^mu .* A_mat.^(mu-1) - delta  ;
+    
+%% Moments 
+
+    mean_A_dbn  = sum(sum(sum(sum(sum(A_mat.*DBN_bench)))))      ;
+    mean_A_sim  = mean(Sim_A_ben)            ; 
+    
+    mean_C_dbn  = sum(sum(sum(sum(sum(C_bench.*DBN_bench)))))    ;
+    mean_C_sim  = mean(Sim_C_ben)            ;
+    
+    mean_H_dbn  = sum(sum(sum(sum(sum(H_bench.*DBN_bench)))))    ;
+    mean_H_sim  = mean(Sim_H_ben)            ;
+    
+    mean_Ap_dbn = sum(sum(sum(sum(sum(Ap_bench.*DBN_bench)))))   ;
+    mean_Ap_sim = mean(Sim_Ap_ben)           ;
+    
+    mean_R_dbn  = sum(sum(sum(sum(sum(Return_mat.*DBN_bench))))) ;
+    mean_R_sim  = mean(Sim_R_ben)            ;
+    
+    std_A_dbn   = ( sum(sum(sum(sum(sum( ((A_mat-mean_A_dbn).^2).*DBN_bench))))) ).^0.5     ;
+    std_C_dbn   = ( sum(sum(sum(sum(sum( ((C_bench-mean_C_dbn).^2).*DBN_bench))))) ).^0.5   ;
+    std_H_dbn   = ( sum(sum(sum(sum(sum( ((H_bench-mean_H_dbn).^2).*DBN_bench))))) ).^0.5   ;
+    std_Ap_dbn  = ( sum(sum(sum(sum(sum( ((Ap_bench-mean_Ap_dbn).^2).*DBN_bench))))) ).^0.5 ;
+    std_R_dbn   = ( sum(sum(sum(sum(sum( ((R_bench-mean_R_dbn).^2).*DBN_bench))))) ).^0.5   ;
+    
+    std_A_sim   = std(Sim_A_ben)  ;
+    std_C_sim   = std(Sim_C_ben)  ;
+    std_H_sim   = std(Sim_H_ben)  ;
+    std_Ap_sim  = std(Sim_Ap_ben) ;
+    std_R_sim   = std(Sim_R_ben)  ;
+    
+    cols = {' ','mean_dbn','mean_sim',' ','std_dbn','std_sim'};
+    rows = {'A';'R';'Ap';'C';'H'} ;
+    Mat = [mean_A_dbn  mean_A_sim  NaN std_A_dbn  std_A_sim ;
+           mean_R_dbn  mean_R_sim  NaN std_R_dbn  std_R_sim ;
+           mean_Ap_dbn mean_Ap_sim NaN std_Ap_dbn std_Ap_sim;
+           mean_C_dbn  mean_C_sim  NaN std_C_dbn  std_C_sim ;
+           mean_H_dbn  mean_H_sim  NaN std_H_dbn  std_H_sim ];
+    Mat = [cols;rows num2cell(Mat)]   
+    
+    
+    
     

@@ -450,7 +450,7 @@ end Subroutine Asset_Grid_Threshold
 SUBROUTINE COMPUTE_WELFARE_GAIN()
 	IMPLICIT NONE
 	real(DP), dimension(MaxAge):: CumDiscountF
-	REAL(DP), dimension(MaxAge, na, nz, nlambda, ne) ::  ValueFunction_Bench, ValueFunction_Exp, Cons_Eq_Welfare
+	REAL(DP), dimension(MaxAge, na, nz, nlambda, ne) ::  Cons_Eq_Welfare ! ValueFunction_Bench, ValueFunction_Exp,
 	REAL(DP), dimension(nz) ::  temp_ce_by_z, temp_cons_by_z, temp_leisure_by_z, temp_dbn_by_z 
 	REAL(DP) :: frac_pos_welfare 
 	REAL(DP), dimension(MaxAge, nz) :: frac_pos_welfare_by_age_z, size_pos_welfare_by_age_z, size_by_age_z_bench, size_by_age_z_exp
@@ -475,25 +475,30 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 
 	! Solve for the benchmark economy 
 		solving_bench = 1
-		tauK  = tauK_bench
-		rr    = rr_bench
-		wage  = wage_bench
-		Ebar  = Ebar_bench
-		tauW_bt  = tauW_bt_bench
-		tauW_at  = tauW_at_bench
-		psi   = psi_bench
-		tauPL = tauPL_bench
+		tauK    = tauK_bench
+		rr      = rr_bench
+		wage    = wage_bench
+		Ebar    = Ebar_bench
+		tauW_bt = tauW_bt_bench
+		tauW_at = tauW_at_bench
+		psi     = psi_bench
+		tauPL   = tauPL_bench
 		Y_a_threshold = Y_a_threshold_bench
-		print*,'BENCH: rr=',rr,'wage=',wage,'Ebar=',Ebar
-		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
-		CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
-		CALL ComputeLaborUnits(Ebar, wage) 
-		CALL EGM_RETIREMENT_WORKING_PERIOD 
+
+		Cons   = Cons_bench
+		Hours  = Hours_bench
+		Aprime = Aprime_bench
+
+		!print*,'BENCH: rr=',rr,'wage=',wage,'Ebar=',Ebar
+		!CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
+		!CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
+		!CALL ComputeLaborUnits(Ebar, wage) 
+		!CALL EGM_RETIREMENT_WORKING_PERIOD 
 
 	! Compute the value function using interpolation and save it
 		!CALL COMPUTE_VALUE_FUNCTION_LINEAR
-		CALL COMPUTE_VALUE_FUNCTION_SPLINE  
-		ValueFunction_Bench = ValueFunction
+		!CALL COMPUTE_VALUE_FUNCTION_SPLINE  
+		!ValueFunction_Bench = ValueFunction
 
 	! Print policy functions and distribution 
 		OPEN (UNIT=70, FILE=trim(Result_Folder)//'cons_by_age_z_bench', STATUS='replace')    
@@ -585,16 +590,22 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		psi   = psi_exp
 		tauPL = tauPL_exp
 		Y_a_threshold = Y_a_threshold_exp
-		print*,' EXP: rr=',rr,'wage=',wage,'Ebar=',Ebar
-		CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
-		CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
-		CALL ComputeLaborUnits(Ebar, wage) 
-		CALL EGM_RETIREMENT_WORKING_PERIOD 
+
+		Cons   = Cons_exp
+		Hours  = Hours_exp
+		Aprime = Aprime_exp
+		DBN1   = DBN_exp 
+
+		!print*,' EXP: rr=',rr,'wage=',wage,'Ebar=',Ebar
+		!CALL Asset_Grid_Threshold(Y_a_threshold,agrid_t,na_t)
+		!CALL FORM_Y_MB_GRID(YGRID, MBGRID,YGRID_t,MBGRID_t)
+		!CALL ComputeLaborUnits(Ebar, wage) 
+		!CALL EGM_RETIREMENT_WORKING_PERIOD 
 
 	! Compute the value function using interpolation and save it
 		!CALL COMPUTE_VALUE_FUNCTION_LINEAR
-		CALL COMPUTE_VALUE_FUNCTION_SPLINE 
-		ValueFunction_Exp = ValueFunction
+		!CALL COMPUTE_VALUE_FUNCTION_SPLINE 
+		!ValueFunction_Exp = ValueFunction
 
 	! Print policy functions and distribution 
 		OPEN (UNIT=70, FILE=trim(Result_Folder)//'cons_by_age_z_exp', STATUS='replace')    
@@ -652,6 +663,7 @@ SUBROUTINE COMPUTE_WELFARE_GAIN()
 		    	Cons_Eq_Welfare(age,:,:,:,:)=(ValueFunction_exp(age,:,:,:,:)/ValueFunction_Bench(age,:,:,:,:)) &
                                 				&  ** ( 1.0_DP / ( gamma* (1.0_DP-sigma)) )-1.0_DP
 		    end if 
+
 		    WRITE  (UNIT=70, FMT=*) 100*sum(Cons_Eq_Welfare(age,:,:,:,:)*DBN_bench(age,:,:,:,:))/sum(DBN_bench(age,:,:,:,:))
 		    DO zi=1,nz
 		         temp_ce_by_z(zi) = 100*sum(Cons_Eq_Welfare(age,:,zi,:,:)*DBN_bench(age,:,zi,:,:))/sum(DBN_bench(age,:,zi,:,:))
