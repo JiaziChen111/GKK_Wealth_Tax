@@ -153,7 +153,7 @@ PROGRAM Optimal_Taxes
 		Y_bench     = YBAR
 		tauK_bench  = tauK
 		tauPL_bench = tauPL
-		psi_bench   = psi_bench
+		psi_bench   = psi
 		DBN_bench   = DBN1
 		tauw_bt_bench = tauW_bt
 		tauw_at_bench = tauW_at

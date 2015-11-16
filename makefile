@@ -6,29 +6,12 @@ GKK_Wealth_Tax: Sergio.a
 simple: Sergio_Simple.a
 simple_2: Sergio_Simple_2.a
 
-NRTYPE.o: NRTYPE.F90
-	gfortran -c NRTYPE.F90
+# The following lines compile all the modules. Modules are saved as .f90 or .F90 files. 
+%.o: %.F90
+	gfortran -c $<
 
-NRUTIL.o: NRUTIL.F90 NRTYPE.o
-	gfortran -c NRUTIL.F90 NRTYPE.o	
-
-Toolbox.o: Toolbox.f90 NRTYPE.o NRUTIL.o
-	gfortran -c Toolbox.f90 NRTYPE.o NRUTIL.o
-
-parameters.o: parameters.f90 NRTYPE.o
-	gfortran -c parameters.f90 NRTYPE.o
-
-global.o: global.f90 parameters.o
-	gfortran -c global.f90 parameters.o
-
-Opt_Tax_Parameters.o: Opt_Tax_Parameters.f90 parameters.o global.o 
-	gfortran -c Opt_Tax_Parameters.f90 parameters.o global.o	
-
-programfunctions.o: programfunctions.f90 parameters.o global.o Toolbox.o
-	gfortran -c programfunctions.f90 parameters.o global.o Toolbox.o
-
-Opt_Tax_Functions.o: Opt_Tax_Functions.f90 Opt_Tax_Parameters.o programfunctions.o parameters.o global.o
-	gfortran -c Opt_Tax_Functions.f90 Opt_Tax_Parameters.o programfunctions.o parameters.o global.o
+%.o: %.f90
+	gfortran -c $<
 
 Sergio_Simple_2.a: GKK_simple_V2.f95 NRTYPE.o NRUTIL.o
 	gfortran GKK_simple_V2.f95 NRUTIL.o NRTYPE.o -o Sergio_Simple_2.a
@@ -58,3 +41,7 @@ CE_program.a: Consumption_Equivalent.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.
 GKK_Simul.a: GKK_Simul.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
 	gfortran GKK_Simul.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o GKK_Simul.a
 	./GKK_Simul.a
+
+Aux.a: Aux_File.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o
+	gfortran Aux_File.f95 NRUTIL.o NRTYPE.o Toolbox.o parameters.o global.o programfunctions.o -o Aux.a
+	./Aux.a
