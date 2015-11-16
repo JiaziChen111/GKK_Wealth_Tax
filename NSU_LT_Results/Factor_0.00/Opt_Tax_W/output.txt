@@ -1,0 +1,76 @@
+ Parameters
+  0.94359999895095825        0.0000000000000000       0.50000000000000000       0.70444446802139282       0.34000000357627869       0.44940000772476196     
+ sigma   4.0000000000000000      gamma  0.44940000772476196      beta  0.94359999895095825     
+ TauC  7.49999999999999972E-002 TauK  0.25000000000000000      TauPL   0.0000000000000000      psi  0.77600000000000002     
+  
+ Results for benchmark economy
+  
+ Aggregate Variables
+  
+ GBAR  0.28261461731536158     
+ QBAR   14.291930698696834     
+ NBAR  0.56705762726033437     
+ EBAR   1.5140527152686460     
+ Y   1.6447890993516674     
+ rr  4.95498503854391315E-002
+ wage   1.9433804318792598     
+  
+ Moments:
+  
+ Wealth_Output   3.0399409992860824     
+ Mean_Assets   5.0000618182979633     
+ Wealth_held_by_Top_1%  0.38112909240127613     
+ Wealth_held_by_Top_10%  0.70375377788645777     
+ p90-p10_Assets          10
+ Mean_Labor_Earnings -6.92901542446658775E-002
+ STD_Labor_Earnings  0.79958447910799613     
+ Mean_Labor_25_60  0.40471642684088094     
+ Mean_Return  4.94503127421651242E-002
+ Std_Return  3.57854469853471011E-002
+ Mean_Return_by_z  5.81306313066465210E-003  1.18243586725216981E-002  2.34866448542963326E-002  4.39606380864976803E-002  7.18343588986965070E-002  0.12079042820784691       0.21542956796503207     
+ Moments  4.72543421723018060E-003
+  
+  
+ Wealth Taxes
+  
+ Threshold_Factor   0.0000000000000000     
+ Wealth_Factor   0.0000000000000000     
+ Threshold   0.0000000000000000     
+ Wealth_Tax_Above  1.65219028462270968E-002
+ Share_Above_Threshold  0.99999999999997979     
+  
+ Results for experimental economy
+  
+ Aggregate Variables
+  
+ GBAR  0.28260208001443210     
+ QBAR   17.659821890781419     
+ NBAR  0.57456253243854971     
+ EBAR   1.6379183745755630     
+ Y   1.7793503891650637     
+ rr  4.43085696225873973E-002
+ wage   2.0749086364556781     
+  
+ Moments:
+  
+ Wealth_Output   3.1715330910598967     
+ Mean_Assets   5.6432686398273049     
+ Wealth_held_by_Top_1%  0.47333640125855236     
+ Wealth_held_by_Top_10%  0.76350480919358787     
+ p90-p10_Assets          10
+ Mean_Labor_Earnings  7.70903156709005100E-003
+ STD_Labor_Earnings  0.79078197715395893     
+ Mean_Labor_25_60  0.41061934142718454     
+ Mean_Return  4.23745300880763870E-002
+ Std_Return  4.14215098757257094E-002
+ Mean_Return_by_z -9.22522534005166921E-003 -1.93805848089930442E-003  1.21886521873041265E-002  3.66634990208156361E-002  6.81167898696296015E-002  0.12354851518984522       0.23037269191912882     
+ Moments  4.50155914328659174E-002
+  
+  
+ Welfare and output gain
+  
+ Welfare_Gain_Pop(bench)                       NaN
+ Welfare_Gain_Pop(exp)                       NaN
+ Welfare_Gain_NB(bench)                       NaN
+ Welfare_Gain_NB(exp)                       NaN
+ Output_Gain(prct)   8.1810664884900408     
